@@ -1,0 +1,391 @@
+/* Public menu design system — neutral SaaS shell; restaurant brand colors as accent only */
+.public-menu-root {
+  /* Match platform / admin Ethos beige surface */
+  --pm-surface: #fcf9f8;
+  --pm-on-surface: #1b1c1c;
+  --pm-on-surface-variant: #434843;
+  --pm-primary: #425646;
+  --pm-on-primary: #ffffff;
+  --pm-primary-container: color-mix(in srgb, var(--pm-primary) 14%, white);
+  --pm-on-primary-container: var(--pm-primary);
+  --pm-primary-fixed: color-mix(in srgb, var(--pm-primary) 12%, white);
+  --pm-on-primary-fixed: color-mix(in srgb, var(--pm-primary) 72%, black);
+  --pm-secondary: #8d4c40;
+  --pm-secondary-fixed: color-mix(in srgb, var(--pm-secondary) 12%, white);
+  --pm-on-secondary-fixed-variant: color-mix(in srgb, var(--pm-secondary) 70%, black);
+  --pm-tertiary-fixed: #e5e2db;
+  --pm-on-tertiary-fixed-variant: #474742;
+  --pm-outline: #737872;
+  --pm-outline-variant: rgba(67, 72, 67, 0.16);
+  --pm-surface-container: #f0eded;
+  --pm-surface-container-low: #f6f3f2;
+  --pm-surface-container-lowest: #ffffff;
+  --pm-border-card: rgba(0, 0, 0, 0.08);
+  --pm-margin-mobile: 1rem;
+  --pm-margin-desktop: 2rem;
+  --pm-gutter: 1rem;
+  --pm-radius-sm: 6px;
+  --pm-radius-md: 8px;
+  --pm-radius-lg: 12px;
+  --pm-radius-xl: 16px;
+  --pm-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --pm-ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --pm-duration-press: 140ms;
+  --pm-duration-ui: 180ms;
+  --pm-duration-panel: 220ms;
+  --pm-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.04);
+  --pm-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.04), 0 12px 28px rgba(0, 0, 0, 0.08);
+
+  font-family: var(--font-jakarta), system-ui, sans-serif;
+  color: var(--pm-on-surface);
+  background: var(--pm-surface);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.public-menu-root .font-display {
+  font-family: var(--font-jakarta), system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+.public-menu-root ::selection {
+  background: color-mix(in srgb, var(--pm-primary) 22%, white);
+  color: var(--pm-on-surface);
+}
+
+/* Shared interactive press feedback */
+.public-menu-root .pm-press {
+  transition:
+    transform var(--pm-duration-press) var(--pm-ease-out),
+    background-color var(--pm-duration-ui) ease,
+    border-color var(--pm-duration-ui) ease,
+    color var(--pm-duration-ui) ease,
+    opacity var(--pm-duration-ui) ease,
+    box-shadow var(--pm-duration-ui) ease;
+}
+
+.public-menu-root .pm-press:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.public-menu-root .pm-input {
+  height: 40px;
+  width: 100%;
+  border-radius: var(--pm-radius-md);
+  border: 1px solid var(--pm-outline-variant);
+  background: var(--pm-surface-container-lowest);
+  padding: 0 12px 0 40px;
+  font-size: 14px;
+  color: var(--pm-on-surface);
+  outline: none;
+  transition:
+    border-color var(--pm-duration-ui) ease,
+    box-shadow var(--pm-duration-ui) ease;
+}
+
+.public-menu-root .pm-input::placeholder {
+  color: var(--pm-on-surface-variant);
+}
+
+.public-menu-root .pm-input:focus {
+  border-color: color-mix(in srgb, var(--pm-primary) 55%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--pm-primary) 18%, transparent);
+}
+
+.public-menu-root .pm-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  border-radius: var(--pm-radius-md);
+  background: var(--pm-primary);
+  color: var(--pm-on-primary);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  transition:
+    transform var(--pm-duration-press) var(--pm-ease-out),
+    opacity var(--pm-duration-ui) ease,
+    background-color var(--pm-duration-ui) ease;
+}
+
+.public-menu-root .pm-btn-primary:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.public-menu-root .pm-btn-primary:disabled {
+  opacity: 0.5;
+}
+
+.public-menu-root .pm-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  border-radius: var(--pm-radius-md);
+  border: 1px solid var(--pm-outline-variant);
+  background: var(--pm-surface-container-lowest);
+  color: var(--pm-on-surface);
+  font-size: 14px;
+  font-weight: 500;
+  transition:
+    transform var(--pm-duration-press) var(--pm-ease-out),
+    background-color var(--pm-duration-ui) ease,
+    border-color var(--pm-duration-ui) ease;
+}
+
+.public-menu-root .pm-btn-secondary:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.public-menu-root .pm-icon-btn {
+  display: inline-flex;
+  height: 36px;
+  width: 36px;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--pm-radius-md);
+  color: var(--pm-on-surface-variant);
+  transition:
+    transform var(--pm-duration-press) var(--pm-ease-out),
+    background-color var(--pm-duration-ui) ease,
+    color var(--pm-duration-ui) ease;
+}
+
+.public-menu-root .pm-icon-btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .public-menu-root .pm-icon-btn:hover {
+    background: var(--pm-surface-container);
+    color: var(--pm-on-surface);
+  }
+
+  .public-menu-root .pm-btn-secondary:hover:not(:disabled) {
+    background: var(--pm-surface-container);
+  }
+
+  .public-menu-root .pm-product-card:hover {
+    border-color: color-mix(in srgb, var(--pm-primary) 28%, var(--pm-border-card));
+  }
+
+  .public-menu-root .pm-product-card:hover .pm-product-media img {
+    transform: scale(1.03);
+  }
+
+  .public-menu-root .pm-nav-item:hover {
+    background: var(--pm-surface-container);
+    color: var(--pm-on-surface);
+  }
+}
+
+.public-menu-root .pm-product-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: var(--pm-radius-lg);
+  border: 1px solid var(--pm-border-card);
+  background: var(--pm-surface-container-lowest);
+  cursor: pointer;
+  transition:
+    transform var(--pm-duration-press) var(--pm-ease-out),
+    border-color var(--pm-duration-ui) ease,
+    box-shadow var(--pm-duration-ui) ease;
+}
+
+.public-menu-root .pm-product-card:active {
+  transform: scale(0.985);
+}
+
+.public-menu-root .pm-product-media {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: var(--pm-surface-container);
+}
+
+.public-menu-root .pm-product-media img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  transition: transform var(--pm-duration-panel) var(--pm-ease-out);
+}
+
+.public-menu-root .pm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 75;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(23, 23, 23, 0.45);
+  backdrop-filter: blur(4px);
+  animation: pm-overlay-in var(--pm-duration-panel) var(--pm-ease-out);
+}
+
+.public-menu-root .pm-sheet {
+  width: 100%;
+  max-width: 28rem;
+  max-height: 85vh;
+  overflow-y: auto;
+  border-radius: var(--pm-radius-xl) var(--pm-radius-xl) 0 0;
+  background: var(--pm-surface-container-lowest);
+  box-shadow: var(--pm-shadow-md);
+  animation: pm-sheet-in var(--pm-duration-panel) var(--pm-ease-out);
+}
+
+@media (min-width: 640px) {
+  .public-menu-root .pm-overlay {
+    align-items: center;
+    padding: 1.5rem;
+  }
+
+  .public-menu-root .pm-sheet {
+    border-radius: var(--pm-radius-xl);
+  }
+}
+
+@keyframes pm-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pm-sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .public-menu-root .pm-press,
+  .public-menu-root .pm-btn-primary,
+  .public-menu-root .pm-btn-secondary,
+  .public-menu-root .pm-icon-btn,
+  .public-menu-root .pm-product-card,
+  .public-menu-root .pm-product-media img {
+    transition: none !important;
+  }
+
+  .public-menu-root .pm-overlay,
+  .public-menu-root .pm-sheet {
+    animation: none !important;
+  }
+
+  .public-menu-root .pm-press:active:not(:disabled),
+  .public-menu-root .pm-btn-primary:active:not(:disabled),
+  .public-menu-root .pm-btn-secondary:active:not(:disabled),
+  .public-menu-root .pm-icon-btn:active:not(:disabled),
+  .public-menu-root .pm-product-card:active {
+    transform: none;
+  }
+}
+
+.public-menu-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--pm-outline-variant) transparent;
+}
+
+.public-menu-scrollbar::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.public-menu-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.public-menu-scrollbar::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--pm-outline) 35%, transparent);
+  border-radius: 999px;
+}
+
+/* Sticky category rail — hide native scrollbar aesthetics */
+.public-menu-root .pm-category-rail {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+}
+
+.public-menu-root .pm-category-chip {
+  scroll-snap-align: start;
+  flex-shrink: 0;
+  border-radius: 999px;
+  border: 1px solid var(--pm-outline-variant);
+  background: var(--pm-surface-container-lowest);
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--pm-on-surface-variant);
+  transition:
+    transform var(--pm-duration-press) var(--pm-ease-out),
+    background-color var(--pm-duration-ui) ease,
+    border-color var(--pm-duration-ui) ease,
+    color var(--pm-duration-ui) ease;
+}
+
+.public-menu-root .pm-category-chip:active {
+  transform: scale(0.97);
+}
+
+.public-menu-root .pm-category-chip[data-active="true"] {
+  border-color: transparent;
+  background: var(--pm-primary);
+  color: var(--pm-on-primary);
+}
+
+.public-menu-root .pm-cart-bar {
+  border-radius: var(--pm-radius-xl);
+  background: var(--pm-primary);
+  color: var(--pm-on-primary);
+  box-shadow: var(--pm-shadow-md);
+}
+
+.public-menu-root .pm-mobile-tabbar {
+  border-top: 1px solid var(--pm-outline-variant);
+  background: color-mix(in srgb, var(--pm-surface-container-lowest) 92%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.public-menu-root .pm-header {
+  background: color-mix(in srgb, var(--pm-surface-container-lowest) 88%, transparent);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: box-shadow var(--pm-duration-ui) ease;
+}
+
+.public-menu-root .pm-header[data-elevated="true"] {
+  box-shadow: var(--pm-shadow-sm);
+}
+
+.public-menu-root .pm-category-sticky {
+  background: color-mix(in srgb, var(--pm-surface) 92%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.public-menu-root .pm-browse-banner {
+  border-bottom: 1px solid var(--pm-outline-variant);
+  background: var(--pm-primary-fixed);
+  color: var(--pm-on-primary-fixed);
+  padding: 0.75rem 1rem;
+  text-align: center;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}

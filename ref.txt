@@ -1,0 +1,2167 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Menu Management | Ethos & Origin</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@100..900&family=Plus+Jakarta+Sans:wght@100..900&display=swap" rel="stylesheet"/>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-low": "#f6f3f2",
+                    "tertiary-fixed": "#e5e2db",
+                    "on-secondary-container": "#783b30",
+                    "inverse-surface": "#303030",
+                    "inverse-on-surface": "#f3f0f0",
+                    "secondary-container": "#fda999",
+                    "on-background": "#1b1c1c",
+                    "inverse-primary": "#b6ccb8",
+                    "on-primary": "#ffffff",
+                    "primary-fixed-dim": "#b6ccb8",
+                    "surface-container": "#f0eded",
+                    "on-secondary-fixed-variant": "#71352a",
+                    "surface-container-high": "#eae7e7",
+                    "on-error": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "on-surface-variant": "#434843",
+                    "surface-variant": "#e4e2e1",
+                    "primary-container": "#5a6e5d",
+                    "on-primary-fixed-variant": "#384b3c",
+                    "on-primary-container": "#d9f0da",
+                    "surface": "#fcf9f8",
+                    "secondary": "#8d4c40",
+                    "surface-dim": "#dcd9d9",
+                    "tertiary": "#52514c",
+                    "on-tertiary-fixed": "#1c1c18",
+                    "surface-container-highest": "#e4e2e1",
+                    "secondary-fixed-dim": "#ffb4a6",
+                    "outline": "#737872",
+                    "primary": "#425646",
+                    "error": "#ba1a1a",
+                    "secondary-fixed": "#ffdad3",
+                    "outline-variant": "#c3c8c1",
+                    "error-container": "#ffdad6",
+                    "on-primary-fixed": "#0d1f12",
+                    "surface-container-lowest": "#ffffff",
+                    "on-surface": "#1b1c1c",
+                    "surface-tint": "#4f6353",
+                    "on-tertiary-container": "#ece9e2",
+                    "surface-bright": "#fcf9f8",
+                    "on-secondary-fixed": "#390b05",
+                    "on-tertiary": "#ffffff",
+                    "primary-fixed": "#d2e8d3",
+                    "on-tertiary-fixed-variant": "#474742",
+                    "tertiary-container": "#6a6964",
+                    "on-secondary": "#ffffff",
+                    "background": "#fcf9f8",
+                    "tertiary-fixed-dim": "#c9c6c0"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "lg": "48px",
+                    "base": "8px",
+                    "md": "24px",
+                    "margin-desktop": "64px",
+                    "sm": "12px",
+                    "margin-mobile": "20px",
+                    "xl": "80px",
+                    "xs": "4px",
+                    "gutter": "24px"
+            },
+            "fontFamily": {
+                    "display-lg-mobile": ["Playfair Display"],
+                    "body-md": ["Plus Jakarta Sans"],
+                    "label-md": ["Plus Jakarta Sans"],
+                    "headline-md": ["Playfair Display"],
+                    "headline-sm": ["Playfair Display"],
+                    "label-sm": ["Plus Jakarta Sans"],
+                    "display-lg": ["Playfair Display"],
+                    "body-lg": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "display-lg-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "1.0", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-md": ["32px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                    "headline-sm": ["24px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                    "label-sm": ["12px", {"lineHeight": "1.0", "fontWeight": "500"}],
+                    "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .quiet-shadow {
+            box-shadow: 0 10px 30px rgba(44, 44, 44, 0.05);
+        }
+        .item-row:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md antialiased overflow-x-hidden">
+<!-- SideNavBar (Shared Component) -->
+<nav class="bg-surface dark:bg-on-background h-screen w-64 fixed left-0 top-0 border-r border-tertiary-fixed dark:border-outline-variant flex flex-col py-8 px-6 z-50">
+<div class="mb-12">
+<h1 class="font-headline-sm text-headline-sm text-primary dark:text-primary-fixed">Ethos & Origin</h1>
+<p class="font-label-sm text-on-surface-variant opacity-70">Admin Portal</p>
+</div>
+<div class="space-y-4 flex-1">
+<a class="flex items-center gap-3 py-2 text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 py-2 text-primary dark:text-primary-fixed border-b-2 border-primary dark:border-primary-fixed font-bold hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined">restaurant_menu</span>
+<span class="font-label-md text-label-md">Menu</span>
+</a>
+<a class="flex items-center gap-3 py-2 text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label-md text-label-md">Team</span>
+</a>
+<a class="flex items-center gap-3 py-2 text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-label-md text-label-md">Analytics</span>
+</a>
+<a class="flex items-center gap-3 py-2 text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</div>
+<button class="mb-12 bg-primary text-on-primary py-3 px-4 flex items-center justify-center gap-2 rounded hover:brightness-110 active:scale-95 transition-all">
+<span class="material-symbols-outlined">add</span>
+<span class="font-label-md">New Order</span>
+</button>
+<div class="space-y-4 border-t border-tertiary-fixed pt-6">
+<a class="flex items-center gap-3 py-2 text-on-surface-variant hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-label-md text-label-md">Support</span>
+</a>
+<a class="flex items-center gap-3 py-2 text-on-surface-variant hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-md text-label-md">Sign Out</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="ml-64 min-h-screen">
+<!-- TopNavBar (Shared Component) -->
+<header class="bg-surface-bright dark:bg-surface-dim h-[80px] px-margin-desktop sticky top-0 flex justify-between items-center border-b border-tertiary-fixed dark:border-outline-variant z-40">
+<div class="flex items-center gap-4">
+<h2 class="font-headline-md text-headline-md text-primary dark:text-primary-fixed">Menu Management</h2>
+</div>
+<div class="flex items-center gap-8">
+<div class="relative hidden lg:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="bg-surface border border-tertiary-fixed rounded-none py-2 pl-10 pr-4 w-64 font-label-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all" placeholder="Search artisanal items..." type="text"/>
+</div>
+<div class="flex items-center gap-4 text-on-surface-variant">
+<button class="hover:text-secondary transition-colors"><span class="material-symbols-outlined">notifications</span></button>
+<button class="hover:text-secondary transition-colors"><span class="material-symbols-outlined">account_circle</span></button>
+</div>
+</div>
+</header>
+<!-- Content Shell -->
+<div class="px-margin-desktop py-xl">
+<!-- Hero Header & Stats (Bento-style top row) -->
+<div class="grid grid-cols-12 gap-gutter mb-xl">
+<div class="col-span-12 lg:col-span-7 flex flex-col justify-center">
+<p class="font-label-md text-secondary uppercase tracking-widest mb-4">Curation & Craft</p>
+<h3 class="font-display-lg text-display-lg mb-6 leading-tight">Orchestrate your <br/>culinary narrative.</h3>
+<p class="font-body-lg text-on-surface-variant max-w-xl mb-base opacity-80">Refine your selection of heritage brews and artisanal pastries. Each entry is a touchpoint in the Ethos & Origin experience.</p>
+</div>
+<div class="col-span-12 lg:col-span-5 grid grid-cols-2 gap-4">
+<div class="bg-surface-container-low p-md flex flex-col justify-between border border-tertiary-fixed quiet-shadow">
+<span class="font-label-sm text-secondary uppercase">Active Items</span>
+<div class="flex items-baseline gap-2">
+<span class="font-display-lg text-headline-md">42</span>
+<span class="text-primary text-label-sm">Live</span>
+</div>
+</div>
+<div class="bg-white p-md flex flex-col justify-between border border-tertiary-fixed quiet-shadow">
+<span class="font-label-sm text-tertiary uppercase">Drafts</span>
+<div class="flex items-baseline gap-2">
+<span class="font-display-lg text-headline-md">08</span>
+<span class="text-tertiary-fixed-dim text-label-sm">Pending</span>
+</div>
+</div>
+<div class="col-span-2 bg-primary-container p-md flex items-center justify-between quiet-shadow">
+<div>
+<p class="font-label-sm text-on-primary-container uppercase">System Health</p>
+<p class="font-headline-sm text-on-primary-container">Menu Synced</p>
+</div>
+<span class="material-symbols-outlined text-on-primary-container text-4xl opacity-50">cloud_done</span>
+</div>
+</div>
+</div>
+<!-- Action Bar -->
+<div class="flex flex-col md:flex-row md:items-center justify-between mb-lg gap-md">
+<div class="flex flex-wrap gap-4">
+<button class="bg-white border border-tertiary-fixed px-6 py-2 font-label-md text-on-surface-variant flex items-center gap-2 hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-sm">filter_list</span>
+                        All Categories
+                    </button>
+<button class="bg-white border border-tertiary-fixed px-6 py-2 font-label-md text-on-surface-variant flex items-center gap-2 hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-sm">sort</span>
+                        Price: Low to High
+                    </button>
+</div>
+<button class="bg-primary text-on-primary px-xl py-4 font-label-md flex items-center gap-3 quiet-shadow hover:translate-y-[-2px] transition-all group">
+<span class="material-symbols-outlined text-on-primary group-hover:rotate-90 transition-transform duration-300">add</span>
+                    ADD NEW ITEM
+                </button>
+</div>
+<!-- Menu Management Table -->
+<div class="bg-white border border-tertiary-fixed quiet-shadow overflow-hidden">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-tertiary-fixed">
+<th class="px-md py-4 font-label-md text-tertiary uppercase tracking-wider">Item Details</th>
+<th class="px-md py-4 font-label-md text-tertiary uppercase tracking-wider">Category</th>
+<th class="px-md py-4 font-label-md text-tertiary uppercase tracking-wider text-right">Price</th>
+<th class="px-md py-4 font-label-md text-tertiary uppercase tracking-wider text-center">Status</th>
+<th class="px-md py-4 font-label-md text-tertiary uppercase tracking-wider text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-tertiary-fixed">
+<!-- Row 1 -->
+<tr class="item-row bg-white transition-all">
+<td class="px-md py-6">
+<div class="flex items-center gap-4">
+<div class="w-16 h-20 bg-surface-container overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A macro photography shot of a perfectly steamed oat milk latte with delicate foam art on a minimalist white ceramic saucer. The lighting is soft morning sun, highlighting the creamy texture and rich coffee color against a muted beige background. High-end cafe aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBxgN8GqkMirR8pLw0zLEG2IGmmsax5RqSm76nBo9xp3QbRT-mFAdWkfEetaWGNB2wtnGugEIMJ7uSerkVssx3aeoHwrPCxKKlNQYWbINEm08-lEXLle52Ns-iWIlC_Qil_SWPRzxI5f7pZCPIhNA39nmjx0Dsv2W9YhdnzR5Dlh4kKahTJTvSWW1diZN2vl-ttWQXI0L1WLUkAEtnduGj7W4ulQu9vMBNL38qgjPHhoM5C-4-bEhrS"/>
+</div>
+<div>
+<h4 class="font-headline-sm text-on-surface leading-tight">Oat Milk Cortado</h4>
+<p class="font-label-sm text-on-surface-variant opacity-60">Single origin Ethiopian beans</p>
+</div>
+</div>
+</td>
+<td class="px-md py-6">
+<span class="bg-surface-container-low text-tertiary px-3 py-1 font-label-sm uppercase tracking-tighter">Espresso Bar</span>
+</td>
+<td class="px-md py-6 text-right font-label-md text-on-surface">$5.50</td>
+<td class="px-md py-6 text-center">
+<span class="bg-on-primary-container text-primary-container px-4 py-1 rounded-full font-label-sm">Active</span>
+</td>
+<td class="px-md py-6 text-right">
+<button class="text-on-surface-variant hover:text-primary p-2"><span class="material-symbols-outlined">edit</span></button>
+<button class="text-on-surface-variant hover:text-error p-2"><span class="material-symbols-outlined">more_vert</span></button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="item-row bg-white transition-all">
+<td class="px-md py-6">
+<div class="flex items-center gap-4">
+<div class="w-16 h-20 bg-surface-container overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A close-up shot of a flaky, golden-brown butter croissant resting on a dark stone surface. The pastry's delicate layers are clearly visible, glistening under warm, focused artisanal bakery lighting. The mood is sophisticated and indulgent, with deep shadows and warm highlights." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBeRvnQYXnHnFd1JHSjZ3fFLsF96r9dW9vDMZIi9pkImtvIa6g3pZ4p6FO7CJCP6pwuqi7uWQcqmIqeqLvmuZYDYtiOVGs-E7J-1HCLldT2u-JStw4E2hvo8Nzqn0gS2z6-PVEkAO5VgP3m_g1J9e1dUdnSp5NUSvHqEQeEPqcaIqJEcPg0nYBlKxM9i5PQQVUdLUhUJp1lleApAvD2WBFq9GXV96csHU0dwJoNs5MWEw2Q2d0vm9TC"/>
+</div>
+<div>
+<h4 class="font-headline-sm text-on-surface leading-tight">Heritage Croissant</h4>
+<p class="font-label-sm text-on-surface-variant opacity-60">Laminated 48-hour dough</p>
+</div>
+</div>
+</td>
+<td class="px-md py-6">
+<span class="bg-surface-container-low text-tertiary px-3 py-1 font-label-sm uppercase tracking-tighter">Bakery</span>
+</td>
+<td class="px-md py-6 text-right font-label-md text-on-surface">$6.00</td>
+<td class="px-md py-6 text-center">
+<span class="bg-on-primary-container text-primary-container px-4 py-1 rounded-full font-label-sm">Active</span>
+</td>
+<td class="px-md py-6 text-right">
+<button class="text-on-surface-variant hover:text-primary p-2"><span class="material-symbols-outlined">edit</span></button>
+<button class="text-on-surface-variant hover:text-error p-2"><span class="material-symbols-outlined">more_vert</span></button>
+</td>
+</tr>
+<!-- Row 3 (Draft Status) -->
+<tr class="item-row bg-white transition-all">
+<td class="px-md py-6">
+<div class="flex items-center gap-4">
+<div class="w-16 h-20 bg-surface-container overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A minimalist presentation of a chilled hibiscus and ginger cold brew tea in a tall, slender glass. The drink has a vibrant deep red hue with a single clear ice cube and a sprig of fresh mint. The background is a clean, bright white studio setting with soft neutral shadows." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAoupT1qmfrGAnvIG_HINJWqUGvRTfvttZh8kRctXpQMVCX5dhSsY1NHzSd_lRhqzueIw5uBArQWxZnXZa6dTEh5kwOGb382o8p7VNEvCi8dOMneohS1ITtLP4UUyC2E3iCtKWGl2Sm1As_aNkfEjB8ywsCO4WXwJ_1nvEKys-JRFsFnp-3hNeIc7b0lth7j749YFm1kfcNqOMZLpgFhDT-oYmu1d6D98R4lIUpQeZJFtc_jsuZ1Ijz"/>
+</div>
+<div>
+<h4 class="font-headline-sm text-on-surface leading-tight">Hibiscus Cold Brew</h4>
+<p class="font-label-sm text-on-surface-variant opacity-60">Seasonal infusion</p>
+</div>
+</div>
+</td>
+<td class="px-md py-6">
+<span class="bg-surface-container-low text-tertiary px-3 py-1 font-label-sm uppercase tracking-tighter">Seasonal</span>
+</td>
+<td class="px-md py-6 text-right font-label-md text-on-surface">$7.25</td>
+<td class="px-md py-6 text-center">
+<span class="bg-tertiary-fixed text-tertiary px-4 py-1 rounded-full font-label-sm">Draft</span>
+</td>
+<td class="px-md py-6 text-right">
+<button class="text-on-surface-variant hover:text-primary p-2"><span class="material-symbols-outlined">edit</span></button>
+<button class="text-on-surface-variant hover:text-error p-2"><span class="material-symbols-outlined">more_vert</span></button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="item-row bg-white transition-all">
+<td class="px-md py-6">
+<div class="flex items-center gap-4">
+<div class="w-16 h-20 bg-surface-container overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A top-down shot of a dark chocolate and sea salt cookie on a piece of parchment paper. The cookie is soft in the center with melted chocolate pools and large flakes of Maldon sea salt. The lighting is moody and warm, creating a cozy and high-end feel. Rich earthy tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAI871TrwWcIHBE1MEoVUgUbBEEs1AOsAetsYJpXM4SBu-s_Dc0lErb9ZkvNTeydq-_dU7hpwTa3e9IOPqxpXKHUSHDPSg9Fd_VFGAOuLzaJfcGI1J-MpSDp1jBXeWYtcA9lNAkm3oxdDyWPWvBjJ-YYsl7BtKAZIPFlIYlXSxhYmrR1tMHkP7b6XKjKFTM8ptFiHX3hvXLNwzxkSSER2rj-VDhuGUQOReAkKwjuTL-ucbA45RRbcVH"/>
+</div>
+<div>
+<h4 class="font-headline-sm text-on-surface leading-tight">Sea Salt Cookie</h4>
+<p class="font-label-sm text-on-surface-variant opacity-60">Valrhona 70% dark chocolate</p>
+</div>
+</div>
+</td>
+<td class="px-md py-6">
+<span class="bg-surface-container-low text-tertiary px-3 py-1 font-label-sm uppercase tracking-tighter">Bakery</span>
+</td>
+<td class="px-md py-6 text-right font-label-md text-on-surface">$4.50</td>
+<td class="px-md py-6 text-center">
+<span class="bg-on-primary-container text-primary-container px-4 py-1 rounded-full font-label-sm">Active</span>
+</td>
+<td class="px-md py-6 text-right">
+<button class="text-on-surface-variant hover:text-primary p-2"><span class="material-symbols-outlined">edit</span></button>
+<button class="text-on-surface-variant hover:text-error p-2"><span class="material-symbols-outlined">more_vert</span></button>
+</td>
+</tr>
+</tbody>
+</table>
+<!-- Pagination -->
+<div class="p-md bg-surface flex justify-between items-center border-t border-tertiary-fixed">
+<p class="font-label-sm text-on-surface-variant">Showing 4 of 50 menu items</p>
+<div class="flex gap-2">
+<button class="w-10 h-10 border border-tertiary-fixed flex items-center justify-center hover:bg-white transition-colors disabled:opacity-30" disabled="">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="w-10 h-10 bg-primary text-on-primary flex items-center justify-center">
+<span class="font-label-md">1</span>
+</button>
+<button class="w-10 h-10 border border-tertiary-fixed flex items-center justify-center hover:bg-white transition-colors">
+<span class="font-label-md">2</span>
+</button>
+<button class="w-10 h-10 border border-tertiary-fixed flex items-center justify-center hover:bg-white transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Contextual Note / Footer of Content -->
+<div class="mt-lg border-l-2 border-secondary pl-6 max-w-2xl py-2">
+<p class="font-body-md text-on-surface-variant italic">"Quality is not an act, it is a habit. Ensure every menu item description reflects the heritage and intentionality of the Ethos & Origin brand."</p>
+</div>
+</div>
+</main>
+<script>
+        // Micro-interaction for the search bar
+        const searchInput = document.querySelector('input[type="text"]');
+        searchInput.addEventListener('focus', () => {
+            searchInput.classList.add('w-80');
+        });
+        searchInput.addEventListener('blur', () => {
+            searchInput.classList.remove('w-80');
+        });
+
+        // Simulating item hover effect via JS for smoothness if needed (mostly handled by CSS)
+        document.querySelectorAll('.item-row').forEach(row => {
+            row.addEventListener('click', () => {
+                // Future expansion: open detail view
+                console.log('Open item detail modal');
+            });
+        });
+    </script>
+</body></html>
+
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>L'Artisan Café | Admin Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@100..900&family=Plus+Jakarta+Sans:wght@100..900&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-low": "#f6f3f2",
+                    "tertiary-fixed": "#e5e2db",
+                    "on-secondary-container": "#783b30",
+                    "inverse-surface": "#303030",
+                    "inverse-on-surface": "#f3f0f0",
+                    "secondary-container": "#fda999",
+                    "on-background": "#1b1c1c",
+                    "inverse-primary": "#b6ccb8",
+                    "on-primary": "#ffffff",
+                    "primary-fixed-dim": "#b6ccb8",
+                    "surface-container": "#f0eded",
+                    "on-secondary-fixed-variant": "#71352a",
+                    "surface-container-high": "#eae7e7",
+                    "on-error": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "on-surface-variant": "#434843",
+                    "surface-variant": "#e4e2e1",
+                    "primary-container": "#5a6e5d",
+                    "on-primary-fixed-variant": "#384b3c",
+                    "on-primary-container": "#d9f0da",
+                    "surface": "#fcf9f8",
+                    "secondary": "#8d4c40",
+                    "surface-dim": "#dcd9d9",
+                    "tertiary": "#52514c",
+                    "on-tertiary-fixed": "#1c1c18",
+                    "surface-container-highest": "#e4e2e1",
+                    "secondary-fixed-dim": "#ffb4a6",
+                    "outline": "#737872",
+                    "primary": "#425646",
+                    "error": "#ba1a1a",
+                    "secondary-fixed": "#ffdad3",
+                    "outline-variant": "#c3c8c1",
+                    "error-container": "#ffdad6",
+                    "on-primary-fixed": "#0d1f12",
+                    "surface-container-lowest": "#ffffff",
+                    "on-surface": "#1b1c1c",
+                    "surface-tint": "#4f6353",
+                    "on-tertiary-container": "#ece9e2",
+                    "surface-bright": "#fcf9f8",
+                    "on-secondary-fixed": "#390b05",
+                    "on-tertiary": "#ffffff",
+                    "primary-fixed": "#d2e8d3",
+                    "on-tertiary-fixed-variant": "#474742",
+                    "tertiary-container": "#6a6964",
+                    "on-secondary": "#ffffff",
+                    "background": "#fcf9f8",
+                    "tertiary-fixed-dim": "#c9c6c0"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "lg": "48px",
+                    "base": "8px",
+                    "md": "24px",
+                    "margin-desktop": "64px",
+                    "sm": "12px",
+                    "margin-mobile": "20px",
+                    "xl": "80px",
+                    "xs": "4px",
+                    "gutter": "24px"
+            },
+            "fontFamily": {
+                    "display-lg-mobile": ["Playfair Display"],
+                    "body-md": ["Plus Jakarta Sans"],
+                    "label-md": ["Plus Jakarta Sans"],
+                    "headline-md": ["Playfair Display"],
+                    "headline-sm": ["Playfair Display"],
+                    "label-sm": ["Plus Jakarta Sans"],
+                    "display-lg": ["Playfair Display"],
+                    "body-lg": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "display-lg-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "1.0", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-md": ["32px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                    "headline-sm": ["24px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                    "label-sm": ["12px", {"lineHeight": "1.0", "fontWeight": "500"}],
+                    "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .luxury-shadow {
+            box-shadow: 0 10px 30px rgba(44, 44, 44, 0.05);
+        }
+        .chart-bar {
+            transition: height 1s ease-out;
+        }
+        body {
+            background-color: #F4F1EA; /* Tertiary Cream Base */
+        }
+    </style>
+</head>
+<body class="font-body-md text-on-surface antialiased">
+<!-- Sidebar Navigation -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-surface dark:bg-on-background border-r border-tertiary-fixed dark:border-outline-variant flex flex-col py-8 px-6 z-50">
+<div class="mb-xl">
+<h1 class="font-headline-sm text-headline-sm text-primary dark:text-primary-fixed">Ethos & Origin</h1>
+<p class="font-label-sm text-on-surface-variant opacity-60">Admin Portal</p>
+</div>
+<nav class="flex-grow space-y-md">
+<!-- Active: Dashboard -->
+<a class="flex items-center gap-base py-2 transition-transform duration-200 hover:translate-x-1 text-primary dark:text-primary-fixed border-b-2 border-primary dark:border-primary-fixed font-bold" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-base py-2 transition-transform duration-200 hover:translate-x-1 text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed" href="#">
+<span class="material-symbols-outlined" data-icon="restaurant_menu">restaurant_menu</span>
+<span class="font-label-md">Menu</span>
+</a>
+<a class="flex items-center gap-base py-2 transition-transform duration-200 hover:translate-x-1 text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-label-md">Team</span>
+</a>
+<a class="flex items-center gap-base py-2 transition-transform duration-200 hover:translate-x-1 text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="font-label-md">Analytics</span>
+</a>
+<a class="flex items-center gap-base py-2 transition-transform duration-200 hover:translate-x-1 text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-md">Settings</span>
+</a>
+</nav>
+<div class="mt-auto space-y-base pt-md border-t border-tertiary-fixed">
+<button class="w-full bg-primary text-on-primary py-sm font-label-md rounded-none hover:opacity-90 transition-opacity mb-md">
+                New Order
+            </button>
+<a class="flex items-center gap-base py-2 text-on-surface-variant hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="font-label-md">Support</span>
+</a>
+<a class="flex items-center gap-base py-2 text-on-surface-variant hover:text-error transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-label-md">Sign Out</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 min-h-screen">
+<!-- Top Navigation Bar -->
+<header class="sticky top-0 z-40 flex justify-between items-center h-[80px] px-margin-desktop bg-surface-bright dark:bg-surface-dim border-b border-tertiary-fixed dark:border-outline-variant">
+<div class="flex items-center gap-md">
+<h2 class="font-headline-md text-headline-md text-primary dark:text-primary-fixed">Overview</h2>
+</div>
+<div class="flex items-center gap-lg">
+<div class="relative w-64">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline" data-icon="search">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-white border border-tertiary-fixed text-body-md focus:ring-1 focus:ring-primary focus:border-primary outline-none" placeholder="Search analytics..." type="text"/>
+</div>
+<div class="flex items-center gap-md">
+<button class="text-on-surface-variant hover:text-secondary transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="flex items-center gap-sm text-on-surface-variant hover:text-secondary transition-colors">
+<span class="material-symbols-outlined text-3xl" data-icon="account_circle">account_circle</span>
+<span class="font-label-md">Julian Rossi</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Dashboard Canvas -->
+<div class="p-margin-desktop max-w-[1440px] mx-auto">
+<!-- Hero Metrics: Bento Layout -->
+<section class="grid grid-cols-12 gap-gutter mb-xl">
+<!-- Main Metric: Revenue -->
+<div class="col-span-12 md:col-span-4 bg-white border border-tertiary-fixed p-lg luxury-shadow group hover:-translate-y-1 transition-transform duration-300">
+<div class="flex justify-between items-start mb-md">
+<span class="text-on-surface-variant font-label-md uppercase">Total Revenue</span>
+<span class="material-symbols-outlined text-primary" data-icon="payments">payments</span>
+</div>
+<div class="mb-base">
+<span class="font-headline-md text-headline-md">$12,840.00</span>
+</div>
+<div class="flex items-center gap-sm">
+<span class="text-primary font-bold">+12%</span>
+<span class="text-on-surface-variant text-label-sm">vs. last week</span>
+</div>
+</div>
+<!-- Active Orders -->
+<div class="col-span-12 md:col-span-4 bg-white border border-tertiary-fixed p-lg luxury-shadow group hover:-translate-y-1 transition-transform duration-300">
+<div class="flex justify-between items-start mb-md">
+<span class="text-on-surface-variant font-label-md uppercase">Active Orders</span>
+<span class="material-symbols-outlined text-primary" data-icon="receipt_long">receipt_long</span>
+</div>
+<div class="mb-base">
+<span class="font-headline-md text-headline-md">18</span>
+</div>
+<div class="flex items-center gap-sm">
+<span class="text-secondary font-bold">4</span>
+<span class="text-on-surface-variant text-label-sm">In preparation</span>
+</div>
+</div>
+<!-- Table Occupancy -->
+<div class="col-span-12 md:col-span-4 bg-white border border-tertiary-fixed p-lg luxury-shadow group hover:-translate-y-1 transition-transform duration-300">
+<div class="flex justify-between items-start mb-md">
+<span class="text-on-surface-variant font-label-md uppercase">Occupancy</span>
+<span class="material-symbols-outlined text-primary" data-icon="table_restaurant">table_restaurant</span>
+</div>
+<div class="mb-base">
+<span class="font-headline-md text-headline-md">82%</span>
+</div>
+<div class="w-full bg-tertiary-fixed h-1 mt-md overflow-hidden">
+<div class="bg-primary h-full transition-all duration-1000" style="width: 82%"></div>
+</div>
+</div>
+</section>
+<div class="grid grid-cols-12 gap-gutter">
+<!-- Weekly Revenue Trend Chart -->
+<section class="col-span-12 lg:col-span-8 bg-white border border-tertiary-fixed p-lg luxury-shadow">
+<div class="flex justify-between items-center mb-xl">
+<div>
+<h3 class="font-headline-sm text-headline-sm mb-xs">Weekly Revenue Trends</h3>
+<p class="text-on-surface-variant text-body-md">Financial performance from Monday to Sunday.</p>
+</div>
+<div class="flex gap-sm">
+<button class="px-md py-sm border border-tertiary-fixed font-label-md hover:bg-surface-container-low transition-colors">Export CSV</button>
+</div>
+</div>
+<!-- Custom Visual Chart -->
+<div class="relative h-64 flex items-end justify-between px-md border-b border-tertiary-fixed pb-base">
+<div class="flex flex-col items-center gap-sm w-full group">
+<div class="chart-bar w-12 bg-primary-fixed-dim hover:bg-primary transition-all cursor-pointer" style="height: 60%"></div>
+<span class="text-label-sm text-on-surface-variant">Mon</span>
+</div>
+<div class="flex flex-col items-center gap-sm w-full group">
+<div class="chart-bar w-12 bg-primary-fixed-dim hover:bg-primary transition-all cursor-pointer" style="height: 75%"></div>
+<span class="text-label-sm text-on-surface-variant">Tue</span>
+</div>
+<div class="flex flex-col items-center gap-sm w-full group">
+<div class="chart-bar w-12 bg-primary-fixed-dim hover:bg-primary transition-all cursor-pointer" style="height: 45%"></div>
+<span class="text-label-sm text-on-surface-variant">Wed</span>
+</div>
+<div class="flex flex-col items-center gap-sm w-full group">
+<div class="chart-bar w-12 bg-primary-fixed-dim hover:bg-primary transition-all cursor-pointer" style="height: 90%"></div>
+<span class="text-label-sm text-on-surface-variant">Thu</span>
+</div>
+<div class="flex flex-col items-center gap-sm w-full group">
+<div class="chart-bar w-12 bg-primary-fixed-dim hover:bg-primary transition-all cursor-pointer" style="height: 65%"></div>
+<span class="text-label-sm text-on-surface-variant">Fri</span>
+</div>
+<div class="flex flex-col items-center gap-sm w-full group">
+<div class="chart-bar w-12 bg-primary-fixed-dim hover:bg-primary transition-all cursor-pointer" style="height: 85%"></div>
+<span class="text-label-sm text-on-surface-variant">Sat</span>
+</div>
+<div class="flex flex-col items-center gap-sm w-full group">
+<div class="chart-bar w-12 bg-primary-fixed-dim hover:bg-primary transition-all cursor-pointer" style="height: 70%"></div>
+<span class="text-label-sm text-on-surface-variant">Sun</span>
+</div>
+</div>
+</section>
+<!-- Real-time Activity Feed -->
+<section class="col-span-12 lg:col-span-4 bg-white border border-tertiary-fixed p-lg luxury-shadow flex flex-col">
+<div class="mb-lg">
+<h3 class="font-headline-sm text-headline-sm">Real-time Activity</h3>
+<p class="text-on-surface-variant text-label-sm">Updates from the floor</p>
+</div>
+<div class="flex-grow space-y-md">
+<div class="flex gap-md group">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-secondary" data-icon="coffee">coffee</span>
+</div>
+<div class="border-b border-tertiary-fixed pb-sm w-full">
+<p class="text-body-md"><span class="font-bold">Order #204</span> — Espresso Macchiato (2)</p>
+<p class="text-label-sm text-on-surface-variant opacity-60">2 minutes ago • Barista 1</p>
+</div>
+</div>
+<div class="flex gap-md group">
+<div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-primary" data-icon="check_circle">check_circle</span>
+</div>
+<div class="border-b border-tertiary-fixed pb-sm w-full">
+<p class="text-body-md"><span class="font-bold">Table 12</span> — Payment completed</p>
+<p class="text-label-sm text-on-surface-variant opacity-60">8 minutes ago • Floor Staff</p>
+</div>
+</div>
+<div class="flex gap-md group">
+<div class="w-10 h-10 rounded-full bg-tertiary-fixed flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-tertiary" data-icon="person_add">person_add</span>
+</div>
+<div class="border-b border-tertiary-fixed pb-sm w-full">
+<p class="text-body-md"><span class="font-bold">New Booking</span> — Party of 4</p>
+<p class="text-label-sm text-on-surface-variant opacity-60">15 minutes ago • Web Portal</p>
+</div>
+</div>
+<div class="flex gap-md group">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-secondary" data-icon="info">info</span>
+</div>
+<div class="pb-sm w-full">
+<p class="text-body-md"><span class="font-bold">Stock Alert</span> — Colombian Roast (Low)</p>
+<p class="text-label-sm text-on-surface-variant opacity-60">1 hour ago • Inventory System</p>
+</div>
+</div>
+</div>
+<button class="w-full mt-lg text-primary font-label-md underline underline-offset-4 hover:translate-y-[-2px] transition-transform">
+                        View Full History
+                    </button>
+</section>
+</div>
+<!-- Artisan Menu Highlights Section -->
+<section class="mt-xl">
+<h3 class="font-headline-sm text-headline-sm mb-lg">Top Performing Artisanal Items</h3>
+<div class="grid grid-cols-1 md:grid-cols-4 gap-gutter">
+<!-- Card 1 -->
+<div class="bg-white border border-tertiary-fixed luxury-shadow group">
+<div class="aspect-[4/5] w-full overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A macro photograph of a perfectly poured latte with intricate leaf art, sitting on a marble table in a softly lit, high-end café environment. The colors are muted greens and creamy whites, reflecting a quiet luxury aesthetic. Professional food photography with shallow depth of field." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAlfgG64VQlqw0dvhXP9OqUiMIIr7r-OfgN28in4uZRhepq2-BaTzdN2brLAdf51UnR-kxRo0lqONBTttghADfXDfFTGdUGuvkYGFgaqt6s-xZaFKDfd8TdVObi1pMRIpWQr_pNOVO3hkI4xPalNettKgawZpUfhJRardDjyGFgb9Dz0CLy7qSjDGYSIxpSyhqi-NRQx2ev53lmtavFWVLFQTMbYwOLqingoWhPQl4NTi5U4-_0yPYP"/>
+</div>
+<div class="p-md">
+<h4 class="font-headline-sm text-headline-sm text-on-background">Viennese Cortado</h4>
+<div class="flex justify-between items-center mt-sm">
+<span class="text-label-sm text-on-surface-variant">124 sold today</span>
+<span class="px-sm py-xs bg-primary-fixed text-on-primary-fixed text-label-sm rounded-none">Trending</span>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-white border border-tertiary-fixed luxury-shadow group">
+<div class="aspect-[4/5] w-full overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Close-up of a flaky, golden-brown almond croissant on a white ceramic plate. The lighting is warm and natural, casting soft shadows. The background is a minimalist wooden countertop. High-quality editorial food styling, artisanal bakery vibe." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAZ1lGey9in8Q6vexTn-px4zI0K1MFBZVmLofB4ySj3E4WFGa4MiP0wiOfUQbLLBBOrdYzT5Wfz_u3-5RjQXKYy1PW_zohVKoWeO8l7Mob0qRAE5iTHmQLQCuwR4nwcbeC0tOsdrWXSvl93eh-80Gb3j1IELAmoeL_UqjywYVrcjATz4_zgwawhVXSCA4xUWM_1JVFtDNHVgvi3FAEXNhP4GZdJUqSV8lKocoDvBxxJIH_9V4-veeb"/>
+</div>
+<div class="p-md">
+<h4 class="font-headline-sm text-headline-sm text-on-background">Almond Croissant</h4>
+<div class="flex justify-between items-center mt-sm">
+<span class="text-label-sm text-on-surface-variant">86 sold today</span>
+<span class="px-sm py-xs bg-tertiary-fixed text-on-tertiary-fixed text-label-sm rounded-none">Classic</span>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-white border border-tertiary-fixed luxury-shadow group">
+<div class="aspect-[4/5] w-full overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A minimalist presentation of an avocado toast on sourdough bread, topped with micro-greens and red chili flakes. The scene is bright and airy, using a high-key lighting style. The aesthetic is sophisticated and clean, suitable for a boutique cafe menu." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZWid9eTBg28NwKUe22q-fcXUt2f6m5K-vMEEtx0xI23NjC-wiBBEzy0Uj1_l8YN_N4uipNTpNULvbnikX7rkMZj5NoApWj7u-PmPkpT5QK0yRJoW5s1lzaDxzovcaq77623c9IXEc6Cb7m9CjedPQrMUTiGAvwxJGmyeaHr2ZOpVEaDaXdTx5nILfrmufGdbkSKl4FbvKbGSdra0XrgNQko56PWreqnYDCj4r5v9lta9Mxl95guma"/>
+</div>
+<div class="p-md">
+<h4 class="font-headline-sm text-headline-sm text-on-background">Sourdough Tartine</h4>
+<div class="flex justify-between items-center mt-sm">
+<span class="text-label-sm text-on-surface-variant">62 sold today</span>
+<span class="px-sm py-xs bg-secondary-container text-on-secondary-container text-label-sm rounded-none">Vegan</span>
+</div>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="bg-white border border-tertiary-fixed luxury-shadow group">
+<div class="aspect-[4/5] w-full overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A visually stunning glass of cold brew coffee with a layer of vanilla cold foam, shown in a clean, minimalist setting. The light hits the condensation on the glass beautifully. High-end lifestyle coffee photography, serene and intentional mood." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAUtPZQ3vCkzIQNu7IkHLEARAdjQtaEbaR-6YHaM3eplZahYYqutDEmw7UFrxJ_4WlwVbhsFmmSW8z7fTj6X5AdY9aTsNi_Ahaxrr_Un0HcNcDI28B4AQRUzkIn9fBxbnhHtJtic43kQ2vR3k8kHzahrZrZqRiROh_4aH7JeF0b0E5ZreEwiRPig-unmXuJ_B_t1WGclKXnx5f5sfevxFatjxERrFlzhjrpcxX71QAMofdRFji4sI0D"/>
+</div>
+<div class="p-md">
+<h4 class="font-headline-sm text-headline-sm text-on-background">Nitro Cold Brew</h4>
+<div class="flex justify-between items-center mt-sm">
+<span class="text-label-sm text-on-surface-variant">98 sold today</span>
+<span class="px-sm py-xs bg-primary-fixed text-on-primary-fixed text-label-sm rounded-none">Signature</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<script>
+        // Micro-interactions and subtle effects
+        document.addEventListener('DOMContentLoaded', () => {
+            // Animate chart bars on load
+            const bars = document.querySelectorAll('.chart-bar');
+            bars.forEach(bar => {
+                const targetHeight = bar.style.height;
+                bar.style.height = '0';
+                setTimeout(() => {
+                    bar.style.height = targetHeight;
+                }, 100);
+            });
+
+            // Subtle hover effect for dashboard cards
+            const cards = document.querySelectorAll('.luxury-shadow');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    card.style.transform = 'translateY(-4px)';
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'translateY(0)';
+                });
+            });
+        });
+    </script>
+</body></html>
+
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Ethos &amp; Origin | Table &amp; Staff Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .staff-card:hover .staff-overlay {
+            opacity: 1;
+        }
+        .table-status-glow {
+            filter: blur(8px);
+            opacity: 0.15;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #E5E2DB;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #425646;
+        }
+    </style>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-low": "#f6f3f2",
+                    "tertiary-fixed": "#e5e2db",
+                    "on-secondary-container": "#783b30",
+                    "inverse-surface": "#303030",
+                    "inverse-on-surface": "#f3f0f0",
+                    "secondary-container": "#fda999",
+                    "on-background": "#1b1c1c",
+                    "inverse-primary": "#b6ccb8",
+                    "on-primary": "#ffffff",
+                    "primary-fixed-dim": "#b6ccb8",
+                    "surface-container": "#f0eded",
+                    "on-secondary-fixed-variant": "#71352a",
+                    "surface-container-high": "#eae7e7",
+                    "on-error": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "on-surface-variant": "#434843",
+                    "surface-variant": "#e4e2e1",
+                    "primary-container": "#5a6e5d",
+                    "on-primary-fixed-variant": "#384b3c",
+                    "on-primary-container": "#d9f0da",
+                    "surface": "#fcf9f8",
+                    "secondary": "#8d4c40",
+                    "surface-dim": "#dcd9d9",
+                    "tertiary": "#52514c",
+                    "on-tertiary-fixed": "#1c1c18",
+                    "surface-container-highest": "#e4e2e1",
+                    "secondary-fixed-dim": "#ffb4a6",
+                    "outline": "#737872",
+                    "primary": "#425646",
+                    "error": "#ba1a1a",
+                    "secondary-fixed": "#ffdad3",
+                    "outline-variant": "#c3c8c1",
+                    "error-container": "#ffdad6",
+                    "on-primary-fixed": "#0d1f12",
+                    "surface-container-lowest": "#ffffff",
+                    "on-surface": "#1b1c1c",
+                    "surface-tint": "#4f6353",
+                    "on-tertiary-container": "#ece9e2",
+                    "surface-bright": "#fcf9f8",
+                    "on-secondary-fixed": "#390b05",
+                    "on-tertiary": "#ffffff",
+                    "primary-fixed": "#d2e8d3",
+                    "on-tertiary-fixed-variant": "#474742",
+                    "tertiary-container": "#6a6964",
+                    "on-secondary": "#ffffff",
+                    "background": "#fcf9f8",
+                    "tertiary-fixed-dim": "#c9c6c0"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "lg": "48px",
+                    "base": "8px",
+                    "md": "24px",
+                    "margin-desktop": "64px",
+                    "sm": "12px",
+                    "margin-mobile": "20px",
+                    "xl": "80px",
+                    "xs": "4px",
+                    "gutter": "24px"
+            },
+            "fontFamily": {
+                    "display-lg-mobile": ["Playfair Display"],
+                    "body-md": ["Plus Jakarta Sans"],
+                    "label-md": ["Plus Jakarta Sans"],
+                    "headline-md": ["Playfair Display"],
+                    "headline-sm": ["Playfair Display"],
+                    "label-sm": ["Plus Jakarta Sans"],
+                    "display-lg": ["Playfair Display"],
+                    "body-lg": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "display-lg-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "1.0", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-md": ["32px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                    "headline-sm": ["24px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                    "label-sm": ["12px", {"lineHeight": "1.0", "fontWeight": "500"}],
+                    "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+</head>
+<body class="bg-background text-on-surface font-body-md overflow-x-hidden">
+<!-- Side Navigation Bar -->
+<aside class="bg-surface dark:bg-on-background h-screen w-64 fixed left-0 top-0 border-r border-tertiary-fixed dark:border-outline-variant flex flex-col py-8 px-6 z-50">
+<div class="mb-12">
+<h1 class="font-headline-sm text-headline-sm text-primary dark:text-primary-fixed">Ethos &amp; Origin</h1>
+<p class="font-label-sm text-on-surface-variant opacity-70">Admin Portal</p>
+</div>
+<nav class="flex-1 space-y-6">
+<a class="flex items-center gap-4 text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-4 text-primary dark:text-primary-fixed border-b-2 border-primary dark:border-primary-fixed font-bold hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="restaurant_menu">restaurant_menu</span>
+<span class="font-label-md">Menu</span>
+</a>
+<a class="flex items-center gap-4 text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-label-md">Team</span>
+</a>
+<a class="flex items-center gap-4 text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="font-label-md">Analytics</span>
+</a>
+<a class="flex items-center gap-4 text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-md">Settings</span>
+</a>
+</nav>
+<div class="mt-auto pt-8 border-t border-tertiary-fixed dark:border-outline-variant flex flex-col gap-4">
+<button class="flex items-center gap-4 text-on-surface-variant dark:text-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="font-label-md">Support</span>
+</button>
+<button class="flex items-center gap-4 text-on-surface-variant dark:text-surface-variant hover:text-error transition-colors">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-label-md">Sign Out</span>
+</button>
+</div>
+</aside>
+<!-- Top Navigation Bar -->
+<header class="bg-surface-bright dark:bg-surface-dim flex justify-between items-center h-[80px] px-margin-desktop ml-64 sticky top-0 z-40 border-b border-tertiary-fixed dark:border-outline-variant">
+<div class="flex items-center gap-md">
+<h2 class="font-headline-md text-headline-md text-primary dark:text-primary-fixed">Team &amp; Floor</h2>
+</div>
+<div class="flex items-center gap-lg">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" data-icon="search">search</span>
+<input class="bg-surface-container-lowest border border-tertiary-fixed rounded-lg pl-10 pr-4 py-2 text-label-md focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all w-64" placeholder="Search tables or staff..." type="text"/>
+</div>
+<div class="flex items-center gap-md">
+<button class="text-on-surface-variant hover:text-secondary transition-colors duration-200">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<div class="h-10 w-10 rounded-full bg-primary-fixed-dim overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="A portrait of a professional cafe manager with a warm and sophisticated expression, wearing a minimalist sage green linen apron. The lighting is soft and natural, emphasizing a high-end, quiet luxury aesthetic. The background is a blurred, elegant cafe interior with warm wood and cream tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAFbZdhCJbcxFvdzTjaNKGtNdQToPcDX-DLOP6eN_WthPKVv_kjrFDYDo9bc29UMeuMQa4YYerB0ZIZAdL03YDKCD6pnbFCtMwDBKbTGTdGBAajmbJGqyq7hmZvC0wk6vVRfo__T0-cHDOHHA1Qy-EQkw1rU1nG5pykrod7IbhEvEz9Z4R7Nh44aAkyOwa7n3LDfCE222cGd_LMkOpYpbg4KqiMWX5MMZLt4ZtTk6Y_eHVD2HeQGznj"/>
+</div>
+</div>
+</div>
+</header>
+<main class="ml-64 p-margin-desktop space-y-xl">
+<!-- Floor Plan Section -->
+<section>
+<div class="flex justify-between items-end mb-lg">
+<div>
+<span class="font-label-sm text-secondary uppercase tracking-widest">Real-time Overview</span>
+<h3 class="font-headline-md text-display-lg text-primary mt-xs">Floor Management</h3>
+</div>
+<div class="flex gap-md">
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-primary-container"></span>
+<span class="font-label-sm">Occupied (12)</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-tertiary-fixed-dim border border-outline-variant"></span>
+<span class="font-label-sm">Free (8)</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-secondary-container"></span>
+<span class="font-label-sm">Reserved (4)</span>
+</div>
+</div>
+</div>
+<!-- Table Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-md">
+<!-- Table Card: Occupied -->
+<div class="bg-white border border-tertiary-fixed p-md relative hover:-translate-y-1 transition-all duration-300 group">
+<div class="absolute inset-0 bg-primary-container table-status-glow"></div>
+<div class="relative flex justify-between items-start">
+<div>
+<span class="font-label-sm text-on-surface-variant">Table</span>
+<p class="font-headline-sm text-primary">01</p>
+</div>
+<span class="bg-primary-container text-on-primary-container text-[10px] px-2 py-1 font-bold rounded uppercase">Occupied</span>
+</div>
+<div class="mt-lg space-y-2">
+<div class="flex justify-between text-label-sm">
+<span class="opacity-60">Guests:</span>
+<span class="font-bold">4/4</span>
+</div>
+<div class="flex justify-between text-label-sm">
+<span class="opacity-60">Time:</span>
+<span class="font-bold">45m</span>
+</div>
+</div>
+<div class="mt-md pt-md border-t border-tertiary-fixed flex justify-between items-center">
+<span class="text-label-sm font-bold text-secondary">View Bill</span>
+<span class="material-symbols-outlined text-sm opacity-40" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+<!-- Table Card: Free -->
+<div class="bg-white border border-tertiary-fixed p-md relative hover:-translate-y-1 transition-all duration-300">
+<div class="relative flex justify-between items-start">
+<div>
+<span class="font-label-sm text-on-surface-variant">Table</span>
+<p class="font-headline-sm text-primary">02</p>
+</div>
+<span class="bg-surface-container-high text-on-surface-variant text-[10px] px-2 py-1 font-bold rounded uppercase">Free</span>
+</div>
+<div class="mt-lg flex flex-col items-center justify-center py-4 border-2 border-dashed border-tertiary-fixed rounded-lg">
+<span class="material-symbols-outlined text-tertiary-fixed-dim" data-icon="add_circle">add_circle</span>
+<span class="text-label-sm mt-2 text-on-surface-variant">Assign</span>
+</div>
+<div class="mt-md pt-md border-t border-tertiary-fixed flex justify-between items-center">
+<span class="text-label-sm font-bold opacity-30">No active session</span>
+</div>
+</div>
+<!-- Table Card: Reserved -->
+<div class="bg-white border border-tertiary-fixed p-md relative hover:-translate-y-1 transition-all duration-300">
+<div class="absolute inset-0 bg-secondary-container table-status-glow"></div>
+<div class="relative flex justify-between items-start">
+<div>
+<span class="font-label-sm text-on-surface-variant">Table</span>
+<p class="font-headline-sm text-primary">03</p>
+</div>
+<span class="bg-secondary-container text-on-secondary-container text-[10px] px-2 py-1 font-bold rounded uppercase">Reserved</span>
+</div>
+<div class="mt-lg space-y-2">
+<div class="flex justify-between text-label-sm">
+<span class="opacity-60">Time:</span>
+<span class="font-bold">19:30</span>
+</div>
+<div class="flex justify-between text-label-sm">
+<span class="opacity-60">Name:</span>
+<span class="font-bold">H. Sterling</span>
+</div>
+</div>
+<div class="mt-md pt-md border-t border-tertiary-fixed flex justify-between items-center">
+<span class="text-label-sm font-bold text-secondary">Check In</span>
+<span class="material-symbols-outlined text-sm opacity-40" data-icon="login">login</span>
+</div>
+</div>
+<!-- Duplicate for Grid Balance -->
+<div class="bg-white border border-tertiary-fixed p-md relative hover:-translate-y-1 transition-all duration-300">
+<div class="absolute inset-0 bg-primary-container table-status-glow"></div>
+<div class="relative flex justify-between items-start">
+<div>
+<span class="font-label-sm text-on-surface-variant">Table</span>
+<p class="font-headline-sm text-primary">04</p>
+</div>
+<span class="bg-primary-container text-on-primary-container text-[10px] px-2 py-1 font-bold rounded uppercase">Occupied</span>
+</div>
+<div class="mt-lg space-y-2">
+<div class="flex justify-between text-label-sm">
+<span class="opacity-60">Guests:</span>
+<span class="font-bold">2/2</span>
+</div>
+<div class="flex justify-between text-label-sm">
+<span class="opacity-60">Time:</span>
+<span class="font-bold">12m</span>
+</div>
+</div>
+<div class="mt-md pt-md border-t border-tertiary-fixed flex justify-between items-center">
+<span class="text-label-sm font-bold text-secondary">View Bill</span>
+<span class="material-symbols-outlined text-sm opacity-40" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+<div class="bg-white border border-tertiary-fixed p-md relative hover:-translate-y-1 transition-all duration-300">
+<div class="relative flex justify-between items-start">
+<div>
+<span class="font-label-sm text-on-surface-variant">Table</span>
+<p class="font-headline-sm text-primary">05</p>
+</div>
+<span class="bg-surface-container-high text-on-surface-variant text-[10px] px-2 py-1 font-bold rounded uppercase">Free</span>
+</div>
+<div class="mt-lg flex flex-col items-center justify-center py-4 border-2 border-dashed border-tertiary-fixed rounded-lg">
+<span class="material-symbols-outlined text-tertiary-fixed-dim" data-icon="add_circle">add_circle</span>
+<span class="text-label-sm mt-2 text-on-surface-variant">Assign</span>
+</div>
+<div class="mt-md pt-md border-t border-tertiary-fixed flex justify-between items-center">
+<span class="text-label-sm font-bold opacity-30">No active session</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Staff Directory Section -->
+<section>
+<div class="flex justify-between items-end mb-lg">
+<div>
+<span class="font-label-sm text-secondary uppercase tracking-widest">Personnel</span>
+<h3 class="font-headline-md text-display-lg text-primary mt-xs">Staff Directory</h3>
+</div>
+<button class="bg-primary text-on-primary px-6 py-3 font-label-md flex items-center gap-2 hover:bg-primary-container transition-colors">
+<span class="material-symbols-outlined" data-icon="person_add">person_add</span>
+                    ADD NEW STAFF
+                </button>
+</div>
+<!-- Staff List - Asymmetric/Bento Style -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-lg">
+<!-- Staff Card 1 -->
+<div class="lg:col-span-1 bg-white border border-tertiary-fixed flex flex-col staff-card overflow-hidden">
+<div class="relative h-64 overflow-hidden">
+<img class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" data-alt="A professional headshot of a head waiter in a luxury cafe, wearing a tailored charcoal vest and white shirt. He has a composed, welcoming demeanor. The background is an out-of-focus high-end coffee bar with brass accents and soft lighting. Editorial portrait photography style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdCqLUxHcNdQii-gUU29jql_jkB7hF2a2PbuJm_i0gEbL57Qd_I_SJ3vzbOndCPzz5GdM9uFKxDkz4x3QOyfGBA9MUdCq9q8X_qRLWVKFJxOgbrrWiIs0vf96JkCt2i40rvq5ZW0E52LMsDihgi6utut1gqKx4-zAaJVumdfZYQvAk-lUWD1xJNH41YXJ-cHr6DgM0B5JEn2_E-jpOjWOBBH_90m2ZdyGqLPHHXBTY7NAgf6LQ6rhf"/>
+<div class="absolute inset-0 bg-primary/20 opacity-0 staff-overlay transition-opacity duration-300 flex items-center justify-center gap-md">
+<button class="w-10 h-10 rounded-full bg-white text-primary flex items-center justify-center hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" data-icon="call">call</span>
+</button>
+<button class="w-10 h-10 rounded-full bg-white text-primary flex items-center justify-center hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" data-icon="mail">mail</span>
+</button>
+</div>
+</div>
+<div class="p-md space-y-4">
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-headline-sm text-primary">Julian Vane</h4>
+<p class="font-label-sm text-on-surface-variant">Head Waiter</p>
+</div>
+<span class="bg-tertiary-fixed text-on-tertiary-fixed text-[10px] px-2 py-1 font-bold rounded uppercase">Main Hall</span>
+</div>
+<div class="pt-md border-t border-tertiary-fixed grid grid-cols-2 gap-4">
+<div>
+<span class="block text-[10px] text-on-surface-variant uppercase font-bold">Shift</span>
+<span class="text-label-sm font-medium">Morning (08:00 - 16:00)</span>
+</div>
+<div>
+<span class="block text-[10px] text-on-surface-variant uppercase font-bold">Tables</span>
+<span class="text-label-sm font-medium">01, 02, 05, 08</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Staff Card 2 -->
+<div class="lg:col-span-1 bg-white border border-tertiary-fixed flex flex-col staff-card overflow-hidden">
+<div class="relative h-64 overflow-hidden">
+<img class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" data-alt="Close-up portrait of a female barista with minimalist elegance, wearing a sage green apron over a cream linen shirt. Soft morning light creates a peaceful mood. Behind her are clean ceramic cups and a high-end espresso machine. Sophisticated, minimalist aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7-b3sAhWtNEkOts_VI4JBaMB88sZr-O3UFjJ3UxMt5BvhdW35k0q1e-WBbqSRbb67-6aA5ToxVLQef6vVYW5O1jGURPqrUqwC8hmQQ9P7PhmMzsTRQ0fnDWRMl-sF2EJyK2u-dINvNh0opYQM1sSytKk5UB34SYHc8W6ahe5q1mLRrRZ5fJEv-OxjITj_vWL6hI1hgn1uoz2uJDX4Faap6AEAEpP0j27KTGSvUFA5g_hGkCIKN5HS"/>
+<div class="absolute inset-0 bg-primary/20 opacity-0 staff-overlay transition-opacity duration-300 flex items-center justify-center gap-md">
+<button class="w-10 h-10 rounded-full bg-white text-primary flex items-center justify-center hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" data-icon="call">call</span>
+</button>
+<button class="w-10 h-10 rounded-full bg-white text-primary flex items-center justify-center hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" data-icon="mail">mail</span>
+</button>
+</div>
+</div>
+<div class="p-md space-y-4">
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-headline-sm text-primary">Elena Rossi</h4>
+<p class="font-label-sm text-on-surface-variant">Senior Barista</p>
+</div>
+<span class="bg-tertiary-fixed text-on-tertiary-fixed text-[10px] px-2 py-1 font-bold rounded uppercase">Brew Bar</span>
+</div>
+<div class="pt-md border-t border-tertiary-fixed grid grid-cols-2 gap-4">
+<div>
+<span class="block text-[10px] text-on-surface-variant uppercase font-bold">Shift</span>
+<span class="text-label-sm font-medium">Full Day (10:00 - 18:00)</span>
+</div>
+<div>
+<span class="block text-[10px] text-on-surface-variant uppercase font-bold">Station</span>
+<span class="text-label-sm font-medium">Zone A / Bar</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Staff Card 3 -->
+<div class="lg:col-span-1 bg-white border border-tertiary-fixed flex flex-col staff-card overflow-hidden">
+<div class="relative h-64 overflow-hidden">
+<img class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" data-alt="A candid, high-end editorial shot of a young male waiter with a refined and attentive look, carrying a minimalist tray with glassware. He is dressed in a dark sage green uniform. The setting is a bright, airy patio of a boutique cafe. The light is diffused and clean, creating a sense of tranquil luxury." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJLLq3xUpE8MLTfVTQ66R8J2t1M5Rp-1fcenXRTDBagbj2DoACcZ9o3Zk8v1vR236zBiAdg79scuu2Kaz_UhKxrDOiGbM13MYIUn1xmynb8DF1U0v2NVJHV_QbDMhoROKL03dv4fSYj12aQTKMfLyFv0ryqRWL3-phnEL1uLgSSwwTttqHSlQK2ZQP7y1QpRdHxzfom4rHyiotQ3WoMVnld2otNg8IZ6KQnFXaHRLqgSRo9wwhwoXW"/>
+<div class="absolute inset-0 bg-primary/20 opacity-0 staff-overlay transition-opacity duration-300 flex items-center justify-center gap-md">
+<button class="w-10 h-10 rounded-full bg-white text-primary flex items-center justify-center hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" data-icon="call">call</span>
+</button>
+<button class="w-10 h-10 rounded-full bg-white text-primary flex items-center justify-center hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" data-icon="mail">mail</span>
+</button>
+</div>
+</div>
+<div class="p-md space-y-4">
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-headline-sm text-primary">Marcus Thorne</h4>
+<p class="font-label-sm text-on-surface-variant">Server</p>
+</div>
+<span class="bg-tertiary-fixed text-on-tertiary-fixed text-[10px] px-2 py-1 font-bold rounded uppercase">Terrace</span>
+</div>
+<div class="pt-md border-t border-tertiary-fixed grid grid-cols-2 gap-4">
+<div>
+<span class="block text-[10px] text-on-surface-variant uppercase font-bold">Shift</span>
+<span class="text-label-sm font-medium">Evening (16:00 - Close)</span>
+</div>
+<div>
+<span class="block text-[10px] text-on-surface-variant uppercase font-bold">Tables</span>
+<span class="text-label-sm font-medium">10, 11, 12, 14</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Floor Trends - Minimalist Data Viz -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-lg mt-xl">
+<div class="md:col-span-2 bg-white border border-tertiary-fixed p-lg flex flex-col justify-between">
+<div>
+<h4 class="font-headline-sm text-primary mb-md">Hourly Occupancy</h4>
+<div class="flex items-end gap-4 h-48 mt-lg">
+<div class="bg-tertiary-fixed-dim w-full hover:bg-primary transition-colors cursor-pointer" style="height: 30%"></div>
+<div class="bg-tertiary-fixed-dim w-full hover:bg-primary transition-colors cursor-pointer" style="height: 45%"></div>
+<div class="bg-tertiary-fixed-dim w-full hover:bg-primary transition-colors cursor-pointer" style="height: 80%"></div>
+<div class="bg-primary w-full" style="height: 95%"></div>
+<div class="bg-tertiary-fixed-dim w-full hover:bg-primary transition-colors cursor-pointer" style="height: 70%"></div>
+<div class="bg-tertiary-fixed-dim w-full hover:bg-primary transition-colors cursor-pointer" style="height: 50%"></div>
+<div class="bg-tertiary-fixed-dim w-full hover:bg-primary transition-colors cursor-pointer" style="height: 30%"></div>
+</div>
+<div class="flex justify-between mt-md text-[10px] font-bold uppercase text-on-surface-variant opacity-60">
+<span>08:00</span>
+<span>10:00</span>
+<span>12:00</span>
+<span>14:00</span>
+<span>16:00</span>
+<span>18:00</span>
+<span>20:00</span>
+</div>
+</div>
+</div>
+<div class="bg-primary-container p-lg text-on-primary-container flex flex-col justify-center">
+<h4 class="font-headline-sm mb-md italic">Today's Peak</h4>
+<p class="text-display-lg font-bold">12:30 PM</p>
+<p class="font-body-md opacity-80 mt-md">Main Hall reached 95% capacity. Staff assigned to Brew Bar transitioned to support servers.</p>
+<div class="mt-lg pt-lg border-t border-on-primary-container/20">
+<span class="font-label-sm uppercase tracking-widest">Efficiency Rating</span>
+<p class="text-headline-sm mt-2">A+ High Demand</p>
+</div>
+</div>
+</section>
+</main>
+<!-- Contextual FAB -->
+<button class="fixed bottom-margin-desktop right-margin-desktop bg-secondary text-on-secondary w-16 h-16 rounded-full flex items-center justify-center shadow-xl hover:scale-105 active:scale-95 transition-all z-50">
+<span class="material-symbols-outlined text-3xl" data-icon="add">add</span>
+</button>
+<script>
+        // Micro-interaction for table cards
+        document.querySelectorAll('.bg-white.border').forEach(card => {
+            card.addEventListener('mousedown', () => {
+                card.style.transform = 'scale(0.98)';
+            });
+            card.addEventListener('mouseup', () => {
+                card.style.transform = 'translateY(-4px)';
+            });
+        });
+
+        // Simple search filter simulation
+        const searchInput = document.querySelector('input[type="text"]');
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            document.querySelectorAll('.staff-card, .grid > div').forEach(el => {
+                const text = el.innerText.toLowerCase();
+                if (text.includes(query)) {
+                    el.style.display = 'flex';
+                    el.style.opacity = '1';
+                } else {
+                    el.style.opacity = '0.3';
+                }
+            });
+        });
+    </script>
+</body></html>
+
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Settings Hub | Ethos &amp; Origin</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&amp;family=Plus+Jakarta+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-low": "#f6f3f2",
+                    "tertiary-fixed": "#e5e2db",
+                    "on-secondary-container": "#783b30",
+                    "inverse-surface": "#303030",
+                    "inverse-on-surface": "#f3f0f0",
+                    "secondary-container": "#fda999",
+                    "on-background": "#1b1c1c",
+                    "inverse-primary": "#b6ccb8",
+                    "on-primary": "#ffffff",
+                    "primary-fixed-dim": "#b6ccb8",
+                    "surface-container": "#f0eded",
+                    "on-secondary-fixed-variant": "#71352a",
+                    "surface-container-high": "#eae7e7",
+                    "on-error": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "on-surface-variant": "#434843",
+                    "surface-variant": "#e4e2e1",
+                    "primary-container": "#5a6e5d",
+                    "on-primary-fixed-variant": "#384b3c",
+                    "on-primary-container": "#d9f0da",
+                    "surface": "#fcf9f8",
+                    "secondary": "#8d4c40",
+                    "surface-dim": "#dcd9d9",
+                    "tertiary": "#52514c",
+                    "on-tertiary-fixed": "#1c1c18",
+                    "surface-container-highest": "#e4e2e1",
+                    "secondary-fixed-dim": "#ffb4a6",
+                    "outline": "#737872",
+                    "primary": "#425646",
+                    "error": "#ba1a1a",
+                    "secondary-fixed": "#ffdad3",
+                    "outline-variant": "#c3c8c1",
+                    "error-container": "#ffdad6",
+                    "on-primary-fixed": "#0d1f12",
+                    "surface-container-lowest": "#ffffff",
+                    "on-surface": "#1b1c1c",
+                    "surface-tint": "#4f6353",
+                    "on-tertiary-container": "#ece9e2",
+                    "surface-bright": "#fcf9f8",
+                    "on-secondary-fixed": "#390b05",
+                    "on-tertiary": "#ffffff",
+                    "primary-fixed": "#d2e8d3",
+                    "on-tertiary-fixed-variant": "#474742",
+                    "tertiary-container": "#6a6964",
+                    "on-secondary": "#ffffff",
+                    "background": "#fcf9f8",
+                    "tertiary-fixed-dim": "#c9c6c0"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "lg": "48px",
+                    "base": "8px",
+                    "md": "24px",
+                    "margin-desktop": "64px",
+                    "sm": "12px",
+                    "margin-mobile": "20px",
+                    "xl": "80px",
+                    "xs": "4px",
+                    "gutter": "24px"
+            },
+            "fontFamily": {
+                    "display-lg-mobile": ["Playfair Display"],
+                    "body-md": ["Plus Jakarta Sans"],
+                    "label-md": ["Plus Jakarta Sans"],
+                    "headline-md": ["Playfair Display"],
+                    "headline-sm": ["Playfair Display"],
+                    "label-sm": ["Plus Jakarta Sans"],
+                    "display-lg": ["Playfair Display"],
+                    "body-lg": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "display-lg-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "1.0", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-md": ["32px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                    "headline-sm": ["24px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                    "label-sm": ["12px", {"lineHeight": "1.0", "fontWeight": "500"}],
+                    "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #F4F1EA; /* Tertiary Cream from Brand Guidance */
+            color: #1b1c1c;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .custom-shadow {
+            box-shadow: 0 10px 30px rgba(44, 44, 44, 0.05);
+        }
+        .sidebar-active {
+            border-right: 2px solid #425646;
+        }
+        input:focus {
+            outline: none;
+            border-color: #425646 !important;
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md bg-background">
+<!-- SideNavBar -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-surface dark:bg-on-background border-r border-tertiary-fixed dark:border-outline-variant flex flex-col py-8 px-6 z-50">
+<div class="mb-12">
+<h1 class="font-headline-sm text-headline-sm text-primary dark:text-primary-fixed mb-1">Ethos &amp; Origin</h1>
+<p class="font-label-sm text-label-sm text-on-surface-variant opacity-70">Admin Portal</p>
+</div>
+<nav class="flex-1 space-y-4">
+<a class="flex items-center gap-3 py-2 text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 py-2 text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined">restaurant_menu</span>
+<span class="font-label-md text-label-md">Menu</span>
+</a>
+<a class="flex items-center gap-3 py-2 text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label-md text-label-md">Team</span>
+</a>
+<a class="flex items-center gap-3 py-2 text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-label-md text-label-md">Analytics</span>
+</a>
+<a class="flex items-center gap-3 py-2 text-primary dark:text-primary-fixed border-b-2 border-primary dark:border-primary-fixed font-bold hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</nav>
+<div class="mt-auto space-y-4 pt-8 border-t border-tertiary-fixed">
+<a class="flex items-center gap-3 py-2 text-on-surface-variant dark:text-surface-variant hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-label-md text-label-md">Support</span>
+</a>
+<a class="flex items-center gap-3 py-2 text-on-surface-variant dark:text-surface-variant hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-md text-label-md">Sign Out</span>
+</a>
+</div>
+</aside>
+<!-- TopNavBar -->
+<header class="flex justify-between items-center h-[80px] px-margin-desktop ml-64 bg-surface-bright dark:bg-surface-dim sticky top-0 border-b border-tertiary-fixed dark:border-outline-variant z-40">
+<h2 class="font-headline-md text-headline-md text-primary dark:text-primary-fixed">Settings</h2>
+<div class="flex items-center gap-6">
+<div class="relative hidden lg:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+<input class="pl-10 pr-4 py-2 bg-white border border-tertiary-fixed rounded-DEFAULT text-sm focus:ring-0 focus:border-primary transition-all w-64" placeholder="Search settings..." type="text"/>
+</div>
+<div class="flex items-center gap-4 text-on-surface-variant">
+<button class="material-symbols-outlined hover:text-secondary transition-colors">notifications</button>
+<button class="material-symbols-outlined hover:text-secondary transition-colors">account_circle</button>
+</div>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="ml-64 p-margin-desktop bg-background min-h-screen">
+<div class="max-w-[1152px] mx-auto">
+<!-- Settings Header -->
+<div class="mb-xl">
+<h3 class="font-display-lg text-display-lg text-on-background mb-base">Configurations</h3>
+<p class="text-on-surface-variant max-w-2xl opacity-80">Refine your cafe's presence, manage your team, and adjust operational parameters from this centralized hub.</p>
+</div>
+<!-- Bento Layout for Settings -->
+<div class="grid grid-cols-12 gap-gutter">
+<!-- Section: Cafe Profile (Large Card) -->
+<div class="col-span-12 lg:col-span-8 bg-white border border-tertiary-fixed p-lg custom-shadow hover:-translate-y-0.5 transition-transform duration-300">
+<div class="flex justify-between items-start mb-md">
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-widest text-primary mb-2 block">Identity</span>
+<h4 class="font-headline-sm text-headline-sm text-tertiary">Cafe Profile</h4>
+</div>
+<button class="px-6 py-2 bg-primary text-on-primary font-label-md text-label-md rounded-DEFAULT hover:opacity-90 transition-opacity">Save Changes</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<div class="space-y-4">
+<label class="block">
+<span class="font-label-sm text-label-sm uppercase text-on-surface-variant">Cafe Name</span>
+<input class="mt-2 block w-full bg-white border border-tertiary-fixed px-4 py-3 font-body-md text-body-md" type="text" value="Ethos &amp; Origin"/>
+</label>
+<label class="block">
+<span class="font-label-sm text-label-sm uppercase text-on-surface-variant">Official Website</span>
+<input class="mt-2 block w-full bg-white border border-tertiary-fixed px-4 py-3 font-body-md text-body-md" type="text" value="www.ethosorigin.coffee"/>
+</label>
+<label class="block">
+<span class="font-label-sm text-label-sm uppercase text-on-surface-variant">Contact Email</span>
+<input class="mt-2 block w-full bg-white border border-tertiary-fixed px-4 py-3 font-body-md text-body-md" type="email" value="hello@ethosorigin.coffee"/>
+</label>
+</div>
+<div class="space-y-4">
+<label class="block">
+<span class="font-label-sm text-label-sm uppercase text-on-surface-variant">Store Address</span>
+<textarea class="mt-2 block w-full bg-white border border-tertiary-fixed px-4 py-3 font-body-md text-body-md" rows="4">12 Artizans Row, Kensington
+London, W8 4BZ
+United Kingdom</textarea>
+</label>
+</div>
+</div>
+<div class="mt-lg border-t border-tertiary-fixed pt-md">
+<h5 class="font-label-md text-label-md text-on-surface mb-sm">Operating Hours</h5>
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-sm">
+<div class="p-4 bg-surface-container-low border border-tertiary-fixed">
+<p class="font-label-sm text-label-sm text-primary">Mon - Fri</p>
+<p class="font-body-md text-body-md mt-1">07:00 - 18:00</p>
+</div>
+<div class="p-4 bg-surface-container-low border border-tertiary-fixed">
+<p class="font-label-sm text-label-sm text-primary">Saturday</p>
+<p class="font-body-md text-body-md mt-1">08:00 - 19:00</p>
+</div>
+<div class="p-4 bg-surface-container-low border border-tertiary-fixed">
+<p class="font-label-sm text-label-sm text-primary">Sunday</p>
+<p class="font-body-md text-body-md mt-1">09:00 - 17:00</p>
+</div>
+<button class="p-4 border border-dashed border-outline-variant flex items-center justify-center hover:bg-surface-container transition-colors group">
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary">add_circle</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Section: Notification Settings (Vertical Card) -->
+<div class="col-span-12 lg:col-span-4 space-y-gutter">
+<div class="bg-white border border-tertiary-fixed p-md custom-shadow hover:translate-x-1 transition-transform">
+<div class="mb-md">
+<span class="material-symbols-outlined text-primary mb-2">notifications_active</span>
+<h4 class="font-headline-sm text-headline-sm text-tertiary">Alerts</h4>
+</div>
+<div class="space-y-4">
+<div class="flex items-center justify-between py-2">
+<span class="font-body-md text-body-md">New Order SMS</span>
+<div class="relative inline-flex h-6 w-11 items-center rounded-full bg-primary-container cursor-pointer">
+<span class="translate-x-6 inline-block h-4 w-4 rounded-full bg-white transition-transform"></span>
+</div>
+</div>
+<div class="flex items-center justify-between py-2">
+<span class="font-body-md text-body-md">Inventory Low</span>
+<div class="relative inline-flex h-6 w-11 items-center rounded-full bg-primary-container cursor-pointer">
+<span class="translate-x-6 inline-block h-4 w-4 rounded-full bg-white transition-transform"></span>
+</div>
+</div>
+<div class="flex items-center justify-between py-2 opacity-50">
+<span class="font-body-md text-body-md">Daily Report</span>
+<div class="relative inline-flex h-6 w-11 items-center rounded-full bg-outline-variant cursor-pointer">
+<span class="translate-x-1 inline-block h-4 w-4 rounded-full bg-white transition-transform"></span>
+</div>
+</div>
+</div>
+</div>
+<!-- Payment Integration Snapshot -->
+<div class="bg-white border border-tertiary-fixed p-md custom-shadow hover:translate-x-1 transition-transform">
+<div class="mb-md">
+<span class="material-symbols-outlined text-secondary mb-2">payments</span>
+<h4 class="font-headline-sm text-headline-sm text-tertiary">Payments</h4>
+</div>
+<div class="flex items-center justify-between p-4 bg-surface-container-low border border-tertiary-fixed mb-sm">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 bg-on-background flex items-center justify-center rounded-sm">
+<span class="text-[10px] text-white font-bold">Stripe</span>
+</div>
+<span class="font-label-md text-label-md">Connected</span>
+</div>
+<span class="material-symbols-outlined text-primary text-sm">check_circle</span>
+</div>
+<button class="w-full py-2 border border-outline text-on-surface-variant font-label-md text-label-md hover:bg-surface-container transition-colors">Manage Gateways</button>
+</div>
+</div>
+<!-- Section: Team Permissions (Full Width) -->
+<div class="col-span-12 bg-white border border-tertiary-fixed p-lg custom-shadow">
+<div class="flex justify-between items-end mb-lg">
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-widest text-primary mb-2 block">Governance</span>
+<h4 class="font-headline-sm text-headline-sm text-tertiary">Team Permissions</h4>
+</div>
+<div class="flex gap-4">
+<button class="text-primary font-label-md text-label-md border-b border-primary pb-1">View Audit Log</button>
+<button class="px-6 py-2 border border-tertiary text-tertiary font-label-md text-label-md rounded-DEFAULT hover:bg-surface-container transition-all">+ Add Member</button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="border-b border-tertiary-fixed">
+<th class="pb-4 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Member</th>
+<th class="pb-4 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Role</th>
+<th class="pb-4 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Permissions</th>
+<th class="pb-4 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Last Activity</th>
+<th class="pb-4"></th>
+</tr>
+</thead>
+<tbody class="divide-y divide-tertiary-fixed">
+<tr class="group hover:bg-surface-container-lowest transition-colors">
+<td class="py-6">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container font-bold">ED</div>
+<div>
+<p class="font-label-md text-label-md">Eleanor Davies</p>
+<p class="text-sm text-on-surface-variant">eleanor@ethosorigin.coffee</p>
+</div>
+</div>
+</td>
+<td class="py-6">
+<span class="px-3 py-1 bg-primary-container text-on-primary-container font-label-sm text-label-sm rounded-full">Admin</span>
+</td>
+<td class="py-6">
+<span class="text-sm text-on-surface-variant">Full system access, billing, team management</span>
+</td>
+<td class="py-6 text-sm text-on-surface-variant">2 mins ago</td>
+<td class="py-6 text-right">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">more_vert</button>
+</td>
+</tr>
+<tr class="group hover:bg-surface-container-lowest transition-colors">
+<td class="py-6">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-tertiary-fixed flex items-center justify-center text-on-tertiary-fixed font-bold">MS</div>
+<div>
+<p class="font-label-md text-label-md">Marcus Thorne</p>
+<p class="text-sm text-on-surface-variant">marcus@ethosorigin.coffee</p>
+</div>
+</div>
+</td>
+<td class="py-6">
+<span class="px-3 py-1 bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm rounded-full">Manager</span>
+</td>
+<td class="py-6">
+<span class="text-sm text-on-surface-variant">Inventory, Menu, Order processing</span>
+</td>
+<td class="py-6 text-sm text-on-surface-variant">1 hour ago</td>
+<td class="py-6 text-right">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">more_vert</button>
+</td>
+</tr>
+<tr class="group hover:bg-surface-container-lowest transition-colors">
+<td class="py-6">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-tertiary-fixed flex items-center justify-center text-on-tertiary-fixed font-bold">LW</div>
+<div>
+<p class="font-label-md text-label-md">Lydia Wells</p>
+<p class="text-sm text-on-surface-variant">lydia@ethosorigin.coffee</p>
+</div>
+</div>
+</td>
+<td class="py-6">
+<span class="px-3 py-1 bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm rounded-full">Barista</span>
+</td>
+<td class="py-6">
+<span class="text-sm text-on-surface-variant">Order processing, Terminal access</span>
+</td>
+<td class="py-6 text-sm text-on-surface-variant">Active now</td>
+<td class="py-6 text-right">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">more_vert</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Section: Danger Zone / System Maintenance (Small Card) -->
+<div class="col-span-12 lg:col-span-12 flex justify-between items-center bg-surface-container-low border border-tertiary-fixed p-md mt-md">
+<div class="flex items-center gap-6">
+<div class="w-12 h-12 bg-white flex items-center justify-center rounded-DEFAULT border border-tertiary-fixed">
+<span class="material-symbols-outlined text-error">cloud_sync</span>
+</div>
+<div>
+<h5 class="font-label-md text-label-md text-on-surface">System Backup &amp; Sync</h5>
+<p class="text-sm text-on-surface-variant opacity-70">Last automated backup completed 4 hours ago.</p>
+</div>
+</div>
+<div class="flex gap-4">
+<button class="px-6 py-2 border border-outline text-on-surface-variant font-label-md text-label-md rounded-DEFAULT hover:bg-white transition-all">Manual Backup</button>
+<button class="px-6 py-2 bg-error text-on-error font-label-md text-label-md rounded-DEFAULT hover:opacity-90 transition-opacity">Reset All Configs</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<script>
+        // Simple toggle micro-interaction for notification switches
+        document.querySelectorAll('.relative.inline-flex').forEach(toggle => {
+            toggle.addEventListener('click', function() {
+                const dot = this.querySelector('span');
+                const isOff = this.classList.contains('bg-outline-variant');
+                
+                if(isOff) {
+                    this.classList.remove('bg-outline-variant');
+                    this.classList.add('bg-primary-container');
+                    dot.classList.remove('translate-x-1');
+                    dot.classList.add('translate-x-6');
+                } else {
+                    this.classList.add('bg-outline-variant');
+                    this.classList.remove('bg-primary-container');
+                    dot.classList.add('translate-x-1');
+                    dot.classList.remove('translate-x-6');
+                }
+            });
+        });
+    </script>
+</body></html>
+
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&amp;family=Plus+Jakarta+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-low": "#f6f3f2",
+                    "tertiary-fixed": "#e5e2db",
+                    "on-secondary-container": "#783b30",
+                    "inverse-surface": "#303030",
+                    "inverse-on-surface": "#f3f0f0",
+                    "secondary-container": "#fda999",
+                    "on-background": "#1b1c1c",
+                    "inverse-primary": "#b6ccb8",
+                    "on-primary": "#ffffff",
+                    "primary-fixed-dim": "#b6ccb8",
+                    "surface-container": "#f0eded",
+                    "on-secondary-fixed-variant": "#71352a",
+                    "surface-container-high": "#eae7e7",
+                    "on-error": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "on-surface-variant": "#434843",
+                    "surface-variant": "#e4e2e1",
+                    "primary-container": "#5a6e5d",
+                    "on-primary-fixed-variant": "#384b3c",
+                    "on-primary-container": "#d9f0da",
+                    "surface": "#fcf9f8",
+                    "secondary": "#8d4c40",
+                    "surface-dim": "#dcd9d9",
+                    "tertiary": "#52514c",
+                    "on-tertiary-fixed": "#1c1c18",
+                    "surface-container-highest": "#e4e2e1",
+                    "secondary-fixed-dim": "#ffb4a6",
+                    "outline": "#737872",
+                    "primary": "#425646",
+                    "error": "#ba1a1a",
+                    "secondary-fixed": "#ffdad3",
+                    "outline-variant": "#c3c8c1",
+                    "error-container": "#ffdad6",
+                    "on-primary-fixed": "#0d1f12",
+                    "surface-container-lowest": "#ffffff",
+                    "on-surface": "#1b1c1c",
+                    "surface-tint": "#4f6353",
+                    "on-tertiary-container": "#ece9e2",
+                    "surface-bright": "#fcf9f8",
+                    "on-secondary-fixed": "#390b05",
+                    "on-tertiary": "#ffffff",
+                    "primary-fixed": "#d2e8d3",
+                    "on-tertiary-fixed-variant": "#474742",
+                    "tertiary-container": "#6a6964",
+                    "on-secondary": "#ffffff",
+                    "background": "#fcf9f8",
+                    "tertiary-fixed-dim": "#c9c6c0"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "lg": "48px",
+                    "base": "8px",
+                    "md": "24px",
+                    "margin-desktop": "64px",
+                    "sm": "12px",
+                    "margin-mobile": "20px",
+                    "xl": "80px",
+                    "xs": "4px",
+                    "gutter": "24px"
+            },
+            "fontFamily": {
+                    "display-lg-mobile": ["Playfair Display"],
+                    "body-md": ["Plus Jakarta Sans"],
+                    "label-md": ["Plus Jakarta Sans"],
+                    "headline-md": ["Playfair Display"],
+                    "headline-sm": ["Playfair Display"],
+                    "label-sm": ["Plus Jakarta Sans"],
+                    "display-lg": ["Playfair Display"],
+                    "body-lg": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "display-lg-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "1.0", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-md": ["32px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                    "headline-sm": ["24px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                    "label-sm": ["12px", {"lineHeight": "1.0", "fontWeight": "500"}],
+                    "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .chart-bar {
+            transition: height 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .luxury-card {
+            box-shadow: 0 10px 30px rgba(44, 44, 44, 0.05);
+        }
+        .scroll-hide::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md overflow-x-hidden">
+<!-- Side Navigation Shell -->
+<aside class="bg-surface dark:bg-on-background h-screen w-64 fixed left-0 top-0 border-r border-tertiary-fixed dark:border-outline-variant flex flex-col py-8 px-6 z-50">
+<div class="mb-xl">
+<h1 class="font-headline-sm text-headline-sm text-primary dark:text-primary-fixed mb-1">Ethos &amp; Origin</h1>
+<p class="font-label-sm text-on-surface-variant opacity-70">Admin Portal</p>
+</div>
+<nav class="flex-1 flex flex-col gap-sm">
+<a class="flex items-center gap-3 py-3 px-4 rounded transition-transform duration-200 hover:translate-x-1 text-on-surface-variant dark:text-surface-variant hover:text-primary" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 py-3 px-4 rounded transition-transform duration-200 hover:translate-x-1 text-on-surface-variant dark:text-surface-variant hover:text-primary" href="#">
+<span class="material-symbols-outlined" data-icon="restaurant_menu">restaurant_menu</span>
+<span class="font-label-md">Menu</span>
+</a>
+<a class="flex items-center gap-3 py-3 px-4 rounded transition-transform duration-200 hover:translate-x-1 text-on-surface-variant dark:text-surface-variant hover:text-primary" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-label-md">Team</span>
+</a>
+<!-- Active State: Analytics -->
+<a class="flex items-center gap-3 py-3 px-4 rounded transition-transform duration-200 hover:translate-x-1 text-primary dark:text-primary-fixed border-b-2 border-primary dark:border-primary-fixed font-bold" href="#">
+<span class="material-symbols-outlined" data-icon="analytics" style="font-variation-settings: 'FILL' 1;">analytics</span>
+<span class="font-label-md">Analytics</span>
+</a>
+<a class="flex items-center gap-3 py-3 px-4 rounded transition-transform duration-200 hover:translate-x-1 text-on-surface-variant dark:text-surface-variant hover:text-primary" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-md">Settings</span>
+</a>
+</nav>
+<div class="mt-auto pt-md border-t border-tertiary-fixed flex flex-col gap-2">
+<button class="flex items-center gap-3 py-2 px-4 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="font-label-sm">Support</span>
+</button>
+<button class="flex items-center gap-3 py-2 px-4 text-secondary hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-label-sm">Sign Out</span>
+</button>
+</div>
+</aside>
+<!-- Top Navigation Bar -->
+<header class="flex justify-between items-center h-[80px] px-margin-desktop ml-64 bg-surface-bright dark:bg-surface-dim sticky top-0 z-40 border-b border-tertiary-fixed dark:border-outline-variant">
+<h2 class="font-headline-md text-headline-md text-primary dark:text-primary-fixed">Analytics &amp; Insights</h2>
+<div class="flex items-center gap-md">
+<div class="relative">
+<input class="bg-surface-container-lowest border border-tertiary-fixed rounded-full px-5 py-2 w-64 focus:outline-none focus:ring-1 focus:ring-primary text-label-sm" placeholder="Search data..." type="text"/>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant opacity-60 text-[20px]" data-icon="search">search</span>
+</div>
+<div class="flex gap-4">
+<button class="p-2 text-on-surface-variant hover:text-secondary transition-colors duration-200">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<div class="w-10 h-10 rounded-full overflow-hidden border border-tertiary-fixed">
+<img class="w-full h-full object-cover" data-alt="A portrait of a refined, professional cafe manager in a minimalist office setting, wearing neutral tones with soft, natural lighting filtering through large windows. The aesthetic is clean, sophisticated, and aligns with the luxury branding of the establishment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCGV0GIhrG3EKWD6zqoZ1ZGynIXVoihlu86NPHmUkltnCH2eNeaklIXGKLQ1XtfkM_Qyy4LVaCu7ygqC6at1JUdoCBVQgnu8U3cjsKjEpR2qlbLDUpyRuDdnq-vbZVm4-fKCcIwMEIUWRWmb2ku2gpz8pqQU1idw3Qqk3jAVE9PW3Obh-rR4j7uIWjiWNbUvK88MK5dHZvfAhTOcbvnRqu2K7ATTi-Qie0WKreLzsuyGCnk1G6_gGw4"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="ml-64 p-margin-desktop max-w-[1280px]">
+<!-- Hero Metrics -->
+<section class="grid grid-cols-1 md:grid-cols-4 gap-gutter mb-xl">
+<div class="bg-surface-container-lowest border border-tertiary-fixed p-md rounded-lg luxury-card flex flex-col gap-1">
+<span class="text-label-sm uppercase tracking-widest text-on-surface-variant">Daily Revenue</span>
+<h3 class="font-display-lg text-[32px] text-primary">$4,280.50</h3>
+<span class="text-label-sm text-primary flex items-center gap-1">
+<span class="material-symbols-outlined text-sm" data-icon="trending_up">trending_up</span> +12.4% vs last week
+                </span>
+</div>
+<div class="bg-surface-container-lowest border border-tertiary-fixed p-md rounded-lg luxury-card flex flex-col gap-1">
+<span class="text-label-sm uppercase tracking-widest text-on-surface-variant">Total Orders</span>
+<h3 class="font-display-lg text-[32px] text-primary">342</h3>
+<span class="text-label-sm text-secondary flex items-center gap-1">
+<span class="material-symbols-outlined text-sm" data-icon="trending_down">trending_down</span> -2.1% vs last week
+                </span>
+</div>
+<div class="bg-surface-container-lowest border border-tertiary-fixed p-md rounded-lg luxury-card flex flex-col gap-1">
+<span class="text-label-sm uppercase tracking-widest text-on-surface-variant">Avg Ticket Size</span>
+<h3 class="font-display-lg text-[32px] text-primary">$12.51</h3>
+<span class="text-label-sm text-primary flex items-center gap-1">
+<span class="material-symbols-outlined text-sm" data-icon="trending_up">trending_up</span> +5.8% vs last week
+                </span>
+</div>
+<div class="bg-surface-container-lowest border border-tertiary-fixed p-md rounded-lg luxury-card flex flex-col gap-1">
+<span class="text-label-sm uppercase tracking-widest text-on-surface-variant">Customer NPS</span>
+<h3 class="font-display-lg text-[32px] text-primary">89</h3>
+<span class="text-label-sm text-primary flex items-center gap-1">
+<span class="material-symbols-outlined text-sm" data-icon="stars">stars</span> Exceptional
+                </span>
+</div>
+</section>
+<!-- Bento Grid Visualization -->
+<section class="grid grid-cols-12 gap-gutter">
+<!-- Revenue by Category (Donut Style) -->
+<div class="col-span-12 md:col-span-5 bg-surface-container-lowest border border-tertiary-fixed p-lg rounded-lg luxury-card flex flex-col">
+<div class="flex justify-between items-center mb-md">
+<h4 class="font-headline-sm text-on-surface">Revenue by Category</h4>
+<button class="material-symbols-outlined text-on-surface-variant" data-icon="more_vert">more_vert</button>
+</div>
+<div class="flex-1 flex items-center justify-center relative min-h-[300px]">
+<!-- Circular visual representation -->
+<div class="w-48 h-48 rounded-full border-[12px] border-primary flex items-center justify-center relative">
+<div class="absolute inset-[-12px] rounded-full border-[12px] border-secondary border-l-transparent border-b-transparent border-r-transparent transform rotate-[45deg]"></div>
+<div class="absolute inset-[-12px] rounded-full border-[12px] border-tertiary border-l-transparent border-t-transparent border-r-transparent transform rotate-[160deg]"></div>
+<div class="text-center">
+<span class="text-label-sm text-on-surface-variant uppercase">Total</span>
+<p class="font-display-lg text-headline-sm text-primary">$24.8k</p>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4 mt-8">
+<div class="flex items-center gap-3">
+<div class="w-3 h-3 rounded-full bg-primary"></div>
+<span class="text-label-sm">Single Origin Espresso (65%)</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-3 h-3 rounded-full bg-secondary"></div>
+<span class="text-label-sm">Artisan Pastries (18%)</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-3 h-3 rounded-full bg-tertiary"></div>
+<span class="text-label-sm">Seasonal Brews (12%)</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-3 h-3 rounded-full bg-tertiary-fixed"></div>
+<span class="text-label-sm">Retail Beans (5%)</span>
+</div>
+</div>
+</div>
+<!-- Customer Peak Hours (Area Chart Style) -->
+<div class="col-span-12 md:col-span-7 bg-surface-container-lowest border border-tertiary-fixed p-lg rounded-lg luxury-card flex flex-col">
+<div class="flex justify-between items-center mb-md">
+<h4 class="font-headline-sm text-on-surface">Customer Peak Hours</h4>
+<div class="flex gap-2">
+<span class="px-3 py-1 bg-surface-container rounded-full text-label-sm">Daily</span>
+<span class="px-3 py-1 text-on-surface-variant text-label-sm">Weekly</span>
+</div>
+</div>
+<div class="flex-1 flex flex-col justify-end gap-2 min-h-[300px]">
+<div class="flex items-end justify-between h-48 w-full px-4 gap-2">
+<!-- Hour Bars with labels -->
+<div class="flex flex-col items-center gap-2 flex-1">
+<div class="w-full bg-surface-container rounded-t-sm chart-bar" style="height: 30%"></div>
+<span class="text-[10px] text-on-surface-variant">07:00</span>
+</div>
+<div class="flex flex-col items-center gap-2 flex-1">
+<div class="w-full bg-primary opacity-60 rounded-t-sm chart-bar" style="height: 85%"></div>
+<span class="text-[10px] text-on-surface-variant">09:00</span>
+</div>
+<div class="flex flex-col items-center gap-2 flex-1">
+<div class="w-full bg-primary rounded-t-sm chart-bar" style="height: 100%"></div>
+<span class="text-[10px] font-bold text-primary">11:00</span>
+</div>
+<div class="flex flex-col items-center gap-2 flex-1">
+<div class="w-full bg-primary opacity-70 rounded-t-sm chart-bar" style="height: 70%"></div>
+<span class="text-[10px] text-on-surface-variant">13:00</span>
+</div>
+<div class="flex flex-col items-center gap-2 flex-1">
+<div class="w-full bg-surface-container rounded-t-sm chart-bar" style="height: 45%"></div>
+<span class="text-[10px] text-on-surface-variant">15:00</span>
+</div>
+<div class="flex flex-col items-center gap-2 flex-1">
+<div class="w-full bg-secondary opacity-60 rounded-t-sm chart-bar" style="height: 60%"></div>
+<span class="text-[10px] text-on-surface-variant">17:00</span>
+</div>
+<div class="flex flex-col items-center gap-2 flex-1">
+<div class="w-full bg-surface-container rounded-t-sm chart-bar" style="height: 20%"></div>
+<span class="text-[10px] text-on-surface-variant">19:00</span>
+</div>
+</div>
+</div>
+<p class="mt-8 text-body-md text-on-surface-variant">Peak traffic occurs between <strong class="text-on-surface">10:30 AM and 11:45 AM</strong>. Suggest adding one additional barista during this window to maintain service standards.</p>
+</div>
+<!-- Top Selling Items (Table/List) -->
+<div class="col-span-12 bg-surface-container-lowest border border-tertiary-fixed p-lg rounded-lg luxury-card mt-md">
+<div class="flex justify-between items-center mb-lg">
+<div>
+<h4 class="font-headline-sm text-on-surface">Top Selling Items</h4>
+<p class="text-label-sm text-on-surface-variant">Performance metrics for the last 30 days</p>
+</div>
+<button class="border border-secondary text-secondary px-6 py-2 rounded-full font-label-md hover:bg-secondary-container hover:text-on-secondary-container transition-all">Download Report</button>
+</div>
+<div class="overflow-x-auto scroll-hide">
+<table class="w-full text-left">
+<thead>
+<tr class="border-b border-tertiary-fixed text-label-sm uppercase tracking-widest text-on-surface-variant">
+<th class="pb-4 font-normal">Item Details</th>
+<th class="pb-4 font-normal">Category</th>
+<th class="pb-4 font-normal text-right">Sold Count</th>
+<th class="pb-4 font-normal text-right">Revenue</th>
+<th class="pb-4 font-normal text-right">Trend</th>
+</tr>
+</thead>
+<tbody class="text-body-md">
+<tr class="border-b border-surface-container">
+<td class="py-6 flex items-center gap-4">
+<div class="w-12 h-12 bg-tertiary-fixed rounded overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A macro shot of a perfectly crafted latte with intricate Rosetta latte art in a ceramic artisanal cup. Soft steam rises against a moody, minimal background, emphasizing the texture and luxury of the coffee." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBy-A-nBAI18eATacp_oqEzKrj0w6wDQ-MeN6Iw5S9QzxI4y49-N4aUO_-296CeZAFfOxp_bVZaIGV5GiqVwZJyW_G3BixwxmxneqF-oxC3T0gGQBx42nEQdlzlBz4rycGhyMXuFlU9IdQlh9foowDFrICYMw3QfW4qnZqt_Ox5h2-srwHBWNvj4dDsuX3NmJHK0ZAH5zPBJxsCiVCJpxxoVfqlZ25CrIFkoqx1J-NtMYpySP-kinPj"/>
+</div>
+<div>
+<p class="font-bold">Ethiopian Yirgacheffe Latte</p>
+<span class="text-label-sm text-on-surface-variant">SKU: CF-001</span>
+</div>
+</td>
+<td class="py-6">
+<span class="px-2 py-1 bg-primary-fixed text-on-primary-fixed text-[10px] rounded uppercase font-bold">Coffee</span>
+</td>
+<td class="py-6 text-right font-medium">1,248</td>
+<td class="py-6 text-right">$7,488.00</td>
+<td class="py-6 text-right text-primary">
+<span class="material-symbols-outlined align-middle" data-icon="trending_up">trending_up</span> 14%
+                                </td>
+</tr>
+<tr class="border-b border-surface-container">
+<td class="py-6 flex items-center gap-4">
+<div class="w-12 h-12 bg-tertiary-fixed rounded overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A flaky, golden-brown almond croissant on a stone surface. The lighting is crisp, highlighting the delicate layers of pastry and powdered sugar dusting. The mood is sophisticated and artisanal." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC3tWjnfrwKEJfHdg7uPIjPqF0JSDVRQ3s4Lqe4NRn0D1zzI-zLEkWXIbVXfDRgRshyBUG04F2_TsSViv9JNb5qATKMfLJzgGjF6cpjbgx0m7piEAIZT427KnLY4gjUD1-TGfFAmu7Ep0EmCKcnkg7cyw4vDjIPKY3AG1SNo5RmwQey5DXbfBHyvmouiHNNFDWj_t68LFjkRr_BfQ1BGDt_0RlpiKcq6qBJ07wo24TxgO77qjGOfn8E"/>
+</div>
+<div>
+<p class="font-bold">Twice-Baked Almond Croissant</p>
+<span class="text-label-sm text-on-surface-variant">SKU: PS-042</span>
+</div>
+</td>
+<td class="py-6">
+<span class="px-2 py-1 bg-secondary-fixed text-on-secondary-fixed text-[10px] rounded uppercase font-bold">Pastry</span>
+</td>
+<td class="py-6 text-right font-medium">892</td>
+<td class="py-6 text-right">$5,352.00</td>
+<td class="py-6 text-right text-primary">
+<span class="material-symbols-outlined align-middle" data-icon="trending_up">trending_up</span> 8%
+                                </td>
+</tr>
+<tr class="border-b border-surface-container">
+<td class="py-6 flex items-center gap-4">
+<div class="w-12 h-12 bg-tertiary-fixed rounded overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A minimalist presentation of a Japanese ceremonial matcha whisked to a vibrant green froth in a black stoneware bowl. The composition is clean, with deep contrasts and an atmosphere of zen tranquility." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDK9E98Jskl9f5whQfVuNQSXl-thTktZcy9Ey1fBCAOSTpbBpRfD6cx9qSum6RQoasJJ3nS-Sn1Bh6m93tx3_0tjw45o6bAfP6RkNoaX5f0GF2l-OT6TeGb60MQN--KX6_s2_6mz69Dk2cWPjnN5XNb5FOLTOZhw1PVSUB6GruRKkMmnefdhpe-doX-O18Zex7mQKFGFfLQgFc5h5ucTKcem_FhDmzLobcmL2vhL_klkJOj8hEhyPz4"/>
+</div>
+<div>
+<p class="font-bold">Ceremonial Grade Matcha</p>
+<span class="text-label-sm text-on-surface-variant">SKU: CF-009</span>
+</div>
+</td>
+<td class="py-6">
+<span class="px-2 py-1 bg-primary-fixed text-on-primary-fixed text-[10px] rounded uppercase font-bold">Tea</span>
+</td>
+<td class="py-6 text-right font-medium">654</td>
+<td class="py-6 text-right">$4,578.00</td>
+<td class="py-6 text-right text-secondary">
+<span class="material-symbols-outlined align-middle" data-icon="trending_down">trending_down</span> 3%
+                                </td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<!-- Insights Summary -->
+<section class="mt-xl mb-xl">
+<h4 class="font-headline-sm text-on-surface mb-md">Strategic Insights</h4>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<div class="border-l-4 border-primary bg-surface-container-low p-md rounded-r-lg">
+<p class="text-label-md font-bold mb-1">Stock Optimization</p>
+<p class="text-body-md text-on-surface-variant">Pastry demand is up 15% on weekends. Increase croissant production on Friday nights.</p>
+</div>
+<div class="border-l-4 border-secondary bg-surface-container-low p-md rounded-r-lg">
+<p class="text-label-md font-bold mb-1">Pricing Opportunity</p>
+<p class="text-body-md text-on-surface-variant">Single Origin pour-overs have a high NPS but low volume. Consider a 'Featured Roast' promotion.</p>
+</div>
+<div class="border-l-4 border-tertiary bg-surface-container-low p-md rounded-r-lg">
+<p class="text-label-md font-bold mb-1">Loyalty Insight</p>
+<p class="text-body-md text-on-surface-variant">32% of customers return within 3 days. Your 'Daily Ritual' subscription is gaining traction.</p>
+</div>
+</div>
+</section>
+</main>
+<script>
+        // Simple micro-interaction for the chart bars on load
+        window.addEventListener('DOMContentLoaded', () => {
+            const bars = document.querySelectorAll('.chart-bar');
+            bars.forEach(bar => {
+                const targetHeight = bar.style.height;
+                bar.style.height = '0%';
+                setTimeout(() => {
+                    bar.style.height = targetHeight;
+                }, 200);
+            });
+        });
+
+        // Hover lifting effect for cards
+        document.querySelectorAll('.luxury-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-2px)';
+                card.style.transition = 'transform 0.3s ease, box-shadow 0.3s ease';
+                card.style.boxShadow = '0 15px 40px rgba(44, 44, 44, 0.08)';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0)';
+                card.style.boxShadow = '0 10px 30px rgba(44, 44, 44, 0.05)';
+            });
+        });
+    </script>
+</body></html>

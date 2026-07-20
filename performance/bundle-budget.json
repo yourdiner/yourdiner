@@ -1,0 +1,9 @@
+{
+  "maxTotalClientJsKb": 3500,
+  "routes": {
+    "/dashboard": 750,
+    "/dashboard/analytics": 400,
+    "/dashboard/orders": 650,
+    "/public-menu": 500
+  }
+}
