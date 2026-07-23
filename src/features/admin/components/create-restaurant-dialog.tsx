@@ -90,7 +90,8 @@ export function CreateRestaurantDialog() {
           <DialogTitle>Create Restaurant</DialogTitle>
           {tempPassword ? (
             <DialogDescription>
-              Save the owner&apos;s temporary password — it will not be shown again.
+              Owner temporary password is also saved on the restaurant page in the admin panel
+              until they change it.
             </DialogDescription>
           ) : (
             <DialogDescription>

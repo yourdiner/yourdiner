@@ -86,13 +86,19 @@ async function upsertUserWithPassword(
   platformRole?: "SUPER_ADMIN"
 ) {
   const passwordHash = await hashPassword(password);
+  const forcePasswordChange = password === DEV_SEED_PASSWORD;
   const user = await prisma.user.upsert({
     where: { email },
-    update: { name, ...(platformRole ? { platformRole } : {}) },
+    update: {
+      name,
+      ...(platformRole ? { platformRole } : {}),
+      ...(forcePasswordChange ? { mustChangePassword: true } : {}),
+    },
     create: {
       name,
       email,
       emailVerified: true,
+      mustChangePassword: forcePasswordChange,
       ...(platformRole ? { platformRole } : {}),
     },
   });
@@ -303,7 +309,13 @@ async function main() {
         slug: "demo-cafe",
         subdomain: "pending-demo",
         status: "ACTIVE",
+        ownerTempPassword: DEV_SEED_PASSWORD,
       },
+    });
+  } else if (!demoRestaurant.ownerTempPassword) {
+    await prisma.restaurant.update({
+      where: { id: demoRestaurant.id },
+      data: { ownerTempPassword: DEV_SEED_PASSWORD },
     });
   }
 

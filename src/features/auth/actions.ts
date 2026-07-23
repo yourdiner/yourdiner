@@ -1,7 +1,7 @@
 "use server";
 
 import { headers } from "next/headers";
-import { hashPassword } from "better-auth/crypto";
+import { hashPassword, verifyPassword } from "better-auth/crypto";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import {
@@ -21,6 +21,7 @@ import { slugify } from "@/lib/utils";
 import { toTenantHostKey } from "@/lib/tenancy-keys";
 import { adminStaffRoleFilter } from "@/lib/prisma-filters";
 import { startTrial } from "@/lib/subscription";
+import { DEV_SEED_PASSWORD } from "@/lib/dev-auth";
 
 export async function registerOwner(input: unknown) {
   const data = registerSchema.parse(input);
@@ -128,18 +129,27 @@ export async function completeForcedPasswordChange(input: unknown) {
 
   const passwordHash = await hashPassword(data.newPassword);
 
-  await prisma.$transaction([
-    prisma.account.updateMany({
+  await prisma.$transaction(async (tx) => {
+    await tx.account.updateMany({
       where: { userId: user.id, providerId: "credential" },
       data: { password: passwordHash },
-    }),
-    prisma.user.update({
+    });
+    await tx.user.update({
       where: { id: user.id },
       data: { mustChangePassword: false },
-    }),
-  ]);
+    });
+    // Clear invite passwords once the owner sets their own
+    await tx.restaurant.updateMany({
+      where: {
+        ownerTempPassword: { not: null },
+        staff: { some: { userId: user.id, role: "OWNER" } },
+      },
+      data: { ownerTempPassword: null },
+    });
+  });
 
   revalidatePath("/admin");
+  revalidatePath("/platform/restaurants");
   return { success: true };
 }
 
@@ -151,9 +161,36 @@ export async function getMustChangePassword(userId: string): Promise<boolean> {
   return user?.mustChangePassword ?? false;
 }
 
+/**
+ * True when the user must change password, including accounts still on the
+ * seeded Dev@123456 password (forces super-admin / demo users to reset).
+ */
 export async function checkCurrentUserMustChangePassword(): Promise<boolean> {
   const session = await requireSession();
-  return getMustChangePassword(session.user.id);
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { id: true, mustChangePassword: true },
+  });
+  if (!user) return false;
+  if (user.mustChangePassword) return true;
+
+  const account = await prisma.account.findFirst({
+    where: { userId: user.id, providerId: "credential" },
+    select: { password: true },
+  });
+  if (!account?.password) return false;
+
+  const stillSeedPassword = await verifyPassword({
+    hash: account.password,
+    password: DEV_SEED_PASSWORD,
+  });
+  if (!stillSeedPassword) return false;
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { mustChangePassword: true },
+  });
+  return true;
 }
 
 /** Resolves where to send the user after a successful login (full URL or same-origin path). */

@@ -102,6 +102,17 @@ export default async function RestaurantDetailPage({
                 <span className="text-muted-foreground">Owner</span>
                 <span>{owner?.user?.email || owner?.displayName || "—"}</span>
               </div>
+              {restaurant.ownerTempPassword && (
+                <div className="rounded-md border border-amber-500/40 bg-amber-500/10 p-3">
+                  <p className="text-xs text-muted-foreground">Owner temporary password</p>
+                  <p className="mt-1 font-mono text-base font-semibold tracking-wide">
+                    {restaurant.ownerTempPassword}
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Shown until the owner changes their password.
+                  </p>
+                </div>
+              )}
               <div className="flex justify-between gap-4">
                 <span className="text-muted-foreground">Created</span>
                 <span>{formatDate(restaurant.createdAt)}</span>

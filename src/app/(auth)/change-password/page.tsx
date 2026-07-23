@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/tenancy";
-import { getMustChangePassword } from "@/features/auth/actions";
+import { checkCurrentUserMustChangePassword } from "@/features/auth/actions";
 import { ChangePasswordForm } from "@/features/auth/components/change-password-form";
 
 export default async function ChangePasswordPage() {
@@ -9,7 +9,7 @@ export default async function ChangePasswordPage() {
     redirect("/login");
   }
 
-  const mustChange = await getMustChangePassword(session.user.id);
+  const mustChange = await checkCurrentUserMustChangePassword();
   if (!mustChange) {
     redirect("/admin");
   }

@@ -61,6 +61,7 @@ export async function createRestaurantAndOwner(data: CreateRestaurantCoreInput) 
         name: data.name,
         slug: slugify(data.name) + "-" + Date.now().toString(36),
         subdomain: data.subdomain,
+        ownerTempPassword: tempPassword,
       },
     });
 

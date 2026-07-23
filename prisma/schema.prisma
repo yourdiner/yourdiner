@@ -551,6 +551,8 @@ model Restaurant {
   deletedBy    String?
   deletedByUser User?           @relation("RestaurantDeletedBy", fields: [deletedBy], references: [id], onDelete: SetNull)
   deleteReason String?
+  /// Plaintext owner invite password set at creation; cleared after the owner changes it.
+  ownerTempPassword String?
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
 

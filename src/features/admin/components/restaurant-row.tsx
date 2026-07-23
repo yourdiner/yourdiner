@@ -19,6 +19,7 @@ interface RestaurantRowProps {
     subdomain: string;
     uuid: string;
     status: string;
+    ownerTempPassword?: string | null;
     deletedAt?: Date | string | null;
     deleteReason?: string | null;
     deletedByUser?: { name: string; email: string } | null;
@@ -102,7 +103,13 @@ export function RestaurantRow({ restaurant, showDeletedMeta = false }: Restauran
           {restaurant._count.categories} cat / {restaurant._count.products} prod
         </td>
         <td className="px-4 py-3 text-sm">
-          {restaurant.staff[0]?.user?.email || restaurant.staff[0]?.displayName || "—"}
+          <div>{restaurant.staff[0]?.user?.email || restaurant.staff[0]?.displayName || "—"}</div>
+          {restaurant.ownerTempPassword && (
+            <div className="mt-1">
+              <span className="text-xs text-muted-foreground">Temp password: </span>
+              <span className="font-mono text-xs font-medium">{restaurant.ownerTempPassword}</span>
+            </div>
+          )}
         </td>
         <td className="px-4 py-3" onClick={stopRowClick}>
           <div className="flex items-center gap-1">

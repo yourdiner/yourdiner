@@ -71,8 +71,8 @@ npm run dev
 
 ### Demo Credentials
 
-- **Super Admin:** `admin@restaurant-os.com` / `Admin@123456`
-- **Demo Owner:** `owner@democafe.com` / `Owner@123456`
+- **Super Admin:** `admin@restaurant-os.com` / `Dev@123456` (must change on first login)
+- **Demo Owner:** `owner@democafe.com` / `Dev@123456`
 
 > For subdomain access on Windows, add to `C:\Windows\System32\drivers\etc\hosts`:
 > ```
