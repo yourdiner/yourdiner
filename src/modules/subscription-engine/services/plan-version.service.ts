@@ -28,89 +28,94 @@ export async function createPlanVersion(input: CreatePlanVersionInput) {
     where: { code: { in: input.featureCodes }, isActive: true },
   });
 
-  return prisma.$transaction(async (tx) => {
-    await tx.planVersion.updateMany({
-      where: { planId: input.planId, isLatest: true },
-      data: { isLatest: false },
-    });
+  // Neon free-tier latency can exceed Prisma's default 5s interactive tx timeout
+  // when attaching many PlanFeature rows one-by-one (seed / plan edits).
+  return prisma.$transaction(
+    async (tx) => {
+      await tx.planVersion.updateMany({
+        where: { planId: input.planId, isLatest: true },
+        data: { isLatest: false },
+      });
 
-    const version = await tx.planVersion.create({
-      data: {
-        planId: input.planId,
-        versionNumber,
-        effectiveFrom: new Date(),
-        trialDays: input.trialDays ?? latest?.trialDays ?? 14,
-        graceDays: input.graceDays ?? latest?.graceDays ?? 7,
-        billingPeriodDefault:
-          input.billingPeriodDefault ??
-          latest?.billingPeriodDefault ??
-          ("MONTHLY" as BillingCycle),
-        notes: input.notes,
-        createdById: input.createdById,
-        isLatest: true,
-      },
-    });
-
-    const featureIds = new Set(features.map((f) => f.id));
-    const allFeatures = await tx.feature.findMany({ where: { isActive: true } });
-
-    for (const feature of allFeatures) {
-      await tx.planFeature.create({
+      const version = await tx.planVersion.create({
         data: {
-          planVersionId: version.id,
-          featureId: feature.id,
-          enabled: featureIds.has(feature.id),
+          planId: input.planId,
+          versionNumber,
+          effectiveFrom: new Date(),
+          trialDays: input.trialDays ?? latest?.trialDays ?? 14,
+          graceDays: input.graceDays ?? latest?.graceDays ?? 7,
+          billingPeriodDefault:
+            input.billingPeriodDefault ??
+            latest?.billingPeriodDefault ??
+            ("MONTHLY" as BillingCycle),
+          notes: input.notes,
+          createdById: input.createdById,
+          isLatest: true,
         },
       });
-    }
 
-    if (input.pricing) {
-      await tx.planPricing.create({
-        data: {
-          planVersionId: version.id,
-          currency: input.pricing.currency ?? "INR",
-          priceMonthly: input.pricing.priceMonthly,
-          priceYearly: input.pricing.priceYearly,
-          taxRate: input.pricing.taxRate ?? 0,
-          taxInclusive: input.pricing.taxInclusive ?? false,
-          discountPercent: input.pricing.discountPercent ?? 0,
-          offerStartDate: input.pricing.offerStartDate,
-          offerEndDate: input.pricing.offerEndDate,
-          effectiveFrom: input.pricing.effectiveFrom ?? new Date(),
-          effectiveTo: input.pricing.effectiveTo,
-        },
-      });
-    } else if (latest) {
-      const latestPricing = await tx.planPricing.findFirst({
-        where: { planVersionId: latest.id, effectiveTo: null },
-        orderBy: { effectiveFrom: "desc" },
-      });
-      if (latestPricing) {
+      const featureIds = new Set(features.map((f) => f.id));
+      const allFeatures = await tx.feature.findMany({ where: { isActive: true } });
+
+      if (allFeatures.length > 0) {
+        await tx.planFeature.createMany({
+          data: allFeatures.map((feature) => ({
+            planVersionId: version.id,
+            featureId: feature.id,
+            enabled: featureIds.has(feature.id),
+          })),
+        });
+      }
+
+      if (input.pricing) {
         await tx.planPricing.create({
           data: {
             planVersionId: version.id,
-            currency: latestPricing.currency,
-            priceMonthly: latestPricing.priceMonthly,
-            priceYearly: latestPricing.priceYearly,
-            taxRate: latestPricing.taxRate,
-            taxInclusive: latestPricing.taxInclusive,
-            discountPercent: latestPricing.discountPercent,
-            offerStartDate: latestPricing.offerStartDate,
-            offerEndDate: latestPricing.offerEndDate,
-            effectiveFrom: new Date(),
+            currency: input.pricing.currency ?? "INR",
+            priceMonthly: input.pricing.priceMonthly,
+            priceYearly: input.pricing.priceYearly,
+            taxRate: input.pricing.taxRate ?? 0,
+            taxInclusive: input.pricing.taxInclusive ?? false,
+            discountPercent: input.pricing.discountPercent ?? 0,
+            offerStartDate: input.pricing.offerStartDate,
+            offerEndDate: input.pricing.offerEndDate,
+            effectiveFrom: input.pricing.effectiveFrom ?? new Date(),
+            effectiveTo: input.pricing.effectiveTo,
           },
         });
+      } else if (latest) {
+        const latestPricing = await tx.planPricing.findFirst({
+          where: { planVersionId: latest.id, effectiveTo: null },
+          orderBy: { effectiveFrom: "desc" },
+        });
+        if (latestPricing) {
+          await tx.planPricing.create({
+            data: {
+              planVersionId: version.id,
+              currency: latestPricing.currency,
+              priceMonthly: latestPricing.priceMonthly,
+              priceYearly: latestPricing.priceYearly,
+              taxRate: latestPricing.taxRate,
+              taxInclusive: latestPricing.taxInclusive,
+              discountPercent: latestPricing.discountPercent,
+              offerStartDate: latestPricing.offerStartDate,
+              offerEndDate: latestPricing.offerEndDate,
+              effectiveFrom: new Date(),
+            },
+          });
+        }
       }
-    }
 
-    return tx.planVersion.findUnique({
-      where: { id: version.id },
-      include: {
-        planFeatures: { include: { feature: true } },
-        pricing: true,
-      },
-    });
-  }).then(async (version) => {
+      return tx.planVersion.findUnique({
+        where: { id: version.id },
+        include: {
+          planFeatures: { include: { feature: true } },
+          pricing: true,
+        },
+      });
+    },
+    { maxWait: 20_000, timeout: 120_000 }
+  ).then(async (version) => {
     if (version) {
       await logBillingAction({
         action: "PLAN_VERSION_CREATED",
