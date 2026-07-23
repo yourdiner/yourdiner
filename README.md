@@ -4,7 +4,7 @@ A production-ready multi-tenant SaaS Restaurant Operating System built with Next
 
 ## Features (Phase 0 + 1)
 
-- **Multi-tenant architecture** with subdomain routing (`{restaurant}.mydomain.com`)
+- **Multi-tenant architecture** with subdomain routing (`{restaurant}.yourdiner.in`)
 - **Super Admin dashboard** — restaurant CRUD, subscriptions, plans
 - **Restaurant dashboard** — menu, categories, products, branding, QR codes
 - **Public QR Menu** — mobile-first, PWA-ready, themed
@@ -82,12 +82,28 @@ npm run dev
 
 ## Deployment (Vercel + Neon + Cloudflare)
 
+Production domain: **yourdiner.in**
+
 1. Create Neon PostgreSQL database
-2. Deploy to Vercel with environment variables from `.env.example`
-3. Configure Cloudflare DNS:
-   - `CNAME * → cname.vercel-dns.com`
+2. Deploy to Vercel with environment variables (see below)
+3. Configure DNS (Cloudflare or registrar):
+   - Apex / `www` → Vercel (A / CNAME as Vercel instructs)
+   - `CNAME * → cname.vercel-dns.com` (tenant subdomains)
    - `CNAME admin → cname.vercel-dns.com`
-4. Add wildcard domain in Vercel project settings
+4. In Vercel → Domains: add `yourdiner.in`, `*.yourdiner.in`, and `admin.yourdiner.in`
+
+### Production env vars (Vercel)
+
+| Variable | Value |
+|----------|--------|
+| `BETTER_AUTH_URL` | `https://yourdiner.in` |
+| `NEXT_PUBLIC_APP_URL` | `https://yourdiner.in` |
+| `NEXT_PUBLIC_ROOT_DOMAIN` | `yourdiner.in` |
+| `COOKIE_DOMAIN` | `.yourdiner.in` |
+| `EMAIL_FROM` | e.g. `noreply@yourdiner.in` (Resend-verified domain) |
+| `CRON_SECRET` | long random secret (32+ chars) |
+
+Plus Neon `DATABASE_URL` / `DIRECT_URL`, Cloudinary, Razorpay, etc. from `.env.example`.
 
 ### Cron jobs (Vercel Hobby)
 
@@ -105,10 +121,12 @@ Set these **GitHub repository secrets** (Settings → Secrets and variables → 
 
 | Secret | Value |
 |--------|--------|
-| `APP_URL` | Production origin, e.g. `https://yourdiner.com` (no trailing slash) |
+| `APP_URL` | `https://yourdiner.in` |
 | `CRON_SECRET` | Same value as Vercel `CRON_SECRET` |
 
 Smoke-test: Actions → **External Cron Jobs** → **Run workflow**.
+
+Razorpay webhook URL: `https://yourdiner.in/api/webhooks/razorpay`
 
 ## Project Structure
 

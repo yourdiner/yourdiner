@@ -3,7 +3,7 @@
 #
 # Required GitHub repo secrets:
 #   CRON_SECRET  — same value as Vercel CRON_SECRET
-#   APP_URL      — production origin, e.g. https://yourdiner.com (no trailing slash)
+#   APP_URL      — production origin: https://yourdiner.in (no trailing slash)
 #
 # Optional: Actions → this workflow → Run workflow (manual smoke test).
 

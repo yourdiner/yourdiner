@@ -19,6 +19,7 @@ import { authClient } from "@/lib/auth-client";
 export function RegisterForm() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "localhost:3000";
 
   const form = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema),
@@ -107,14 +108,15 @@ export function RegisterForm() {
             <RequiredLabel htmlFor="subdomain">Subdomain</RequiredLabel>
             <div className="flex items-center gap-2">
               <Input id="subdomain" {...form.register("subdomain")} />
-              <span className="text-sm text-muted-foreground whitespace-nowrap">.mydomain.com</span>
+              <span className="text-sm text-muted-foreground whitespace-nowrap">.{rootDomain}</span>
             </div>
             {form.formState.errors.subdomain && (
               <p className="text-sm text-destructive">{form.formState.errors.subdomain.message}</p>
             )}
             {restaurantName && (
               <p className="text-xs text-muted-foreground">
-                Your menu: {form.watch("subdomain") || generateSubdomain(restaurantName)}.mydomain.com/menu
+                Your menu: {form.watch("subdomain") || generateSubdomain(restaurantName)}.
+                {rootDomain}/menu
               </p>
             )}
           </div>
