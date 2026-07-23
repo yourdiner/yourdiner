@@ -89,6 +89,27 @@ npm run dev
    - `CNAME admin → cname.vercel-dns.com`
 4. Add wildcard domain in Vercel project settings
 
+### Cron jobs (Vercel Hobby)
+
+Vercel Hobby only allows **daily** crons. This repo keeps those in `vercel.json`:
+
+- `/api/cron/subscriptions` — daily
+- `/api/cron/sales-summary` — daily
+
+More frequent jobs run via GitHub Actions (`.github/workflows/cron-external.yml`):
+
+- `/api/cron/billing-sync` — every 6 hours
+- `/api/cron/reservations` — every 5 minutes (Hobby substitute for every minute)
+
+Set these **GitHub repository secrets** (Settings → Secrets and variables → Actions):
+
+| Secret | Value |
+|--------|--------|
+| `APP_URL` | Production origin, e.g. `https://yourdiner.com` (no trailing slash) |
+| `CRON_SECRET` | Same value as Vercel `CRON_SECRET` |
+
+Smoke-test: Actions → **External Cron Jobs** → **Run workflow**.
+
 ## Project Structure
 
 ```

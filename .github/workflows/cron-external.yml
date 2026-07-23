@@ -1,0 +1,89 @@
+# External crons for Vercel Hobby (daily-only Vercel Cron Jobs).
+# billing-sync and reservations run here instead of vercel.json.
+#
+# Required GitHub repo secrets:
+#   CRON_SECRET  — same value as Vercel CRON_SECRET
+#   APP_URL      — production origin, e.g. https://yourdiner.com (no trailing slash)
+#
+# Optional: Actions → this workflow → Run workflow (manual smoke test).
+
+name: External Cron Jobs
+
+on:
+  schedule:
+    # Every 6 hours (UTC) — was vercel "0 */6 * * *"
+    - cron: "0 */6 * * *"
+    # Every 5 minutes — Hobby/GHA substitute for vercel "* * * * *"
+    # (GitHub schedules are not guaranteed below ~5 minutes.)
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+    inputs:
+      job:
+        description: Which cron endpoint to hit
+        required: true
+        type: choice
+        options:
+          - billing-sync
+          - reservations
+          - both
+
+jobs:
+  billing-sync:
+    if: >
+      github.event_name == 'schedule' && github.event.schedule == '0 */6 * * *'
+      || (github.event_name == 'workflow_dispatch' && (inputs.job == 'billing-sync' || inputs.job == 'both'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Require secrets
+        run: |
+          if [ -z "${{ secrets.APP_URL }}" ] || [ -z "${{ secrets.CRON_SECRET }}" ]; then
+            echo "Set repository secrets APP_URL and CRON_SECRET before running external crons."
+            exit 1
+          fi
+
+      - name: POST /api/cron/billing-sync
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          set -euo pipefail
+          BASE="${APP_URL%/}"
+          code=$(curl -sS -o /tmp/cron-body.json -w "%{http_code}" \
+            -X GET \
+            -H "Authorization: Bearer ${CRON_SECRET}" \
+            "${BASE}/api/cron/billing-sync")
+          echo "HTTP ${code}"
+          cat /tmp/cron-body.json || true
+          echo
+          test "$code" = "200"
+
+  reservations:
+    if: >
+      github.event_name == 'schedule' && github.event.schedule == '*/5 * * * *'
+      || (github.event_name == 'workflow_dispatch' && (inputs.job == 'reservations' || inputs.job == 'both'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Require secrets
+        run: |
+          if [ -z "${{ secrets.APP_URL }}" ] || [ -z "${{ secrets.CRON_SECRET }}" ]; then
+            echo "Set repository secrets APP_URL and CRON_SECRET before running external crons."
+            exit 1
+          fi
+
+      - name: GET /api/cron/reservations
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          set -euo pipefail
+          BASE="${APP_URL%/}"
+          code=$(curl -sS -o /tmp/cron-body.json -w "%{http_code}" \
+            -X GET \
+            -H "Authorization: Bearer ${CRON_SECRET}" \
+            "${BASE}/api/cron/reservations")
+          echo "HTTP ${code}"
+          cat /tmp/cron-body.json || true
+          echo
+          test "$code" = "200"

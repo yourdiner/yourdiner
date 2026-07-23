@@ -5,14 +5,6 @@
       "schedule": "30 18 * * *"
     },
     {
-      "path": "/api/cron/billing-sync",
-      "schedule": "0 */6 * * *"
-    },
-    {
-      "path": "/api/cron/reservations",
-      "schedule": "* * * * *"
-    },
-    {
       "path": "/api/cron/sales-summary",
       "schedule": "15 18 * * *"
     }
