@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { createRestaurant } from "@/features/restaurants/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,23 +27,35 @@ import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import { generateSubdomain } from "@/lib/utils";
 
-export function CreateRestaurantDialog() {
+export type CreateRestaurantPlanOption = {
+  slug: string;
+  name: string;
+};
+
+export function CreateRestaurantDialog({
+  plans,
+}: {
+  plans: CreateRestaurantPlanOption[];
+}) {
   const router = useRouter();
+  const defaultSlug = plans[0]?.slug ?? "";
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState("");
   const [subdomain, setSubdomain] = useState("");
-  const [planSlug, setPlanSlug] = useState("starter");
+  const [planSlug, setPlanSlug] = useState(defaultSlug);
   const [ownerName, setOwnerName] = useState("");
   const [ownerEmail, setOwnerEmail] = useState("");
   const [ownerPhone, setOwnerPhone] = useState("");
   const [ownerAddress, setOwnerAddress] = useState("");
   const [tempPassword, setTempPassword] = useState<string | null>(null);
 
+  const planOptions = useMemo(() => plans, [plans]);
+
   const resetForm = () => {
     setName("");
     setSubdomain("");
-    setPlanSlug("starter");
+    setPlanSlug(planOptions[0]?.slug ?? "");
     setOwnerName("");
     setOwnerEmail("");
     setOwnerPhone("");
@@ -51,6 +64,10 @@ export function CreateRestaurantDialog() {
   };
 
   const handleCreate = async () => {
+    if (!planSlug) {
+      toast.error("Create a plan first, then try again");
+      return;
+    }
     setLoading(true);
     try {
       const result = await createRestaurant({
@@ -112,6 +129,15 @@ export function CreateRestaurantDialog() {
               Done
             </Button>
           </div>
+        ) : planOptions.length === 0 ? (
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              No active plans found. Create a plan before adding a restaurant.
+            </p>
+            <Button asChild className="w-full">
+              <Link href="/platform/plans">Go to Plans</Link>
+            </Button>
+          </div>
         ) : (
           <div className="space-y-4">
             <div className="space-y-2">
@@ -132,12 +158,14 @@ export function CreateRestaurantDialog() {
               <RequiredLabel>Plan</RequiredLabel>
               <Select value={planSlug} onValueChange={setPlanSlug}>
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder="Select a plan" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="starter">Starter</SelectItem>
-                  <SelectItem value="professional">Professional</SelectItem>
-                  <SelectItem value="premium">Premium</SelectItem>
+                  {planOptions.map((plan) => (
+                    <SelectItem key={plan.slug} value={plan.slug}>
+                      {plan.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -172,7 +200,11 @@ export function CreateRestaurantDialog() {
               </div>
             </div>
 
-            <Button onClick={handleCreate} disabled={loading} className="w-full">
+            <Button
+              onClick={handleCreate}
+              disabled={loading || !planSlug}
+              className="w-full"
+            >
               {loading ? "Creating..." : "Create Restaurant"}
             </Button>
           </div>

@@ -1,10 +1,10 @@
-import Link from "next/link";
 import { Suspense } from "react";
 import { PlatformSidebarServer } from "@/components/layout/platform-sidebar-server";
 import { getRestaurants } from "@/features/restaurants/actions";
 import { CreateRestaurantDialog } from "@/features/admin/components/create-restaurant-dialog";
 import { RestaurantRow } from "@/features/admin/components/restaurant-row";
 import { RestaurantStatusFilters } from "@/features/platform/components/restaurant-status-filters";
+import { getAllPlansAdmin } from "@/features/subscriptions/platform-actions";
 
 type SearchParams = Promise<{ status?: string }>;
 
@@ -25,10 +25,17 @@ export default async function RestaurantsPage({
             ? "ALL"
             : undefined;
 
-  const { restaurants } = await getRestaurants({
-    status: statusParam,
-    limit: 100,
-  });
+  const [{ restaurants }, allPlans] = await Promise.all([
+    getRestaurants({
+      status: statusParam,
+      limit: 100,
+    }),
+    getAllPlansAdmin(),
+  ]);
+
+  const planOptions = allPlans
+    .filter((p) => p.status === "ACTIVE" && p.isActive)
+    .map((p) => ({ slug: p.slug, name: p.name }));
 
   const showDeletedMeta = params.status === "DELETED";
 
@@ -41,7 +48,7 @@ export default async function RestaurantsPage({
             <h1 className="text-2xl font-bold">Restaurants</h1>
             <p className="text-muted-foreground">Manage all restaurants on the platform</p>
           </div>
-          <CreateRestaurantDialog />
+          <CreateRestaurantDialog plans={planOptions} />
         </div>
         <div className="p-8">
           <Suspense fallback={null}>
