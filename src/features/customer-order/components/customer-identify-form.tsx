@@ -2,18 +2,22 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
-import { RequiredLabel } from "@/components/ui/required-label";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import {
   lookupCustomerForOrder,
   startCustomerSession,
 } from "@/lib/customer-order-client";
 
+type BrandingTheme = {
+  primaryColor?: string | null;
+  secondaryColor?: string | null;
+  accentColor?: string | null;
+};
+
 type Props = {
   tableSlug: string;
   tableLabel: string;
   restaurantName: string;
+  branding?: BrandingTheme | null;
   generalMenuHref?: string;
   onSessionStarted: (session: {
     tableSessionId: string;
@@ -50,6 +54,7 @@ export function CustomerIdentifyForm({
   tableSlug,
   tableLabel,
   restaurantName,
+  branding,
   generalMenuHref = "/menu",
   onSessionStarted,
   onTableOccupied,
@@ -62,6 +67,12 @@ export function CustomerIdentifyForm({
   const [customerInfo, setCustomerInfo] = useState<{
     name: string;
   } | null>(null);
+
+  const themeStyle = {
+    "--pm-primary": branding?.primaryColor || "#425646",
+    "--pm-secondary": branding?.secondaryColor || branding?.accentColor || "#8d4c40",
+    "--pm-primary-container": branding?.primaryColor || "#5a6e5d",
+  } as React.CSSProperties;
 
   async function handlePhoneChange(value: string) {
     setPhone(value);
@@ -125,62 +136,83 @@ export function CustomerIdentifyForm({
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[var(--pm-surface,#fcf9f8)] p-6">
+    <div
+      className="flex min-h-[70vh] items-center justify-center bg-[var(--pm-surface)] px-[var(--pm-margin-mobile)] py-10 md:px-[var(--pm-margin-desktop)]"
+      style={themeStyle}
+    >
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-md space-y-6 border border-[var(--pm-border-card,#e8e4df)] bg-white p-8 shadow-sm"
+        className="w-full max-w-md space-y-6 rounded-[var(--pm-radius-xl)] border border-[var(--pm-outline-variant)] bg-[var(--pm-surface-container-lowest)] p-6 shadow-[var(--pm-shadow-sm)] sm:p-8"
       >
         <div className="text-center">
-          <p className="text-sm uppercase tracking-widest text-[var(--pm-on-surface-variant)]">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--pm-on-surface-variant)]">
             {restaurantName}
           </p>
-          <h1 className="font-display mt-2 text-2xl text-[var(--pm-primary)]">
+          <h1 className="font-display mt-2 text-2xl text-[var(--pm-on-surface)]">
             Welcome to {tableLabel}
           </h1>
-          <p className="mt-2 text-sm text-[var(--pm-on-surface-variant)]">
+          <p className="mt-2 text-sm leading-relaxed text-[var(--pm-on-surface-variant)]">
             Enter your details to start ordering
           </p>
         </div>
 
         <div className="space-y-2">
-          <RequiredLabel htmlFor="customer-phone">Mobile number</RequiredLabel>
-          <Input
+          <label
+            htmlFor="customer-phone"
+            className="block text-sm font-medium text-[var(--pm-on-surface)]"
+          >
+            Mobile number <span className="text-[var(--pm-secondary)]">*</span>
+          </label>
+          <input
             id="customer-phone"
             type="tel"
             inputMode="numeric"
             placeholder="10-digit mobile"
             value={phone}
             onChange={(e) => handlePhoneChange(e.target.value)}
+            className="pm-field"
+            autoComplete="tel"
           />
         </div>
 
         <div className="space-y-2">
-          <RequiredLabel htmlFor="customer-name">Your name</RequiredLabel>
-          <Input
+          <label
+            htmlFor="customer-name"
+            className="block text-sm font-medium text-[var(--pm-on-surface)]"
+          >
+            Your name <span className="text-[var(--pm-secondary)]">*</span>
+          </label>
+          <input
             id="customer-name"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Full name"
+            className="pm-field"
+            autoComplete="name"
           />
         </div>
 
         {customerInfo && (
-          <p className="text-sm text-[var(--pm-on-surface-variant)]">
+          <p className="rounded-[var(--pm-radius-md)] bg-[var(--pm-primary-fixed)] px-3 py-2 text-sm text-[var(--pm-on-primary-fixed)]">
             Welcome back, {customerInfo.name}
           </p>
         )}
 
-        {error && <p className="text-sm text-destructive">{error}</p>}
-
-        {showGeneralMenuLink && (
-          <Button asChild type="button" variant="outline" className="w-full">
-            <Link href={generalMenuHref}>View menu instead</Link>
-          </Button>
+        {error && (
+          <p className="rounded-[var(--pm-radius-md)] bg-red-50 px-3 py-2 text-sm text-red-700">
+            {error}
+          </p>
         )}
 
-        <Button type="submit" className="w-full" disabled={pending}>
+        {showGeneralMenuLink && (
+          <Link href={generalMenuHref} className="pm-btn-secondary w-full py-3">
+            View menu instead
+          </Link>
+        )}
+
+        <button type="submit" className="pm-btn-primary w-full py-3" disabled={pending}>
           {pending ? "Starting..." : "Continue"}
-        </Button>
+        </button>
       </form>
     </div>
   );

@@ -10,7 +10,6 @@ import {
 } from "@/lib/customer-order-client";
 import { TableSessionStatus } from "@prisma/client";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 
 type SessionState = {
   tableSessionId: string;
@@ -32,11 +31,25 @@ type Props = {
 
 const POLL_MS = 5000;
 
-function GeneralMenuLink({ href }: { href: string }) {
+function StatusScreen({
+  title,
+  body,
+  generalMenuHref,
+}: {
+  title: string;
+  body: string;
+  generalMenuHref: string;
+}) {
   return (
-    <Button asChild variant="outline" className="mt-6">
-      <Link href={href}>View menu instead</Link>
-    </Button>
+    <div className="flex min-h-[70vh] items-center justify-center bg-[var(--pm-surface)] px-[var(--pm-margin-mobile)] py-10 md:px-[var(--pm-margin-desktop)]">
+      <div className="w-full max-w-md rounded-[var(--pm-radius-xl)] border border-[var(--pm-outline-variant)] bg-[var(--pm-surface-container-lowest)] px-6 py-10 text-center shadow-[var(--pm-shadow-sm)]">
+        <h1 className="font-display text-xl text-[var(--pm-on-surface)]">{title}</h1>
+        <p className="mt-3 text-sm leading-relaxed text-[var(--pm-on-surface-variant)]">{body}</p>
+        <Link href={generalMenuHref} className="pm-btn-secondary mt-6 w-full py-3">
+          View menu instead
+        </Link>
+      </div>
+    </div>
   );
 }
 
@@ -126,36 +139,21 @@ export function CustomerOrderFlow({
 
   if (status === "TABLE_OCCUPIED") {
     return (
-      <div className="flex min-h-screen items-center justify-center p-8 text-center">
-        <div>
-          <h1 className="text-xl font-bold">Table in use</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            This table already has an active dining session. Please contact restaurant staff.
-          </p>
-          <p className="mt-2 text-sm text-muted-foreground">
-            You can still browse the menu without placing an order.
-          </p>
-          <GeneralMenuLink href={generalMenuHref} />
-        </div>
-      </div>
+      <StatusScreen
+        title="Table in use"
+        body="This table already has an active dining session. Please contact restaurant staff. You can still browse the menu without placing an order."
+        generalMenuHref={generalMenuHref}
+      />
     );
   }
 
-  if (
-    status === TableSessionStatus.REJECTED ||
-    status === "SESSION_REJECTED"
-  ) {
+  if (status === TableSessionStatus.REJECTED || status === "SESSION_REJECTED") {
     return (
-      <div className="flex min-h-screen items-center justify-center p-8 text-center">
-        <div>
-          <h1 className="text-xl font-bold">Session not approved</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Your dining session was not approved. Please contact the restaurant staff for
-            assistance.
-          </p>
-          <GeneralMenuLink href={generalMenuHref} />
-        </div>
-      </div>
+      <StatusScreen
+        title="Session not approved"
+        body="Your dining session was not approved. Please contact the restaurant staff for assistance."
+        generalMenuHref={generalMenuHref}
+      />
     );
   }
 
@@ -165,15 +163,11 @@ export function CustomerOrderFlow({
     status === "SESSION_ENDED"
   ) {
     return (
-      <div className="flex min-h-screen items-center justify-center p-8 text-center">
-        <div>
-          <h1 className="text-xl font-bold">Session ended</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Your dining session has ended. Please scan the QR again.
-          </p>
-          <GeneralMenuLink href={generalMenuHref} />
-        </div>
-      </div>
+      <StatusScreen
+        title="Session ended"
+        body="Your dining session has ended. Please scan the QR again."
+        generalMenuHref={generalMenuHref}
+      />
     );
   }
 
@@ -208,6 +202,7 @@ export function CustomerOrderFlow({
         tableSlug={tableSlug}
         tableLabel={tableLabel}
         restaurantName={menu.restaurant.name}
+        branding={menu.restaurant.branding}
         generalMenuHref={generalMenuHref}
         onSessionStarted={(s) => {
           setSession({

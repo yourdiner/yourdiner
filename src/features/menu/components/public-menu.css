@@ -84,11 +84,28 @@
     box-shadow var(--pm-duration-ui) ease;
 }
 
-.public-menu-root .pm-input::placeholder {
+.public-menu-root .pm-field {
+  height: 44px;
+  width: 100%;
+  border-radius: var(--pm-radius-md);
+  border: 1px solid var(--pm-outline-variant);
+  background: var(--pm-surface-container-lowest);
+  padding: 0 14px;
+  font-size: 14px;
+  color: var(--pm-on-surface);
+  outline: none;
+  transition:
+    border-color var(--pm-duration-ui) ease,
+    box-shadow var(--pm-duration-ui) ease;
+}
+
+.public-menu-root .pm-input::placeholder,
+.public-menu-root .pm-field::placeholder {
   color: var(--pm-on-surface-variant);
 }
 
-.public-menu-root .pm-input:focus {
+.public-menu-root .pm-input:focus,
+.public-menu-root .pm-field:focus {
   border-color: color-mix(in srgb, var(--pm-primary) 55%, transparent);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--pm-primary) 18%, transparent);
 }
