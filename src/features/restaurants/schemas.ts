@@ -11,7 +11,11 @@ export const createRestaurantSchema = z.object({
   ownerEmail: z.string().email(),
   ownerPhone: z.string().min(10),
   ownerAddress: z.string().min(5),
-  planSlug: z.enum(["starter", "professional", "premium"]).default("starter"),
+  planSlug: z
+    .string()
+    .min(2)
+    .max(64)
+    .regex(/^[a-z0-9_-]+$/, "Invalid plan slug"),
 });
 
 export const updateRestaurantStatusSchema = z.object({
