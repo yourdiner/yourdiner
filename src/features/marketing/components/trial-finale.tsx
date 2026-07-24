@@ -7,10 +7,10 @@ export function TrialFinaleSection() {
   const reduce = useReducedMotion();
 
   return (
-    <section id="trial" className="relative overflow-x-hidden bg-[#050508] py-20 sm:py-28 lg:py-36">
+    <section id="trial" className="relative overflow-x-hidden bg-[#0f3d36] py-20 sm:py-28 lg:py-36">
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_55%_at_50%_100%,rgba(14,165,233,0.18),transparent_55%)]"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_55%_at_50%_100%,rgba(15,118,110,0.45),transparent_55%)]"
       />
 
       <div className="relative mx-auto max-w-5xl px-5 text-center sm:px-6 lg:px-8">
@@ -19,7 +19,7 @@ export function TrialFinaleSection() {
           whileInView={{ opacity: 1, transform: "translateY(0px)" }}
           viewport={{ once: true, margin: "-60px" }}
           transition={{ duration: 0.55, ease: [0.23, 1, 0.32, 1] }}
-          className="text-[2rem] font-semibold tracking-tight text-zinc-50 sm:text-5xl lg:text-6xl lg:leading-[1.05]"
+          className="text-[2rem] font-semibold tracking-tight text-[#ecf4f1] sm:text-5xl lg:text-6xl lg:leading-[1.05]"
         >
           Start your free trial.
         </motion.h2>
@@ -28,7 +28,7 @@ export function TrialFinaleSection() {
           whileInView={{ opacity: 1, transform: "translateY(0px)" }}
           viewport={{ once: true, margin: "-60px" }}
           transition={{ delay: 0.08, duration: 0.45, ease: [0.23, 1, 0.32, 1] }}
-          className="mx-auto mt-4 max-w-[38ch] text-[15px] leading-relaxed text-zinc-400 sm:mt-6 sm:text-lg"
+          className="mx-auto mt-4 max-w-[38ch] text-[15px] leading-relaxed text-[#a8c4bc] sm:mt-6 sm:text-lg"
         >
           Set up your menu, map your floor, and run a real service night before you pay anything.
         </motion.p>
@@ -43,7 +43,7 @@ export function TrialFinaleSection() {
             Start Free Trial
           </PrimaryCta>
         </motion.div>
-        <p className="mt-3 text-sm text-zinc-500 sm:mt-4">No credit card required</p>
+        <p className="mt-3 text-sm text-[#7a9e94] sm:mt-4">No credit card required</p>
       </div>
     </section>
   );

@@ -45,7 +45,7 @@ export default async function HomePage() {
   const jsonLd = buildJsonLd(brandName);
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-[#050508] font-[family-name:var(--font-jakarta)] antialiased">
+    <div className="relative min-h-screen overflow-x-hidden bg-[#f7f8f6] font-[family-name:var(--font-jakarta)] text-[#14201c] antialiased">
       <LandingGrain />
 
       <script

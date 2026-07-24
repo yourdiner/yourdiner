@@ -46,7 +46,7 @@ function MiniChart() {
       {bars.map((h, i) => (
         <motion.div
           key={i}
-          className="w-1.5 rounded-full bg-sky-400/80 sm:w-2"
+          className="w-1.5 rounded-full bg-[#0f766e]/80 sm:w-2"
           initial={{ height: 0 }}
           animate={{ height: `${h}%` }}
           transition={{ delay: 0.35 + i * 0.05, duration: 0.45, ease: [0.23, 1, 0.32, 1] }}
@@ -72,7 +72,7 @@ export function HeroDashboard({ brandName }: HeroDashboardProps) {
   return (
     <section
       id="hero"
-      className="relative overflow-x-hidden bg-[#050508] pt-20 pb-12 text-zinc-50 sm:pt-28 sm:pb-16 lg:min-h-[100dvh] lg:pb-24 lg:pt-32"
+      className="relative overflow-x-hidden bg-[#f7f8f6] pt-20 pb-12 text-[#14201c] sm:pt-28 sm:pb-16 lg:min-h-[100dvh] lg:pb-24 lg:pt-28"
       onMouseMove={(e) => {
         if (reduce) return;
         const rect = e.currentTarget.getBoundingClientRect();
@@ -82,11 +82,15 @@ export function HeroDashboard({ brandName }: HeroDashboardProps) {
     >
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_90%_55%_at_50%_-15%,rgba(14,165,233,0.16),transparent_58%)]"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_90%_55%_at_50%_-10%,rgba(15,118,110,0.14),transparent_58%)]"
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute -right-24 top-24 h-72 w-72 rounded-full bg-sky-500/[0.08] blur-3xl"
+        className="pointer-events-none absolute -right-24 top-24 h-72 w-72 rounded-full bg-[#0f766e]/[0.1] blur-3xl"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -left-16 bottom-10 h-56 w-56 rounded-full bg-[#14b8a6]/[0.08] blur-3xl"
       />
 
       <div className="relative z-[2] mx-auto grid max-w-7xl gap-8 px-5 sm:gap-10 sm:px-6 lg:grid-cols-2 lg:items-center lg:gap-12 lg:px-8">
@@ -96,23 +100,21 @@ export function HeroDashboard({ brandName }: HeroDashboardProps) {
           animate="show"
           className="mx-auto w-full max-w-xl text-center lg:mx-0 lg:text-left"
         >
-          <p className="font-[family-name:var(--font-jakarta)] text-2xl font-semibold tracking-tight text-zinc-50 sm:text-3xl">
+          <p className="font-[family-name:var(--font-jakarta)] text-2xl font-semibold tracking-tight text-[#0f766e] sm:text-3xl">
             {brandName}
           </p>
-          <h1 className="mt-4 text-[2rem] font-semibold leading-[1.08] tracking-tight sm:mt-5 sm:text-5xl lg:text-[3.25rem]">
+          <h1 className="mt-4 text-[2rem] font-semibold leading-[1.08] tracking-tight text-[#14201c] sm:mt-5 sm:text-5xl lg:text-[3.25rem]">
             Run your restaurant.
-            <span className="mt-1 block text-zinc-400">Not your problems.</span>
+            <span className="mt-1 block text-[#5c6b64]">Not your problems.</span>
           </h1>
-          <p className="mx-auto mt-4 max-w-[38ch] text-[15px] leading-relaxed text-zinc-400 sm:mt-5 sm:text-base lg:mx-0 lg:max-w-[48ch]">
-            Tables, kitchen, billing, and QR ordering — one calm operating system for service.
+          <p className="mx-auto mt-4 max-w-[38ch] text-[15px] leading-relaxed text-[#5c6b64] sm:mt-5 sm:text-base lg:mx-0 lg:max-w-[48ch]">
+            Tables, kitchen, billing, and QR ordering. One calm operating system for service.
           </p>
           <div className="mt-7 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:items-center sm:justify-center lg:justify-start">
             <PrimaryCta href="/register">Start Free Trial</PrimaryCta>
-            <SecondaryCta href="mailto:hello@restaurant-os.com" dark>
-              Book Demo
-            </SecondaryCta>
+            <SecondaryCta href="mailto:hello@restaurant-os.com">Book Demo</SecondaryCta>
           </div>
-          <p className="mt-3 text-sm text-zinc-500">No credit card required</p>
+          <p className="mt-3 text-sm text-[#7a8a82]">No credit card required</p>
         </motion.div>
 
         <motion.div
@@ -122,23 +124,23 @@ export function HeroDashboard({ brandName }: HeroDashboardProps) {
           animate={{ opacity: 1, transform: "translateY(0px) scale(1)" }}
           transition={{ delay: 0.15, duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
         >
-          <div className="rounded-[1.25rem] bg-white/[0.04] p-1 ring-1 ring-white/[0.08] sm:rounded-[1.5rem] sm:p-1.5">
-            <div className="overflow-hidden rounded-[calc(1.25rem-0.25rem)] bg-zinc-950/95 sm:rounded-[calc(1.5rem-0.375rem)]">
-              <div className="flex items-center gap-2 border-b border-white/[0.06] px-3 py-2.5 sm:px-4 sm:py-3">
-                <span className="h-2 w-2 rounded-full bg-zinc-600 sm:h-2.5 sm:w-2.5" />
-                <span className="h-2 w-2 rounded-full bg-zinc-600 sm:h-2.5 sm:w-2.5" />
-                <span className="h-2 w-2 rounded-full bg-zinc-600 sm:h-2.5 sm:w-2.5" />
-                <span className="ml-1.5 truncate text-[10px] font-medium text-zinc-500">
+          <div className="rounded-[1.25rem] bg-[#14201c]/[0.04] p-1 ring-1 ring-[#14201c]/[0.08] shadow-[0_24px_64px_-28px_rgba(15,61,54,0.35)] sm:rounded-[1.5rem] sm:p-1.5">
+            <div className="overflow-hidden rounded-[calc(1.25rem-0.25rem)] bg-white sm:rounded-[calc(1.5rem-0.375rem)]">
+              <div className="flex items-center gap-2 border-b border-[#14201c]/[0.06] bg-[#eef2ef]/60 px-3 py-2.5 sm:px-4 sm:py-3">
+                <span className="h-2 w-2 rounded-full bg-[#c4d0ca] sm:h-2.5 sm:w-2.5" />
+                <span className="h-2 w-2 rounded-full bg-[#c4d0ca] sm:h-2.5 sm:w-2.5" />
+                <span className="h-2 w-2 rounded-full bg-[#c4d0ca] sm:h-2.5 sm:w-2.5" />
+                <span className="ml-1.5 truncate text-[10px] font-medium text-[#7a8a82]">
                   {brandName} / Tonight
                 </span>
               </div>
 
               <div className="grid grid-cols-2 gap-2 p-3 sm:gap-3 sm:p-4">
-                <div className="col-span-2 rounded-xl bg-white/[0.04] p-3 ring-1 ring-white/[0.08] sm:rounded-2xl sm:p-4">
-                  <p className="text-[10px] font-medium uppercase tracking-wider text-zinc-500">
+                <div className="col-span-2 rounded-xl bg-[#eef2ef]/80 p-3 ring-1 ring-[#14201c]/[0.05] sm:rounded-2xl sm:p-4">
+                  <p className="text-[10px] font-medium uppercase tracking-wider text-[#7a8a82]">
                     Today&apos;s revenue
                   </p>
-                  <p className="mt-1 font-mono text-xl font-semibold tabular-nums text-zinc-50 sm:text-2xl">
+                  <p className="mt-1 font-mono text-xl font-semibold tabular-nums text-[#14201c] sm:text-2xl">
                     ₹{revenue.toLocaleString("en-IN")}
                   </p>
                   <div className="mt-2">
@@ -146,45 +148,45 @@ export function HeroDashboard({ brandName }: HeroDashboardProps) {
                   </div>
                 </div>
 
-                <div className="rounded-xl bg-white/[0.04] p-3 ring-1 ring-white/[0.08] sm:rounded-2xl sm:p-4">
-                  <p className="text-[10px] font-medium uppercase tracking-wider text-zinc-500">
+                <div className="rounded-xl bg-[#eef2ef]/80 p-3 ring-1 ring-[#14201c]/[0.05] sm:rounded-2xl sm:p-4">
+                  <p className="text-[10px] font-medium uppercase tracking-wider text-[#7a8a82]">
                     Tables
                   </p>
-                  <p className="mt-1.5 font-mono text-2xl font-semibold text-emerald-400 sm:mt-2 sm:text-3xl">
+                  <p className="mt-1.5 font-mono text-2xl font-semibold text-[#0f766e] sm:mt-2 sm:text-3xl">
                     {tables}
-                    <span className="text-base text-zinc-500 sm:text-lg">/18</span>
+                    <span className="text-base text-[#7a8a82] sm:text-lg">/18</span>
                   </p>
                 </div>
 
-                <div className="rounded-xl bg-white/[0.04] p-3 ring-1 ring-white/[0.08] sm:rounded-2xl sm:p-4">
-                  <p className="text-[10px] font-medium uppercase tracking-wider text-zinc-500">
+                <div className="rounded-xl bg-[#eef2ef]/80 p-3 ring-1 ring-[#14201c]/[0.05] sm:rounded-2xl sm:p-4">
+                  <p className="text-[10px] font-medium uppercase tracking-wider text-[#7a8a82]">
                     Kitchen
                   </p>
-                  <p className="mt-1.5 font-mono text-2xl font-semibold text-amber-300 sm:mt-2 sm:text-3xl">
+                  <p className="mt-1.5 font-mono text-2xl font-semibold text-[#b45309] sm:mt-2 sm:text-3xl">
                     {queue}
                   </p>
                 </div>
 
-                <div className="hidden rounded-2xl bg-white/[0.04] p-3 ring-1 ring-white/[0.08] sm:block">
-                  <p className="text-[10px] text-zinc-500">Reservations</p>
-                  <p className="mt-1 text-sm font-medium text-zinc-200">7:30 · Table 4</p>
-                  <p className="text-sm font-medium text-zinc-200">8:15 · Table 9</p>
+                <div className="hidden rounded-2xl bg-[#eef2ef]/80 p-3 ring-1 ring-[#14201c]/[0.05] sm:block">
+                  <p className="text-[10px] text-[#7a8a82]">Reservations</p>
+                  <p className="mt-1 text-sm font-medium text-[#14201c]">7:30 · Table 4</p>
+                  <p className="text-sm font-medium text-[#14201c]">8:15 · Table 9</p>
                 </div>
 
-                <div className="hidden rounded-2xl bg-white/[0.04] p-3 ring-1 ring-white/[0.08] sm:block">
-                  <p className="text-[10px] text-zinc-500">Orders</p>
-                  <p className="mt-1 text-sm text-zinc-300">T3 · 2 mains firing</p>
-                  <p className="text-sm text-zinc-300">T11 · QR reorder</p>
+                <div className="hidden rounded-2xl bg-[#eef2ef]/80 p-3 ring-1 ring-[#14201c]/[0.05] sm:block">
+                  <p className="text-[10px] text-[#7a8a82]">Orders</p>
+                  <p className="mt-1 text-sm text-[#5c6b64]">T3 · 2 mains firing</p>
+                  <p className="text-sm text-[#5c6b64]">T11 · QR reorder</p>
                 </div>
 
-                <div className="col-span-2 rounded-xl bg-sky-500/10 p-3 ring-1 ring-sky-400/20 sm:rounded-2xl">
+                <div className="col-span-2 rounded-xl bg-[#0f766e]/10 p-3 ring-1 ring-[#0f766e]/20 sm:rounded-2xl">
                   <div className="flex items-center justify-between gap-3">
-                    <p className="text-sm font-medium text-zinc-200">Guest rating tonight</p>
-                    <p className="font-mono text-lg font-semibold text-zinc-50">4.8</p>
+                    <p className="text-sm font-medium text-[#14201c]">Guest rating tonight</p>
+                    <p className="font-mono text-lg font-semibold text-[#0f766e]">4.8</p>
                   </div>
-                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
+                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#0f766e]/15">
                     <motion.div
-                      className="h-full rounded-full bg-sky-400"
+                      className="h-full rounded-full bg-[#0f766e]"
                       initial={{ width: "0%" }}
                       animate={{ width: "96%" }}
                       transition={{ delay: 0.7, duration: 0.9, ease: [0.23, 1, 0.32, 1] }}

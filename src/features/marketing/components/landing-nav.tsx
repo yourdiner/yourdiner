@@ -24,19 +24,19 @@ function HamburgerIcon({ open }: { open: boolean }) {
     <span className="relative block h-3.5 w-4">
       <span
         className={cn(
-          "absolute left-0 h-[1.5px] w-4 rounded-full bg-zinc-100 transition-[transform,top] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)]",
+          "absolute left-0 h-[1.5px] w-4 rounded-full bg-[#14201c] transition-[transform,top] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)]",
           open ? "top-[6px] rotate-45" : "top-0"
         )}
       />
       <span
         className={cn(
-          "absolute left-0 top-[6px] h-[1.5px] w-4 rounded-full bg-zinc-100 transition-opacity duration-150 ease-out",
+          "absolute left-0 top-[6px] h-[1.5px] w-4 rounded-full bg-[#14201c] transition-opacity duration-150 ease-out",
           open ? "opacity-0" : "opacity-100"
         )}
       />
       <span
         className={cn(
-          "absolute left-0 h-[1.5px] w-4 rounded-full bg-zinc-100 transition-[transform,top] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)]",
+          "absolute left-0 h-[1.5px] w-4 rounded-full bg-[#14201c] transition-[transform,top] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)]",
           open ? "top-[6px] -rotate-45" : "top-3"
         )}
       />
@@ -78,15 +78,15 @@ export function LandingNav({ brandName }: LandingNavProps) {
             "pointer-events-auto mx-auto flex w-[calc(100%-1.5rem)] max-w-5xl items-center justify-between gap-3 rounded-full px-2.5 py-1.5 sm:w-[calc(100%-2rem)] sm:gap-4 sm:px-4 sm:py-2.5",
             "ring-1 transition-[background-color,box-shadow,ring-color] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)]",
             elevated
-              ? "bg-zinc-950/85 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.55)] ring-white/[0.1] backdrop-blur-xl"
-              : "bg-zinc-950/50 ring-white/[0.08] backdrop-blur-md"
+              ? "bg-white/90 shadow-[0_8px_32px_-12px_rgba(20,32,28,0.18)] ring-[#14201c]/[0.08] backdrop-blur-xl"
+              : "bg-white/70 ring-[#14201c]/[0.06] backdrop-blur-md"
           )}
         >
           <Link href="/" className="flex min-w-0 items-center gap-2 pl-0.5 sm:gap-2.5 sm:pl-1">
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-sky-500 text-zinc-950">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#0f766e] text-white">
               <span className="text-xs font-bold">{brandName.charAt(0)}</span>
             </span>
-            <span className="truncate text-sm font-semibold tracking-tight text-zinc-100">
+            <span className="truncate text-sm font-semibold tracking-tight text-[#14201c]">
               {brandName}
             </span>
           </Link>
@@ -96,7 +96,7 @@ export function LandingNav({ brandName }: LandingNavProps) {
               <a
                 key={link.href}
                 href={link.href}
-                className="rounded-full px-3.5 py-2 text-[13px] font-medium text-zinc-400 transition-colors duration-150 ease-out hover:text-zinc-100"
+                className="rounded-full px-3.5 py-2 text-[13px] font-medium text-[#5c6b64] transition-colors duration-150 ease-out hover:text-[#14201c]"
               >
                 {link.label}
               </a>
@@ -106,7 +106,7 @@ export function LandingNav({ brandName }: LandingNavProps) {
           <div className="hidden items-center gap-2 lg:flex">
             <Link
               href="/login"
-              className="rounded-full px-3.5 py-2 text-[13px] font-medium text-zinc-400 transition-colors duration-150 ease-out hover:text-zinc-100"
+              className="rounded-full px-3.5 py-2 text-[13px] font-medium text-[#5c6b64] transition-colors duration-150 ease-out hover:text-[#14201c]"
             >
               Login
             </Link>
@@ -117,7 +117,7 @@ export function LandingNav({ brandName }: LandingNavProps) {
 
           <button
             type="button"
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-white/[0.06] ring-1 ring-white/[0.1] transition-transform duration-150 ease-out active:scale-[0.97] lg:hidden"
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-[#eef2ef] ring-1 ring-[#14201c]/[0.08] transition-transform duration-150 ease-out active:scale-[0.97] lg:hidden"
             onClick={() => setMobileOpen((v) => !v)}
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileOpen}
@@ -134,12 +134,12 @@ export function LandingNav({ brandName }: LandingNavProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: reduceMotion ? 0 : 0.2, ease: [0.23, 1, 0.32, 1] }}
-            className="fixed inset-0 z-50 bg-zinc-950/96 backdrop-blur-2xl lg:hidden"
+            className="fixed inset-0 z-50 bg-[#f7f8f6]/98 backdrop-blur-2xl lg:hidden"
           >
             <div className="flex h-full flex-col px-5 pb-8 pt-20 sm:px-6">
               <button
                 type="button"
-                className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/[0.06] ring-1 ring-white/[0.1] active:scale-[0.97]"
+                className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white ring-1 ring-[#14201c]/[0.08] active:scale-[0.97]"
                 onClick={() => setMobileOpen(false)}
                 aria-label="Close menu"
               >
@@ -156,7 +156,7 @@ export function LandingNav({ brandName }: LandingNavProps) {
                     initial="hidden"
                     animate="show"
                     onClick={() => setMobileOpen(false)}
-                    className="rounded-xl px-1 py-2.5 text-3xl font-semibold tracking-tight text-zinc-100 transition-colors duration-150 ease-out hover:text-sky-400"
+                    className="rounded-xl px-1 py-2.5 text-3xl font-semibold tracking-tight text-[#14201c] transition-colors duration-150 ease-out hover:text-[#0f766e]"
                   >
                     {link.label}
                   </motion.a>
@@ -166,7 +166,7 @@ export function LandingNav({ brandName }: LandingNavProps) {
                 <Link
                   href="/login"
                   onClick={() => setMobileOpen(false)}
-                  className="rounded-full py-3 text-center text-sm font-semibold text-zinc-300 ring-1 ring-white/[0.12] transition-transform duration-150 ease-out active:scale-[0.97]"
+                  className="rounded-full py-3 text-center text-sm font-semibold text-[#14201c] ring-1 ring-[#14201c]/[0.12] transition-transform duration-150 ease-out active:scale-[0.97]"
                 >
                   Login
                 </Link>

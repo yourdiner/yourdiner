@@ -11,7 +11,7 @@ export function LandingGrain() {
   return (
     <div
       aria-hidden
-      className="pointer-events-none fixed inset-0 z-[1] opacity-[0.03]"
+      className="pointer-events-none fixed inset-0 z-[1] opacity-[0.035]"
       style={{
         backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
       }}
@@ -35,15 +35,17 @@ export function BezelCard({
       className={cn(
         "rounded-[1.25rem] p-1 ring-1",
         dark
-          ? "bg-white/[0.03] ring-white/[0.08]"
-          : "bg-zinc-950/[0.03] ring-zinc-950/[0.06]",
+          ? "bg-[#0f3d36]/[0.06] ring-[#0f3d36]/[0.12]"
+          : "bg-[#14201c]/[0.03] ring-[#14201c]/[0.06]",
         className
       )}
     >
       <div
         className={cn(
-          "h-full rounded-[calc(1.25rem-0.25rem)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]",
-          dark ? "bg-zinc-900/80" : "bg-white",
+          "h-full rounded-[calc(1.25rem-0.25rem)]",
+          dark
+            ? "bg-[#0f3d36] shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)]"
+            : "bg-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)]",
           innerClassName
         )}
       >
@@ -75,8 +77,8 @@ export function PrimaryCta({
         "transition-[transform,box-shadow,background-color] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)]",
         "active:scale-[0.97] motion-reduce:transition-none",
         inverted
-          ? "bg-white text-zinc-950 shadow-[0_8px_28px_-8px_rgba(255,255,255,0.28)] hover:bg-zinc-100"
-          : "bg-sky-500 text-zinc-950 shadow-[0_8px_28px_-8px_rgba(14,165,233,0.45)] hover:bg-sky-400",
+          ? "bg-white text-[#0f3d36] shadow-[0_8px_28px_-8px_rgba(15,61,54,0.35)] hover:bg-[#ecf4f1]"
+          : "bg-[#0f766e] text-white shadow-[0_8px_28px_-8px_rgba(15,118,110,0.45)] hover:bg-[#0d9488]",
         className
       )}
     >
@@ -86,7 +88,7 @@ export function PrimaryCta({
           "flex h-8 w-8 items-center justify-center rounded-full transition-transform duration-200 ease-[cubic-bezier(0.23,1,0.32,1)]",
           "group-hover:translate-x-0.5 group-hover:-translate-y-px",
           "motion-reduce:group-hover:translate-x-0 motion-reduce:group-hover:translate-y-0",
-          inverted ? "bg-zinc-950/[0.06]" : "bg-zinc-950/10"
+          inverted ? "bg-[#0f3d36]/[0.08]" : "bg-white/15"
         )}
       >
         <ArrowUpRight className="h-3.5 w-3.5" strokeWidth={ICON_STROKE} />
@@ -117,8 +119,8 @@ export function SecondaryCta({
         "ring-1 transition-[transform,box-shadow,background-color] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)]",
         "active:scale-[0.97] motion-reduce:transition-none",
         dark
-          ? "bg-white/[0.04] text-zinc-100 ring-white/[0.12] hover:bg-white/[0.08]"
-          : "bg-white text-zinc-900 ring-zinc-950/[0.08] hover:bg-zinc-50",
+          ? "bg-white/10 text-[#ecf4f1] ring-white/20 hover:bg-white/15"
+          : "bg-white text-[#14201c] ring-[#14201c]/[0.1] hover:bg-[#eef2ef]",
         className
       )}
     >
@@ -129,7 +131,7 @@ export function SecondaryCta({
 
 export function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-sky-500">
+    <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#0f766e]">
       {children}
     </span>
   );
@@ -148,7 +150,7 @@ export function SectionTitle({
     <h2
       className={cn(
         "text-[1.75rem] font-semibold leading-[1.15] tracking-tight sm:text-4xl lg:text-5xl lg:leading-[1.05]",
-        light ? "text-zinc-50" : "text-zinc-950",
+        light ? "text-[#ecf4f1]" : "text-[#14201c]",
         className
       )}
     >
