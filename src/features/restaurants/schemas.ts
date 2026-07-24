@@ -1,19 +1,23 @@
 import { z } from "zod";
 
+const trimmed = z.string().trim();
+
 export const createRestaurantSchema = z.object({
-  name: z.string().min(2),
-  subdomain: z
-    .string()
-    .min(3)
+  name: trimmed.min(2, "Restaurant name is required"),
+  subdomain: trimmed
+    .min(3, "Subdomain must be at least 3 characters")
     .max(32)
-    .regex(/^[a-z0-9]+$/),
-  ownerName: z.string().min(2),
-  ownerEmail: z.string().email(),
-  ownerPhone: z.string().min(10),
-  ownerAddress: z.string().min(5),
-  planSlug: z
-    .string()
-    .min(2)
+    .regex(/^[a-z0-9]+$/, "Subdomain must be lowercase letters and numbers only"),
+  ownerName: trimmed.min(2, "Owner name is required"),
+  ownerEmail: trimmed
+    .toLowerCase()
+    .email("Enter a valid owner email address"),
+  ownerPhone: trimmed
+    .min(10, "Phone must be at least 10 digits")
+    .regex(/^[+0-9\s()-]+$/, "Enter a valid phone number"),
+  ownerAddress: trimmed.min(5, "Address is required"),
+  planSlug: trimmed
+    .min(2, "Select a plan")
     .max(64)
     .regex(/^[a-z0-9_-]+$/, "Invalid plan slug"),
 });

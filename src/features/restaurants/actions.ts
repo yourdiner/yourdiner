@@ -138,7 +138,18 @@ export async function getRestaurantPlatformDetail(id: string) {
 
 export async function createRestaurant(input: unknown) {
   await requireSuperAdmin();
-  const data = createRestaurantSchema.parse(input);
+  const parsed = createRestaurantSchema.safeParse(input);
+  if (!parsed.success) {
+    const first = parsed.error.issues[0];
+    const field = first?.path?.join(".") || "form";
+    throw new AppError(
+      first ? `${field}: ${first.message}` : "Invalid restaurant details",
+      "VALIDATION_ERROR",
+      400,
+      { issues: parsed.error.issues }
+    );
+  }
+  const data = parsed.data;
 
   const result = await createRestaurantAndOwner({
     name: data.name,

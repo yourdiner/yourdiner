@@ -26,6 +26,7 @@ import {
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import { generateSubdomain } from "@/lib/utils";
+import { getErrorMessage } from "@/lib/errors";
 
 export type CreateRestaurantPlanOption = {
   slug: string;
@@ -71,19 +72,19 @@ export function CreateRestaurantDialog({
     setLoading(true);
     try {
       const result = await createRestaurant({
-        name,
-        subdomain,
+        name: name.trim(),
+        subdomain: subdomain.trim().toLowerCase(),
         planSlug,
-        ownerName,
-        ownerEmail,
-        ownerPhone,
-        ownerAddress,
+        ownerName: ownerName.trim(),
+        ownerEmail: ownerEmail.trim(),
+        ownerPhone: ownerPhone.trim(),
+        ownerAddress: ownerAddress.trim(),
       });
       setTempPassword(result.tempPassword);
       toast.success("Restaurant created");
       router.refresh();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to create");
+      toast.error(getErrorMessage(error));
     } finally {
       setLoading(false);
     }
