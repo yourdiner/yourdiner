@@ -31,7 +31,11 @@ import {
   fetchStaffProductConfig,
   searchStaffMenu,
 } from "@/lib/qr-client";
-import { customerOrderMutation } from "@/lib/customer-order-client";
+import { customerOrderMutation, fetchCustomerActiveOrder } from "@/lib/customer-order-client";
+import {
+  formatKitchenStatusLabel,
+  kitchenStatusBadgeClass,
+} from "@/lib/kitchen-status-label";
 import { toast } from "sonner";
 import Link from "next/link";
 import { StaffLogoutButton } from "@/features/staff/components/staff-logout-button";
@@ -179,6 +183,9 @@ export function PublicMenuView({
   const [billRequested, setBillRequested] = useState(false);
   const [callingWaiter, setCallingWaiter] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
+  const [customerActiveOrder, setCustomerActiveOrder] = useState<MenuActiveOrder | null>(
+    activeOrder ?? null
+  );
   const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const cardByIdRef = useRef<Map<string, MenuProductCard>>(new Map());
 
@@ -217,6 +224,32 @@ export function PublicMenuView({
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    if (mode === "staff") {
+      setCustomerActiveOrder(activeOrder ?? null);
+    }
+  }, [mode, activeOrder]);
+
+  const refreshCustomerOrder = useCallback(async () => {
+    if (mode !== "customer" || !diningSessionId || orderingLocked) return;
+    const result = await fetchCustomerActiveOrder(diningSessionId);
+    if (result.ok) {
+      setCustomerActiveOrder(result.data);
+    }
+  }, [mode, diningSessionId, orderingLocked]);
+
+  useEffect(() => {
+    void refreshCustomerOrder();
+  }, [refreshCustomerOrder]);
+
+  useEffect(() => {
+    if (mode !== "customer" || !diningSessionId || orderingLocked) return;
+    const id = setInterval(() => {
+      void refreshCustomerOrder();
+    }, 10_000);
+    return () => clearInterval(id);
+  }, [mode, diningSessionId, orderingLocked, refreshCustomerOrder]);
 
   useEffect(() => {
     return () => {
@@ -428,6 +461,7 @@ export function PublicMenuView({
       setCart([]);
       setCartOpen(false);
       setOrderPlaced(true);
+      await refreshCustomerOrder();
       if (submitResult.data?.awaitingApproval) {
         toast.success("Order submitted — waiting for staff approval");
       } else {
@@ -515,12 +549,18 @@ export function PublicMenuView({
     return sum + priced.totalPrice;
   }, 0);
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const liveOrder = mode === "staff" ? activeOrder : customerActiveOrder;
   const staffPendingItems =
-    activeOrder?.items.filter((i) => i.kitchenStatus === "PENDING") ?? [];
-  const staffSentItems =
-    activeOrder?.items.filter((i) => i.kitchenStatus !== "PENDING" && i.kitchenStatus !== "CANCELLED") ?? [];
+    liveOrder?.items.filter((i) => i.kitchenStatus === "PENDING") ?? [];
+  const previousOrderedItems =
+    liveOrder?.items.filter(
+      (i) => i.kitchenStatus !== "PENDING" && i.kitchenStatus !== "CANCELLED"
+    ) ?? [];
   const staffPendingCount = staffPendingItems.reduce((s, i) => s + i.quantity, 0);
+  const previousOrderCount = previousOrderedItems.reduce((s, i) => s + i.quantity, 0);
   const orderCount = mode === "staff" ? staffPendingCount : cartCount;
+  const orderTabBadge =
+    mode === "customer" ? cartCount + previousOrderCount : orderCount;
 
   const staffQtyByProduct = useMemo(() => {
     const map = new Map<string, number>();
@@ -797,8 +837,12 @@ export function PublicMenuView({
               className="text-[var(--pm-on-surface)]"
             />
             {!editable && (
-              <p className="text-xs text-[var(--pm-on-surface-variant)]">
-                {item.kitchenStatus.replace("_", " ")}
+              <p className="mt-1">
+                <span
+                  className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold ring-1 ${kitchenStatusBadgeClass(item.kitchenStatus)}`}
+                >
+                  {formatKitchenStatusLabel(item.kitchenStatus)}
+                </span>
               </p>
             )}
           </div>
@@ -850,7 +894,7 @@ export function PublicMenuView({
 
       return (
         <div className="space-y-4 p-4">
-          {staffPendingItems.length === 0 && staffSentItems.length === 0 ? (
+          {staffPendingItems.length === 0 && previousOrderedItems.length === 0 ? (
             <p className="text-sm text-[var(--pm-on-surface-variant)]">
               No items yet. Tap + on menu items to add them.
             </p>
@@ -864,21 +908,21 @@ export function PublicMenuView({
                   {staffPendingItems.map((item) => renderStaffItem(item, true))}
                 </div>
               )}
-              {staffSentItems.length > 0 && (
+              {previousOrderedItems.length > 0 && (
                 <div className="space-y-3 border-t border-[var(--pm-outline-variant)] pt-4">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--pm-on-surface-variant)]">
                     Previously ordered
                   </p>
-                  {staffSentItems.map((item) => renderStaffItem(item, false))}
+                  {previousOrderedItems.map((item) => renderStaffItem(item, false))}
                 </div>
               )}
             </>
           )}
           <div className="border-t border-[var(--pm-outline-variant)] pt-4">
-            {activeOrder && (staffPendingItems.length > 0 || staffSentItems.length > 0) && (
+            {liveOrder && (staffPendingItems.length > 0 || previousOrderedItems.length > 0) && (
               <div className="mb-4 flex justify-between text-sm font-semibold">
                 <span>Total</span>
-                <span className="tabular-nums">{formatCurrency(activeOrder.total)}</span>
+                <span className="tabular-nums">{formatCurrency(liveOrder.total)}</span>
               </div>
             )}
             {staffActions && (
@@ -920,66 +964,110 @@ export function PublicMenuView({
 
     return (
       <div className="space-y-4 p-4">
-        {cart.length === 0 ? (
+        {cart.length === 0 && previousOrderedItems.length === 0 ? (
           <p className="text-sm text-[var(--pm-on-surface-variant)]">Your cart is empty.</p>
         ) : (
-          cart.map((item) => {
-            const lineKey = getCartItemKey(item);
-            const priced = priceSelection(menuProductToConfigurable(item.product), {
-              variantId: item.variantId,
-              modifierIds: item.modifierIds,
-              quantity: item.quantity,
-            });
-            return (
-            <div key={lineKey} className="flex items-center justify-between gap-3">
-              <div className="min-w-0 flex-1">
-                <OrderLineItem
-                  name={item.product.name}
-                  variantNameSnapshot={priced.variantName}
-                  modifiers={priced.modifiers}
-                  quantity={item.quantity}
-                  unitPrice={priced.unitPrice}
-                  totalPrice={priced.totalPrice}
-                  notes={item.notes}
-                  className="text-[var(--pm-on-surface)]"
-                />
+          <>
+            {cart.length > 0 && (
+              <div className="space-y-3">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--pm-on-surface-variant)]">
+                  New items
+                </p>
+                {cart.map((item) => {
+                  const lineKey = getCartItemKey(item);
+                  const priced = priceSelection(menuProductToConfigurable(item.product), {
+                    variantId: item.variantId,
+                    modifierIds: item.modifierIds,
+                    quantity: item.quantity,
+                  });
+                  return (
+                    <div key={lineKey} className="flex items-center justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <OrderLineItem
+                          name={item.product.name}
+                          variantNameSnapshot={priced.variantName}
+                          modifiers={priced.modifiers}
+                          quantity={item.quantity}
+                          unitPrice={priced.unitPrice}
+                          totalPrice={priced.totalPrice}
+                          notes={item.notes}
+                          className="text-[var(--pm-on-surface)]"
+                        />
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          className="pm-press flex h-8 w-8 items-center justify-center rounded-[var(--pm-radius-md)] border border-[var(--pm-outline-variant)]"
+                          onClick={() => updateCartQty(lineKey, -1)}
+                          aria-label="Decrease quantity"
+                        >
+                          <Minus className="h-3.5 w-3.5" />
+                        </button>
+                        <span className="w-6 text-center text-sm tabular-nums">{item.quantity}</span>
+                        <button
+                          type="button"
+                          className="pm-press flex h-8 w-8 items-center justify-center rounded-[var(--pm-radius-md)] border border-[var(--pm-outline-variant)]"
+                          onClick={() => updateCartQty(lineKey, 1)}
+                          aria-label="Increase quantity"
+                        >
+                          <Plus className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          className="pm-press ml-1 text-xs font-medium text-destructive"
+                          onClick={() => removeFromCart(lineKey)}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-              <div className="flex items-center gap-1.5">
-                <button
-                  type="button"
-                  className="pm-press flex h-8 w-8 items-center justify-center rounded-[var(--pm-radius-md)] border border-[var(--pm-outline-variant)]"
-                  onClick={() => updateCartQty(lineKey, -1)}
-                  aria-label="Decrease quantity"
-                >
-                  <Minus className="h-3.5 w-3.5" />
-                </button>
-                <span className="w-6 text-center text-sm tabular-nums">{item.quantity}</span>
-                <button
-                  type="button"
-                  className="pm-press flex h-8 w-8 items-center justify-center rounded-[var(--pm-radius-md)] border border-[var(--pm-outline-variant)]"
-                  onClick={() => updateCartQty(lineKey, 1)}
-                  aria-label="Increase quantity"
-                >
-                  <Plus className="h-3.5 w-3.5" />
-                </button>
-                <button
-                  type="button"
-                  className="pm-press ml-1 text-xs font-medium text-destructive"
-                  onClick={() => removeFromCart(lineKey)}
-                >
-                  Remove
-                </button>
+            )}
+
+            {previousOrderedItems.length > 0 && (
+              <div
+                className={`space-y-3 ${cart.length > 0 ? "border-t border-[var(--pm-outline-variant)] pt-4" : ""}`}
+              >
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--pm-on-surface-variant)]">
+                  Previously ordered
+                </p>
+                {previousOrderedItems.map((item) => (
+                  <div key={item.id} className="space-y-1.5">
+                    <OrderLineItem
+                      name={item.name}
+                      variantNameSnapshot={item.variantNameSnapshot}
+                      modifiers={item.modifiers}
+                      quantity={item.quantity}
+                      unitPrice={item.unitPrice}
+                      totalPrice={item.totalPrice}
+                      notes={item.notes}
+                      className="text-[var(--pm-on-surface)]"
+                    />
+                    <span
+                      className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold ring-1 ${kitchenStatusBadgeClass(item.kitchenStatus)}`}
+                    >
+                      {formatKitchenStatusLabel(item.kitchenStatus)}
+                    </span>
+                  </div>
+                ))}
               </div>
-            </div>
-          );
-          })
+            )}
+          </>
         )}
         {cart.length > 0 && mode === "customer" && (
           <div className="border-t border-[var(--pm-outline-variant)] pt-4">
             <div className="mb-4 flex justify-between text-sm font-semibold">
-              <span>Total</span>
+              <span>New items total</span>
               <span className="tabular-nums">{formatCurrency(cartTotal)}</span>
             </div>
+            {liveOrder && previousOrderedItems.length > 0 && (
+              <div className="mb-4 flex justify-between text-sm text-[var(--pm-on-surface-variant)]">
+                <span>Session total so far</span>
+                <span className="tabular-nums">{formatCurrency(liveOrder.total)}</span>
+              </div>
+            )}
             <button
               type="button"
               disabled={!canSubmitOrder || cart.length === 0 || submitting}
@@ -989,6 +1077,14 @@ export function PublicMenuView({
               {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
               Place Order
             </button>
+          </div>
+        )}
+        {cart.length === 0 && liveOrder && previousOrderedItems.length > 0 && (
+          <div className="border-t border-[var(--pm-outline-variant)] pt-4">
+            <div className="flex justify-between text-sm font-semibold">
+              <span>Session total</span>
+              <span className="tabular-nums">{formatCurrency(liveOrder.total)}</span>
+            </div>
           </div>
         )}
       </div>
@@ -1074,7 +1170,7 @@ export function PublicMenuView({
                 >
                   <Search className="h-5 w-5" />
                 </button>
-                {canMutateOrder && mode !== "staff" && orderCount > 0 && (
+                {canMutateOrder && mode !== "staff" && orderTabBadge > 0 && (
                   <button
                     type="button"
                     className="pm-icon-btn relative cursor-pointer"
@@ -1083,7 +1179,7 @@ export function PublicMenuView({
                   >
                     <ShoppingBag className="h-5 w-5" />
                     <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--pm-secondary)] px-1 text-[10px] font-bold text-white">
-                      {orderCount}
+                      {orderTabBadge}
                     </span>
                   </button>
                 )}
@@ -1154,9 +1250,9 @@ export function PublicMenuView({
               <button type="button" className={navBtnClass("order")} onClick={() => setActivePanel("order")}>
                 <ShoppingBag className="h-4 w-4" />
                 Order
-                {orderCount > 0 && (
+                {orderTabBadge > 0 && (
                   <span className="ml-auto rounded-full bg-[var(--pm-secondary)] px-1.5 py-0.5 text-[10px] font-bold text-white">
-                    {orderCount}
+                    {orderTabBadge}
                   </span>
                 )}
               </button>
@@ -1370,6 +1466,7 @@ export function PublicMenuView({
           mode={mode}
           canOrder={canMutateOrder}
           cartCount={cartCount}
+          orderBadgeCount={orderTabBadge}
           cartTotal={cartTotal}
           cartSummary={cart.map((item) => item.product.name).join(", ")}
           activePanel={activePanel}
@@ -1389,7 +1486,17 @@ export function PublicMenuView({
           billRequested={billRequested}
           onCallWaiter={() => void handleCallWaiter()}
           onRequestBill={() => void handleRequestBill()}
-          activeOrderTotal={activeOrder?.total}
+          activeOrderTotal={liveOrder?.total}
+          trackingItems={
+            mode === "customer"
+              ? previousOrderedItems.map((item) => ({
+                  id: item.id,
+                  name: item.name,
+                  quantity: item.quantity,
+                  kitchenStatus: item.kitchenStatus,
+                }))
+              : undefined
+          }
           orderPanel={renderOrderPanel()}
         />
       )}

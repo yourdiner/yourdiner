@@ -1,10 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
+  getCustomerActiveOrder,
   runCustomerOrderMutation,
   type CustomerOrderAction,
 } from "@/lib/customer-order-service";
 
 export const runtime = "nodejs";
+
+export async function GET(
+  _request: NextRequest,
+  { params }: { params: Promise<{ sessionId: string }> }
+) {
+  const { sessionId } = await params;
+  const result = await getCustomerActiveOrder(sessionId);
+  const status = result.ok ? 200 : 400;
+  return NextResponse.json(result, { status });
+}
 
 export async function POST(
   request: NextRequest,

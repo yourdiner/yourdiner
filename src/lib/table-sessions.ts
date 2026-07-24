@@ -423,6 +423,8 @@ export async function approveTableSession(
       data: {
         status: TableSessionStatus.ACTIVE,
         approvedAt: new Date(),
+        // Table approval is enough; customer orders go straight to kitchen.
+        firstOrderApprovedAt: new Date(),
         diningSessionId: diningSession.id,
         lastActivityAt: new Date(),
       },

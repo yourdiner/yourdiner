@@ -17,7 +17,8 @@ export function parseOrderSettings(raw: unknown): OrderSettings {
     maxRevisions: typeof o.maxRevisions === "number" ? o.maxRevisions : 10,
     requireCustomerPhone: o.requireCustomerPhone === true,
     autoCloseSessionOnBill: o.autoCloseSessionOnBill === true,
-    requireFirstOrderApproval: o.requireFirstOrderApproval !== false,
+    // Off by default: table-session approval is the gate; orders go to kitchen directly.
+    requireFirstOrderApproval: o.requireFirstOrderApproval === true,
     customerSessionInactivityMinutes:
       typeof o.customerSessionInactivityMinutes === "number"
         ? o.customerSessionInactivityMinutes

@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { formatCurrency, formatDateTime, formatTime } from "@/lib/utils";
+import { formatKitchenStatusLabel } from "@/lib/kitchen-status-label";
 import { MaterialIcon } from "@/components/layout/material-icon";
 import { Minus } from "lucide-react";
 import { OrderLineItem } from "@/features/product-config";
@@ -319,7 +320,7 @@ export function SessionDetailView({
                           kitchenNotes={item.kitchenNotes}
                         />
                         <p className="mt-1 text-xs capitalize text-on-surface-variant">
-                          {item.kitchenStatus.toLowerCase().replace("_", " ")}
+                          {formatKitchenStatusLabel(item.kitchenStatus)}
                           {item.revisionNumber > 0 ? ` · ticket #${item.revisionNumber}` : ""}
                         </p>
                       </div>

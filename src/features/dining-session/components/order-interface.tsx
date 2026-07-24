@@ -4,8 +4,10 @@ import { useCallback, useEffect, useMemo, useState, useTransition } from "react"
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { cn, formatCurrency } from "@/lib/utils";
+import { formatCurrency } from "@/lib/utils";
+import { formatKitchenStatusLabel } from "@/lib/kitchen-status-label";
 import { Minus, Plus, Send, Search, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import type { ConfigurableProduct, ProductSelection } from "@/features/product-config";
 import {
   ProductConfiguratorSheet,
@@ -419,7 +421,7 @@ export function OrderInterface({
                     onClick={canEditConfig ? () => void openEditItem(item) : undefined}
                   />
                   <p className="mt-1 text-xs capitalize text-on-surface-variant">
-                    {item.kitchenStatus.toLowerCase().replace("_", " ")}
+                    {formatKitchenStatusLabel(item.kitchenStatus)}
                     {item.revisionNumber > 0 ? ` · ticket #${item.revisionNumber}` : ""}
                   </p>
                 </div>

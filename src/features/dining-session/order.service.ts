@@ -556,14 +556,15 @@ export async function submitOrderToKitchenService(
   if (
     !options?.skipFirstOrderGate &&
     actor.type === "customer" &&
-    settings.requireFirstOrderApproval !== false
+    settings.requireFirstOrderApproval === true
   ) {
     const tableSession = await prisma.tableSession.findFirst({
       where: { diningSessionId: sessionId, restaurantId },
-      select: { firstOrderApprovedAt: true },
+      select: { firstOrderApprovedAt: true, approvedAt: true },
     });
 
-    if (!tableSession?.firstOrderApprovedAt) {
+    // Table-session approval already unlocks ordering; do not double-gate.
+    if (!tableSession?.firstOrderApprovedAt && !tableSession?.approvedAt) {
       await prisma.order.update({
         where: { id: order.id },
         data: { awaitingCustomerOrderApproval: true },
@@ -598,7 +599,12 @@ export async function submitOrderToKitchenService(
 
     await tx.orderItem.updateMany({
       where: { orderId: order.id, kitchenStatus: OrderItemKitchenStatus.PENDING },
-      data: { kitchenStatus: OrderItemKitchenStatus.SENT, revisionNumber: nextRevision },
+      data: {
+        kitchenStatus: OrderItemKitchenStatus.SENT,
+        revisionNumber: nextRevision,
+        kitchenSentAt: new Date(),
+        kitchenStatusUpdatedAt: new Date(),
+      },
     });
 
     await tx.order.update({

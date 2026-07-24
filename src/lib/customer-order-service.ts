@@ -24,7 +24,7 @@ import {
   submitOrderToKitchenService,
   updateOrderItemConfigService,
 } from "@/features/dining-session/order.service";
-import { TableSessionStatus } from "@prisma/client";
+import { OrderStatus, TableSessionStatus } from "@prisma/client";
 import {
   createPendingCustomerSession,
   getBlockingTableSession,
@@ -334,6 +334,83 @@ export async function runCustomerOrderMutation(
 
     await touchTableSession(session.tableSessionId);
     return { ok: true, data: {} };
+  } catch (error) {
+    if (error instanceof AppError) {
+      return { ok: false, error: error.message, code: error.code };
+    }
+    return { ok: false, error: getErrorMessage(error) };
+  }
+}
+
+export async function getCustomerActiveOrder(diningSessionId: string): Promise<
+  ServiceResult<{
+    id: string;
+    status: string;
+    total: number;
+    subtotal: number;
+    discountAmount: number;
+    items: Array<{
+      id: string;
+      productId?: string;
+      name: string;
+      quantity: number;
+      unitPrice: number;
+      totalPrice: number;
+      kitchenStatus: string;
+      variantId?: string | null;
+      variantNameSnapshot?: string | null;
+      modifiers?: unknown;
+      notes?: string | null;
+      kitchenNotes?: string | null;
+    }>;
+  } | null>
+> {
+  try {
+    const { tenant, session } = await requireActiveCustomerOrderingContext();
+    if (session.diningSessionId !== diningSessionId) {
+      throw new AppError("Session mismatch", "FORBIDDEN", 403);
+    }
+
+    const order = await prisma.order.findFirst({
+      where: {
+        diningSessionId,
+        restaurantId: tenant.restaurantId,
+        status: { notIn: [OrderStatus.COMPLETED, OrderStatus.CANCELLED] },
+      },
+      include: {
+        items: { orderBy: { createdAt: "asc" } },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    if (!order) {
+      return { ok: true, data: null };
+    }
+
+    return {
+      ok: true,
+      data: {
+        id: order.id,
+        status: order.status,
+        total: Number(order.total),
+        subtotal: Number(order.subtotal),
+        discountAmount: Number(order.discountAmount),
+        items: order.items.map((item) => ({
+          id: item.id,
+          productId: item.productId ?? undefined,
+          name: item.name,
+          quantity: item.quantity,
+          unitPrice: Number(item.unitPrice),
+          totalPrice: Number(item.totalPrice),
+          kitchenStatus: item.kitchenStatus,
+          variantId: item.variantId,
+          variantNameSnapshot: item.variantNameSnapshot,
+          modifiers: item.modifiers,
+          notes: item.notes,
+          kitchenNotes: item.kitchenNotes,
+        })),
+      },
+    };
   } catch (error) {
     if (error instanceof AppError) {
       return { ok: false, error: error.message, code: error.code };

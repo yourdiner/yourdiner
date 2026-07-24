@@ -371,7 +371,12 @@ export async function submitFulfillmentToKitchen(
 
     await tx.orderItem.updateMany({
       where: { orderId: fullOrder.id, kitchenStatus: OrderItemKitchenStatus.PENDING },
-      data: { kitchenStatus: OrderItemKitchenStatus.SENT, revisionNumber: nextRevision },
+      data: {
+        kitchenStatus: OrderItemKitchenStatus.SENT,
+        revisionNumber: nextRevision,
+        kitchenSentAt: new Date(),
+        kitchenStatusUpdatedAt: new Date(),
+      },
     });
 
     await tx.order.update({

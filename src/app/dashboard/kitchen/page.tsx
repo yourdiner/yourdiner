@@ -2,10 +2,7 @@ import { requireTenantPageContext } from "@/lib/tenancy";
 import { getModuleUpgradeLabel, restaurantHasModuleAccess } from "@/lib/plan-access";
 import { UpgradePrompt } from "@/components/upgrade-prompt";
 import { AdminPageShell } from "@/components/layout/admin-page-shell";
-import {
-  getKitchenQueue,
-  serializeKitchenTickets,
-} from "@/features/fulfillment/fulfillment-queries";
+import { listKitchenQueueItems } from "@/features/fulfillment/kitchen-item.service";
 import { KitchenDashboardPoller } from "@/features/fulfillment/components/kitchen-dashboard-poller";
 
 export const dynamic = "force-dynamic";
@@ -26,7 +23,7 @@ export default async function KitchenPage() {
     );
   }
 
-  const tickets = serializeKitchenTickets(await getKitchenQueue(tenant.restaurantId));
+  const { items, serverTime } = await listKitchenQueueItems(tenant.restaurantId);
 
   return (
     <AdminPageShell title="Kitchen Display">
@@ -36,10 +33,10 @@ export default async function KitchenPage() {
           Kitchen queue
         </h3>
         <p className="mt-2 max-w-xl text-body-md text-on-surface-variant opacity-80">
-          Dine-in, takeaway, and delivery tickets in one view.
+          One row per item, oldest kitchen submission first.
         </p>
       </div>
-      <KitchenDashboardPoller initialTickets={tickets} />
+      <KitchenDashboardPoller initialItems={items} initialServerTime={serverTime} />
     </AdminPageShell>
   );
 }

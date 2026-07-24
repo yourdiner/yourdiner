@@ -50,12 +50,12 @@ export function SettingsOrders({ orderSettings }: SettingsOrdersProps) {
           <div>
             <Label htmlFor="require-first-order">Require first order approval</Label>
             <p className="text-sm text-muted-foreground">
-              Hold a customer&apos;s first order until staff approves it before sending to kitchen.
+              Optional extra step after table approval. When off, customer orders go straight to the kitchen.
             </p>
           </div>
           <Switch
             id="require-first-order"
-            checked={form.requireFirstOrderApproval !== false}
+            checked={form.requireFirstOrderApproval === true}
             onCheckedChange={(checked) =>
               setForm((prev) => ({ ...prev, requireFirstOrderApproval: checked }))
             }

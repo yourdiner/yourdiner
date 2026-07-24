@@ -78,3 +78,28 @@ export async function customerOrderMutation(
   }
   return result;
 }
+
+export async function fetchCustomerActiveOrder(diningSessionId: string) {
+  const res = await fetch(`/api/customer/orders/${diningSessionId}`);
+  return parseJson<{
+    id: string;
+    status: string;
+    total: number;
+    subtotal: number;
+    discountAmount: number;
+    items: Array<{
+      id: string;
+      productId?: string;
+      name: string;
+      quantity: number;
+      unitPrice: number;
+      totalPrice: number;
+      kitchenStatus: string;
+      variantId?: string | null;
+      variantNameSnapshot?: string | null;
+      modifiers?: unknown;
+      notes?: string | null;
+      kitchenNotes?: string | null;
+    }>;
+  } | null>(res);
+}

@@ -10,12 +10,18 @@ import {
   Loader2,
 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
+import {
+  formatKitchenStatusLabel,
+  kitchenStatusBadgeClass,
+} from "@/lib/kitchen-status-label";
 import type { MenuViewMode, OrderPanel } from "@/features/menu/components/public-menu-types";
 
 type Props = {
   mode: MenuViewMode;
   canOrder: boolean;
   cartCount: number;
+  /** Badge on Order tab; defaults to cartCount */
+  orderBadgeCount?: number;
   cartTotal: number;
   cartSummary: string;
   activePanel: OrderPanel;
@@ -36,6 +42,12 @@ type Props = {
   onCallWaiter: () => void;
   onRequestBill: () => void;
   activeOrderTotal?: number;
+  trackingItems?: Array<{
+    id: string;
+    name: string;
+    quantity: number;
+    kitchenStatus: string;
+  }>;
   orderPanel: React.ReactNode;
 };
 
@@ -43,6 +55,7 @@ export function PublicMenuOrderChrome({
   mode,
   canOrder,
   cartCount,
+  orderBadgeCount,
   cartTotal,
   cartSummary,
   activePanel,
@@ -63,8 +76,10 @@ export function PublicMenuOrderChrome({
   onCallWaiter,
   onRequestBill,
   activeOrderTotal,
+  trackingItems,
   orderPanel,
 }: Props) {
+  const tabBadgeCount = orderBadgeCount ?? cartCount;
   const mobileNavClass = (panel: OrderPanel) =>
     `pm-press flex cursor-pointer flex-col items-center gap-1 px-3 py-1 ${
       activePanel === panel
@@ -122,9 +137,9 @@ export function PublicMenuOrderChrome({
           <button type="button" className={mobileNavClass("order")} onClick={() => onActivePanelChange("order")}>
             <span className="relative">
               <ShoppingBag className="h-5 w-5" />
-              {cartCount > 0 && mode === "customer" && (
+              {tabBadgeCount > 0 && mode === "customer" && (
                 <span className="absolute -right-2 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--pm-secondary)] px-1 text-[9px] font-bold text-white">
-                  {cartCount}
+                  {tabBadgeCount}
                 </span>
               )}
             </span>
@@ -235,12 +250,31 @@ export function PublicMenuOrderChrome({
             ) : (
               <>
                 <p className="mb-6 text-sm leading-relaxed text-[var(--pm-on-surface-variant)]">
-                  {mode === "staff" && activeOrderTotal != null
+                  {activeOrderTotal != null
                     ? `Current total: ${formatCurrency(activeOrderTotal)}`
                     : cartCount > 0
                       ? `Estimated total: ${formatCurrency(cartTotal)}`
                       : "Request the bill when you are ready to pay."}
                 </p>
+                {trackingItems && trackingItems.length > 0 && (
+                  <ul className="mb-6 max-h-48 space-y-2 overflow-y-auto text-left">
+                    {trackingItems.map((item) => (
+                      <li
+                        key={item.id}
+                        className="flex items-center justify-between gap-3 text-sm"
+                      >
+                        <span className="min-w-0 truncate text-[var(--pm-on-surface)]">
+                          {item.quantity}× {item.name}
+                        </span>
+                        <span
+                          className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ring-1 ${kitchenStatusBadgeClass(item.kitchenStatus)}`}
+                        >
+                          {formatKitchenStatusLabel(item.kitchenStatus)}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
                 <button
                   type="button"
                   disabled={actionLoading || billRequested}

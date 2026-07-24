@@ -19,8 +19,9 @@ function deriveStatus(session: Session): string {
   if (session.status === "BILL_REQUESTED") return "Bill Requested";
   const order = session.orders[0];
   if (!order) return "Active";
+  if (order.items.some((i) => i.kitchenStatus === "READY")) return "Ready";
   if (order.items.some((i) => i.kitchenStatus === "PREPARING")) return "Preparing";
-  if (order.items.some((i) => i.kitchenStatus === "SENT")) return "Sent to Kitchen";
+  if (order.items.some((i) => i.kitchenStatus === "SENT")) return "Pending in kitchen";
   if (order.items.length > 0 && order.items.every((i) => i.kitchenStatus === "SERVED")) return "Served";
   return order.status.charAt(0) + order.status.slice(1).toLowerCase();
 }
