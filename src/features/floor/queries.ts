@@ -46,7 +46,12 @@ export async function fetchFloorTablesForRestaurant(restaurantId: string) {
         isActive: true,
         ...blockingTableSessionStatusFilter(),
       },
-      select: { id: true, tableId: true, status: true },
+      select: {
+        id: true,
+        tableId: true,
+        status: true,
+        customer: { select: { name: true, phone: true } },
+      },
       orderBy: { createdAt: "desc" },
     }),
     prisma.reservation.findMany({
@@ -108,12 +113,27 @@ export async function fetchFloorTablesForRestaurant(restaurantId: string) {
   });
 
   const sessionByTable = new Map(floorSessions.map((s) => [s.tableId, s]));
+  const customerSessionByTable = new Map<string, (typeof customerSessions)[number]>();
+  for (const cs of customerSessions) {
+    if (!customerSessionByTable.has(cs.tableId)) {
+      customerSessionByTable.set(cs.tableId, cs);
+    }
+  }
 
   return tables.map((table) => {
     const snapshot = availability.get(table.id);
+    const customerSession = customerSessionByTable.get(table.id) ?? null;
     return {
       ...table,
       diningSession: sessionByTable.get(table.id) ?? null,
+      pendingCustomerSession:
+        customerSession?.status === "PENDING_APPROVAL"
+          ? {
+              id: customerSession.id,
+              status: customerSession.status,
+              customerName: customerSession.customer?.name ?? customerSession.customer?.phone ?? null,
+            }
+          : null,
       availability: snapshot ?? null,
       activeReservation: snapshot?.blockingReservation ?? null,
       status: snapshot?.status ?? "AVAILABLE",

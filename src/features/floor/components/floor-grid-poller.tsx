@@ -23,6 +23,11 @@ type FloorTable = {
     customer: { name: string } | null;
     orders: { total: number; status: string }[];
   } | null;
+  pendingCustomerSession?: {
+    id: string;
+    status: string;
+    customerName: string | null;
+  } | null;
   activeReservation: {
     id: string;
     guestName: string;

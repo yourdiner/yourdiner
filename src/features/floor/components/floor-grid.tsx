@@ -28,6 +28,11 @@ type FloorTable = {
     customer: { name: string } | null;
     orders: { total: number; status: string }[];
   } | null;
+  pendingCustomerSession?: {
+    id: string;
+    status: string;
+    customerName: string | null;
+  } | null;
   activeReservation: {
     id: string;
     guestName: string;
@@ -97,6 +102,7 @@ export function FloorGrid({
         {tables.map((table) => {
           const visual = resolveVisualStatus(table);
           const session = table.diningSession;
+          const pendingQr = table.pendingCustomerSession;
           const reservation = table.activeReservation;
           const label = table.name || `T${table.number}`;
           const assignedStaffId = session?.staff?.id ?? null;
@@ -105,9 +111,11 @@ export function FloorGrid({
             canAccessAssignedSession(sessionViewer, assignedStaffId);
           const canStartWalkIn =
             (visual === "AVAILABLE" || visual === "RESERVED") &&
-            table.canStartSession !== false;
-          const href =
-            canStartWalkIn
+            table.canStartSession !== false &&
+            !pendingQr;
+          const href = pendingQr
+            ? `/admin/orders`
+            : canStartWalkIn
               ? `/staff/session/new?tableId=${table.id}`
               : canOpenSession
                 ? `/staff/order/${session.id}`
@@ -133,7 +141,8 @@ export function FloorGrid({
                 visual === "OCCUPIED" &&
                   "border-secondary bg-secondary-fixed/10 hover:bg-secondary-fixed/20",
                 visual === "CLEANING" &&
-                  "border-tertiary-fixed bg-surface-container-high"
+                  "border-tertiary-fixed bg-surface-container-high",
+                pendingQr && "border-amber-400 bg-amber-50/90"
               )}
             >
               <div className="flex items-start justify-between gap-2">
@@ -141,17 +150,29 @@ export function FloorGrid({
                 <span
                   className={cn(
                     "shrink-0 px-2 py-0.5 text-label-sm",
-                    STATUS_COLOR[visual] ?? "bg-surface-container"
+                    pendingQr
+                      ? "bg-amber-200 text-amber-950"
+                      : STATUS_COLOR[visual] ?? "bg-surface-container"
                   )}
                 >
-                  {STATUS_LABEL[visual] ?? visual}
+                  {pendingQr ? "Awaiting approval" : STATUS_LABEL[visual] ?? visual}
                 </span>
               </div>
               <p className="mt-1 flex items-center gap-1 text-label-sm text-on-surface-variant">
                 <MaterialIcon name="chair_alt" className="text-base" />
                 {table.capacity} seats
               </p>
-              {reservation && !session && (
+              {pendingQr && !session && (
+                <div className="mt-auto space-y-0.5 pt-3 text-label-sm">
+                  {pendingQr.customerName && (
+                    <p className="font-medium text-on-surface">{pendingQr.customerName}</p>
+                  )}
+                  <p className="font-medium text-amber-800">
+                    Customer QR — approve on Floor &amp; Orders →
+                  </p>
+                </div>
+              )}
+              {reservation && !session && !pendingQr && (
                 <div className="mt-auto space-y-0.5 pt-3 text-label-sm">
                   <p className="font-medium text-on-surface">{reservation.guestName}</p>
                   <p className="text-on-surface-variant">
@@ -189,12 +210,12 @@ export function FloorGrid({
                   {table.blockReason}
                 </p>
               )}
-              {visual === "RESERVED" && !session && !canStartWalkIn && (
+              {visual === "RESERVED" && !session && !pendingQr && !canStartWalkIn && (
                 <p className="mt-auto pt-3 text-label-sm font-medium text-amber-800">
                   Reserved — unavailable
                 </p>
               )}
-              {visual === "RESERVED" && !session && canStartWalkIn && (
+              {visual === "RESERVED" && !session && !pendingQr && canStartWalkIn && (
                 <p className="mt-auto pt-3 text-label-sm font-medium text-amber-800">
                   Reserved soon — tap to start (may need override)
                 </p>
@@ -216,7 +237,7 @@ export function FloorGrid({
           // the waiter can open the order; only block when there is no href.
           // Hold-window RESERVED has canStartWalkIn false; dining-window RESERVED
           // may still start and go through conflict override.
-          if (!href || visual === "DISABLED" || (visual === "RESERVED" && !canStartWalkIn)) {
+          if (!href || visual === "DISABLED" || (visual === "RESERVED" && !canStartWalkIn && !pendingQr)) {
             return <div key={table.id}>{card}</div>;
           }
 

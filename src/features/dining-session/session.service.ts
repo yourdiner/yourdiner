@@ -71,11 +71,13 @@ export async function startDiningSessionService(input: StartSessionInput) {
         409
       );
     }
-  }
 
-  await assertTableAvailableForSession(input.restaurantId, input.tableId, {
-    reservationId: input.reservationId,
-  });
+    // Customer QR approval already holds a PENDING_APPROVAL table session that marks
+    // the table OCCUPIED — skip that gate when converting the QR session into a dining session.
+    await assertTableAvailableForSession(input.restaurantId, input.tableId, {
+      reservationId: input.reservationId,
+    });
+  }
 
   // Shared reservation conflict gate (BLOCK / WARN + override). Status AVAILABLE ≠ always eligible.
   const conflictGate = await assertSessionReservationAllowed({
