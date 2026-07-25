@@ -1492,6 +1492,7 @@ export function PublicMenuView({
               ? previousOrderedItems.map((item) => ({
                   id: item.id,
                   name: item.name,
+                  billDisplayName: item.billDisplayName,
                   quantity: item.quantity,
                   kitchenStatus: item.kitchenStatus,
                 }))

@@ -24,10 +24,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { PrintReceiptButton } from "@/features/printing/components/print-receipt-button";
+import { printBillAction } from "@/features/printing/actions";
+import { browserPrintHtml } from "@/features/printing/browser-print";
 
 type OrderLineItem = {
   id: string;
   name: string;
+  billDisplayName?: string | null;
   quantity: number;
   unitPrice: number;
   totalPrice: number;
@@ -40,18 +44,20 @@ type OrderSummary = {
   subtotal: number;
   taxAmount: number;
   discountAmount: number;
+  promotionDiscountAmount?: number;
   total: number;
 };
 
 function checkoutLineLabel(item: OrderLineItem): string {
+  const label = item.billDisplayName?.trim() || item.name;
   const variant = item.variantNameSnapshot?.trim();
-  return variant ? `${item.name} (${variant})` : item.name;
+  return variant ? `${label} (${variant})` : label;
 }
 
 function groupCheckoutLineItems(items: OrderLineItem[]): OrderLineItem[] {
   const grouped = new Map<string, OrderLineItem>();
   for (const item of items) {
-    const key = `${item.name}\0${item.variantNameSnapshot ?? ""}\0${item.unitPrice}`;
+    const key = `${item.billDisplayName ?? item.name}\0${item.variantNameSnapshot ?? ""}\0${item.unitPrice}`;
     const existing = grouped.get(key);
     if (existing) {
       existing.quantity += item.quantity;
@@ -88,6 +94,7 @@ function computeCheckoutTotals(
 
 export function CheckoutDialog({
   sessionId,
+  orderId,
   open,
   onOpenChange,
   order,
@@ -96,6 +103,7 @@ export function CheckoutDialog({
   onSuccess,
 }: {
   sessionId: string;
+  orderId: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   order: OrderSummary;
@@ -109,6 +117,7 @@ export function CheckoutDialog({
   const [discountInput, setDiscountInput] = useState("");
   const [loyaltyPointsInput, setLoyaltyPointsInput] = useState("0");
   const [paymentMethod, setPaymentMethod] = useState<"CASH" | "CARD" | "UPI" | "OTHER">("CASH");
+  const [checkoutDone, setCheckoutDone] = useState(false);
 
   const showLoyalty = loyaltySettings.enabled && customerPoints > 0;
 
@@ -138,6 +147,7 @@ export function CheckoutDialog({
     setDiscountInput("");
     setLoyaltyPointsInput("0");
     setPaymentMethod("CASH");
+    setCheckoutDone(false);
   }
 
   function handleOpenChange(next: boolean) {
@@ -158,8 +168,14 @@ export function CheckoutDialog({
         return;
       }
       toast.success("Checkout complete");
-      resetForm();
-      onOpenChange(false);
+      setCheckoutDone(true);
+      void printBillAction(orderId, sessionId).then((printResult) => {
+        if (printResult.ok && printResult.result.needsBrowserPrint && printResult.result.html) {
+          browserPrintHtml(printResult.result.html);
+        } else if (printResult.ok && printResult.result.status === "FAILED") {
+          toast.error(printResult.result.errorMessage || "Printing failed. Retry?");
+        }
+      });
       onSuccess();
     });
   }
@@ -203,6 +219,12 @@ export function CheckoutDialog({
               <span className="text-muted-foreground">Tax</span>
               <span>{formatCurrency(order.taxAmount)}</span>
             </div>
+            {(order.promotionDiscountAmount ?? 0) > 0 && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Promotion</span>
+                <span>-{formatCurrency(order.promotionDiscountAmount ?? 0)}</span>
+              </div>
+            )}
             {order.discountAmount > 0 && (
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Existing discount</span>
@@ -347,12 +369,28 @@ export function CheckoutDialog({
         </div>
 
         <DialogFooter className="gap-2 sm:gap-0">
-          <Button type="button" variant="outline" onClick={() => handleOpenChange(false)} disabled={pending}>
-            Cancel
-          </Button>
-          <Button type="button" onClick={submitCheckout} disabled={pending}>
-            {pending ? "Processing…" : "Collect & Close Session"}
-          </Button>
+          {checkoutDone ? (
+            <>
+              <PrintReceiptButton
+                orderId={orderId}
+                kind="bill"
+                diningSessionId={sessionId}
+                triggerLabel="Reprint bill"
+              />
+              <Button type="button" onClick={() => handleOpenChange(false)}>
+                Done
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button type="button" variant="outline" onClick={() => handleOpenChange(false)} disabled={pending}>
+                Cancel
+              </Button>
+              <Button type="button" onClick={submitCheckout} disabled={pending}>
+                {pending ? "Processing…" : "Collect & Close Session"}
+              </Button>
+            </>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>

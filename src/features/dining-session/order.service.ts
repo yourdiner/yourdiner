@@ -1,9 +1,5 @@
 import { prisma } from "@/lib/db";
-import {
-  computeOrderTotal,
-  computeTaxAmount,
-  getRestaurantTaxSettings,
-} from "@/lib/tax-settings";
+import { getRestaurantTaxSettings } from "@/lib/tax-settings";
 import { getRestaurantOrderSettings } from "@/lib/order-settings";
 import { AppError } from "@/lib/errors";
 import {
@@ -18,6 +14,15 @@ import { canVoidSentItems } from "./permissions";
 import { assertSessionStaffAccess } from "./session-access.service";
 import { resolveOrderItemFromProduct } from "@/features/product-config/server-order";
 import { findOrIncrementPendingOrderItem } from "@/features/product-config/merge-pending-order-item";
+import { autoMatchCombosOnOrder } from "@/features/pricing-engine/auto-match";
+import { loadActivePromotions } from "@/features/pricing-engine/load-active";
+import { filterBillPromotions, priceOrder } from "@/features/pricing-engine";
+import { applyExplicitComboPricing } from "@/features/pricing-engine/match-combos";
+import { buildConfigurationKey } from "@/features/product-config";
+import { loadConfigurableProduct } from "@/features/product-config/server-order";
+import type { EnginePromotion } from "@/features/pricing-engine/types";
+import { priceSelection } from "@/features/product-config";
+
 
 export type OrderItemConfigInput = {
   variantId?: string | null;
@@ -261,22 +266,27 @@ async function recalculateOrder(orderId: string) {
       },
     },
   });
-  const subtotal = items.reduce((sum, i) => sum + i.totalPrice, 0);
+  const lineTotal = items.reduce((sum, i) => sum + i.totalPrice, 0);
   const order = await prisma.order.findUnique({ where: { id: orderId } });
   if (!order) throw new AppError("Order not found", "NOT_FOUND", 404);
 
   const taxSettings = await getRestaurantTaxSettings(order.restaurantId);
-  const taxAmount = computeTaxAmount(subtotal, taxSettings.taxPercent, taxSettings.taxInclusive);
-  const total = computeOrderTotal(
-    subtotal,
-    taxAmount,
-    order.discountAmount ?? 0,
-    taxSettings.taxInclusive
-  );
+  const promotions = await loadActivePromotions(order.restaurantId);
+  const priced = priceOrder({
+    lineTotalPaise: lineTotal,
+    taxSettings,
+    billPromotions: filterBillPromotions(promotions),
+    manualDiscountPaise: order.discountAmount ?? 0,
+  });
 
   return prisma.order.update({
     where: { id: orderId },
-    data: { subtotal, taxAmount, total },
+    data: {
+      subtotal: lineTotal,
+      taxAmount: priced.taxAmount,
+      promotionDiscountAmount: priced.promotionDiscountAmount,
+      total: priced.total,
+    },
     include: { items: true, revisions: true },
   });
 }
@@ -362,6 +372,7 @@ export async function addItemToOrderService(
     snapshots,
   });
 
+  await autoMatchCombosOnOrder(order.id, restaurantId);
   await recalculateOrder(order.id);
 
   await appendSessionEvent({
@@ -417,12 +428,17 @@ export async function updateOrderItemConfigService(
       quantity,
       unitPrice: snapshots.unitPrice,
       totalPrice: snapshots.unitPrice * quantity,
+      originalUnitPrice: snapshots.originalUnitPrice ?? snapshots.unitPrice,
+      promotionId: snapshots.promotionId ?? null,
+      promotionNameSnapshot: snapshots.promotionNameSnapshot ?? null,
+      promotionDiscountPaise: snapshots.promotionDiscountPaise ?? 0,
       modifiers: snapshots.modifiers as unknown as Prisma.InputJsonValue,
       notes: snapshots.notes,
       kitchenNotes: snapshots.kitchenNotes,
     },
   });
 
+  await autoMatchCombosOnOrder(item.orderId, restaurantId);
   await recalculateOrder(item.orderId);
 }
 
@@ -470,6 +486,7 @@ export async function updateOrderItemQuantityService(
     data: { quantity, totalPrice: item.unitPrice * quantity },
   });
 
+  await autoMatchCombosOnOrder(item.orderId, restaurantId);
   await recalculateOrder(item.orderId);
 }
 
@@ -515,6 +532,7 @@ export async function removeOrderItemService(
     });
   }
 
+  await autoMatchCombosOnOrder(item.orderId, restaurantId);
   await recalculateOrder(item.orderId);
 }
 
@@ -627,6 +645,12 @@ export async function submitOrderToKitchenService(
     metadata: { revisionNumber: nextRevision, itemCount: pendingItems.length },
     actor,
   });
+
+  const { enqueueAutoPrintKot } = await import("@/features/printing/printer.service");
+  enqueueAutoPrintKot(restaurantId, order.id, {
+    revisionNumber: nextRevision,
+    diningSessionId: sessionId,
+  });
 }
 
 export async function holdOrderService(sessionId: string, restaurantId: string) {
@@ -647,3 +671,119 @@ export function searchProducts(
   // Product search is client-side via /api/menu/catalog after progressive loading.
   return [] as Array<{ id: string; name: string; price: number; categoryName: string }>;
 }
+
+/**
+ * Explicitly add a COMBO promotion: creates one OrderItem per component,
+ * linked by comboGroupId, priced so totals equal the combo price.
+ * Kitchen still sees each product name separately.
+ */
+export async function addComboToOrderService(
+  sessionId: string,
+  restaurantId: string,
+  promotionId: string,
+  quantity: number,
+  actor: OrderActor,
+  options?: { staffId?: string }
+) {
+  await assertSessionStaffAccess(sessionId, restaurantId, actor);
+  const sets = Math.max(1, Math.floor(quantity));
+
+  const promotions = await loadActivePromotions(restaurantId);
+  const combo = promotions.find((p) => p.id === promotionId && p.type === "COMBO") as
+    | EnginePromotion
+    | undefined;
+  if (!combo) {
+    throw new AppError("Combo promotion not available", "NOT_FOUND", 404);
+  }
+  if (combo.comboComponents.length < 2 || combo.fixedPricePaise == null) {
+    throw new AppError("Invalid combo configuration", "VALIDATION", 400);
+  }
+
+  const staffId = options?.staffId ?? (actor.type === "staff" ? actor.staffId : undefined);
+  const order = await getOrCreateActiveOrder(sessionId, staffId, restaurantId);
+  const comboGroupId = `combo_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 9)}`;
+
+  const componentLines: Array<{
+    productId: string;
+    quantity: number;
+    originalUnitPrice: number;
+    name: string;
+    configurationKey: string;
+    modifiers: unknown;
+    variantId: string | null;
+    variantNameSnapshot: string | null;
+    variantPriceSnapshot: number | null;
+    basePriceSnapshot: number;
+  }> = [];
+
+  for (const c of [...combo.comboComponents].sort((a, b) => a.sortOrder - b.sortOrder)) {
+    const configurable = await loadConfigurableProduct(c.productId, restaurantId);
+    if (!configurable) {
+      throw new AppError("Combo product not found", "NOT_FOUND", 404);
+    }
+    const priced = priceSelection(configurable, {
+      modifierIds: [],
+      quantity: 1,
+    });
+    componentLines.push({
+      productId: c.productId,
+      quantity: c.quantity * sets,
+      originalUnitPrice: priced.unitPrice,
+      name: configurable.name,
+      configurationKey: buildConfigurationKey(
+        c.productId,
+        null,
+        [],
+        undefined,
+        `combo:${comboGroupId}`
+      ),
+      modifiers: priced.modifiers,
+      variantId: priced.variantId,
+      variantNameSnapshot: priced.variantName,
+      variantPriceSnapshot: priced.variantPrice,
+      basePriceSnapshot: priced.basePrice,
+    });
+  }
+
+  const pricedLines = applyExplicitComboPricing(componentLines, combo, comboGroupId);
+
+  await prisma.$transaction(
+    pricedLines.map((line, idx) => {
+      const src = componentLines[idx];
+      return prisma.orderItem.create({
+        data: {
+          orderId: order.id,
+          productId: line.productId,
+          name: src.name,
+          variantId: src.variantId,
+          variantNameSnapshot: src.variantNameSnapshot,
+          variantPriceSnapshot: src.variantPriceSnapshot,
+          basePriceSnapshot: src.basePriceSnapshot,
+          configurationKey: src.configurationKey,
+          quantity: line.quantity,
+          unitPrice: line.unitPrice,
+          totalPrice: line.totalPrice,
+          originalUnitPrice: line.originalUnitPrice,
+          promotionId: line.promotionId,
+          promotionNameSnapshot: line.promotionNameSnapshot,
+          promotionDiscountPaise: line.promotionDiscountPaise,
+          comboGroupId: line.comboGroupId,
+          billDisplayName: line.billDisplayName,
+          modifiers: src.modifiers as Prisma.InputJsonValue,
+          kitchenStatus: OrderItemKitchenStatus.PENDING,
+        },
+      });
+    })
+  );
+
+  await recalculateOrder(order.id);
+
+  await appendSessionEvent({
+    diningSessionId: sessionId,
+    type: "ITEM_ADDED",
+    message: `${combo.billLabel || combo.name} ×${sets} added`,
+    metadata: { promotionId, quantity: sets, comboGroupId },
+    actor,
+  });
+}
+

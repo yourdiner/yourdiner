@@ -45,6 +45,7 @@ type Props = {
   trackingItems?: Array<{
     id: string;
     name: string;
+    billDisplayName?: string | null;
     quantity: number;
     kitchenStatus: string;
   }>;
@@ -264,7 +265,7 @@ export function PublicMenuOrderChrome({
                         className="flex items-center justify-between gap-3 text-sm"
                       >
                         <span className="min-w-0 truncate text-[var(--pm-on-surface)]">
-                          {item.quantity}× {item.name}
+                          {item.quantity}× {item.billDisplayName?.trim() || item.name}
                         </span>
                         <span
                           className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ring-1 ${kitchenStatusBadgeClass(item.kitchenStatus)}`}

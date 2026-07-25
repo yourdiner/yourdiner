@@ -5,6 +5,7 @@ import { formatOrderLineDisplay, parseModifierSnapshots } from "@/features/produ
 
 export interface OrderLineItemProps {
   name: string;
+  billDisplayName?: string | null;
   variantNameSnapshot?: string | null;
   modifiers?: unknown;
   quantity: number;
@@ -18,6 +19,7 @@ export interface OrderLineItemProps {
 
 export function OrderLineItem({
   name,
+  billDisplayName,
   variantNameSnapshot,
   modifiers,
   quantity,
@@ -30,6 +32,7 @@ export function OrderLineItem({
 }: OrderLineItemProps) {
   const display = formatOrderLineDisplay({
     name,
+    billDisplayName,
     variantNameSnapshot,
     modifiers,
     quantity,

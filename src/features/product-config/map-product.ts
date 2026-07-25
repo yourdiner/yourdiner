@@ -43,6 +43,7 @@ export type PrismaProductWithConfig = {
   id: string;
   name: string;
   price: number;
+  categoryId?: string;
   description?: string | null;
   shortDescription?: string | null;
   isOutOfStock?: boolean;
@@ -112,6 +113,7 @@ export function mapPrismaProductToConfigurable(
     id: product.id,
     name: product.name,
     price: product.price,
+    categoryId: product.categoryId,
     description: product.description,
     shortDescription: product.shortDescription,
     isOutOfStock: product.isOutOfStock,

@@ -9,6 +9,7 @@ import {
   mapPrismaProductToConfigurable,
   PRODUCT_CONFIG_INCLUDE,
 } from "@/features/product-config/map-product";
+import { loadActivePromotions, getRestaurantPricingClock } from "@/features/pricing-engine/load-active";
 
 export type OrderItemConfigInput = {
   variantId?: string | null;
@@ -32,8 +33,13 @@ export async function resolveOrderItemFromProduct(
   restaurantId: string,
   input: OrderItemConfigInput
 ) {
-  const configurable = await loadConfigurableProduct(productId, restaurantId);
-  if (!configurable) throw new AppError("Product not found", "NOT_FOUND", 404);
+  const product = await prisma.product.findFirst({
+    where: { id: productId, restaurantId, isAvailable: true },
+    include: PRODUCT_CONFIG_INCLUDE,
+  });
+  if (!product) throw new AppError("Product not found", "NOT_FOUND", 404);
+
+  const configurable = mapPrismaProductToConfigurable(product);
 
   const selection: ProductSelection = {
     variantId: input.variantId ?? null,
@@ -48,5 +54,18 @@ export async function resolveOrderItemFromProduct(
     throw new AppError(validation.errors[0] ?? "Invalid selection", "VALIDATION", 400);
   }
 
-  return buildOrderItemSnapshots(configurable, selection);
+  const [{ clock }, promotions] = await Promise.all([
+    getRestaurantPricingClock(restaurantId),
+    loadActivePromotions(restaurantId, {
+      productIds: [productId],
+      categoryIds: product.categoryId ? [product.categoryId] : [],
+    }),
+  ]);
+
+  return buildOrderItemSnapshots(configurable, selection, {
+    promotions,
+    dayOfWeek: clock.dayOfWeek,
+    minutesOfDay: clock.minutesOfDay,
+    now: clock.instant,
+  });
 }

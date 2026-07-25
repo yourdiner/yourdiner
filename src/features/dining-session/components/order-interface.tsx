@@ -21,6 +21,7 @@ import {
   fetchStaffProductConfig,
   searchStaffMenu,
 } from "@/lib/qr-client";
+import { PrintReceiptButton } from "@/features/printing/components/print-receipt-button";
 
 export type OrderInterfaceProduct = ConfigurableProduct & {
   imageUrl?: string | null;
@@ -37,6 +38,7 @@ export type OrderInterfaceItem = {
   id: string;
   productId?: string;
   name: string;
+  billDisplayName?: string | null;
   quantity: number;
   unitPrice: number;
   totalPrice: number;
@@ -56,6 +58,7 @@ export type OrderInterfaceOrder = {
   total: number;
   subtotal: number;
   discountAmount: number;
+  promotionDiscountAmount?: number;
   items: OrderInterfaceItem[];
   revisions: { revisionNumber: number; submittedAt: Date | string }[];
 };
@@ -411,6 +414,7 @@ export function OrderInterface({
                 <div className="flex-1">
                   <OrderLineItem
                     name={item.name}
+                    billDisplayName={item.billDisplayName}
                     variantNameSnapshot={item.variantNameSnapshot}
                     modifiers={item.modifiers}
                     quantity={item.quantity}
@@ -432,6 +436,12 @@ export function OrderInterface({
         </div>
         {activeOrder && (
           <div className="space-y-3 border-t border-tertiary-fixed p-4">
+            {(activeOrder.promotionDiscountAmount ?? 0) > 0 && (
+              <div className="flex justify-between text-sm text-secondary">
+                <span>Promotion</span>
+                <span>-{formatCurrency(activeOrder.promotionDiscountAmount ?? 0)}</span>
+              </div>
+            )}
             {activeOrder.discountAmount > 0 && (
               <div className="flex justify-between text-sm text-secondary">
                 <span>Discount</span>
@@ -455,6 +465,10 @@ export function OrderInterface({
               <Send className="mr-2 h-4 w-4" />
               Send {pendingCount > 0 ? `${pendingCount} new item(s)` : ""} to kitchen
             </Button>
+            <div className="grid grid-cols-2 gap-2">
+              <PrintReceiptButton orderId={activeOrder.id} kind="kot" triggerLabel="Print KOT" />
+              <PrintReceiptButton orderId={activeOrder.id} kind="bill" triggerLabel="Print bill" />
+            </div>
             {footerExtra}
           </div>
         )}

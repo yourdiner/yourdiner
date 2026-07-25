@@ -26,6 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { PrintReceiptButton } from "@/features/printing/components/print-receipt-button";
 
 type Props = {
   orderId: string;
@@ -192,6 +193,18 @@ export function FulfillmentOrderInterface({
             >
               Record Payment
             </Button>
+            <PrintReceiptButton
+              orderId={orderId}
+              kind="bill"
+              triggerLabel="Print bill"
+              className="w-full"
+            />
+            <PrintReceiptButton
+              orderId={orderId}
+              kind="kot"
+              triggerLabel="Print KOT"
+              className="w-full"
+            />
             <Button
               className="w-full"
               size="sm"

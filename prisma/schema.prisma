@@ -570,6 +570,7 @@ model Restaurant {
   orders        Order[]
   memberships   Membership[]
   coupons       Coupon[]
+  promotions    Promotion[]
   qrCodes       QRCode[]
   media         Media[]
   activityLogs  ActivityLog[]
@@ -580,6 +581,7 @@ model Restaurant {
   sessionPayments SessionPayment[]
   orderPayments   OrderPayment[]
   dailySalesSummaries DailySalesSummary[]
+  printJobs       PrintJob[]
 
   @@index([subdomain])
   @@index([status])
@@ -698,6 +700,7 @@ model RestaurantSettings {
   qrSettings            Json       @default("{}")
   notificationSettings  Json       @default("{}")
   loyaltySettings       Json       @default("{}")
+  printerSettings       Json       @default("{}")
   averageDiningMinutes  Int        @default(90)
   createdAt             DateTime   @default(now())
   updatedAt             DateTime   @updatedAt
@@ -825,7 +828,8 @@ model Category {
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 
-  products Product[]
+  products          Product[]
+  promotionTargets  PromotionTarget[]
 
   @@index([restaurantId, sortOrder])
   @@index([restaurantId, isActive])
@@ -867,11 +871,13 @@ model Product {
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @updatedAt
 
-  variants       ProductVariant[]
-  variantGroups  ProductVariantGroup[]
-  images         ProductImage[]
-  modifierGroups ProductModifierGroup[]
-  orderItems     OrderItem[]
+  variants             ProductVariant[]
+  variantGroups        ProductVariantGroup[]
+  images               ProductImage[]
+  modifierGroups       ProductModifierGroup[]
+  orderItems           OrderItem[]
+  promotionTargets     PromotionTarget[]
+  promotionComboItems  PromotionComboComponent[]
 
   @@index([restaurantId, isAvailable, sortOrder])
   @@index([restaurantId, categoryId])
@@ -1142,6 +1148,96 @@ model Coupon {
   @@index([restaurantId])
 }
 
+// ─── Promotions ──────────────────────────────────────────────────────────────
+
+enum PromotionType {
+  TIME_PRICE
+  DAY_PRICE
+  COMBO
+  PERCENT
+  FLAT
+  BILL_FLAT
+  BILL_PERCENT
+}
+
+enum PromotionTargetScope {
+  PRODUCTS
+  CATEGORIES
+  ENTIRE_MENU
+}
+
+model Promotion {
+  id                 String                @id @default(cuid())
+  restaurantId       String
+  restaurant         Restaurant            @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  name               String
+  description        String?
+  billLabel          String?
+  type               PromotionType
+  targetScope        PromotionTargetScope  @default(PRODUCTS)
+  priority           Int                   @default(50)
+  stackable          Boolean               @default(false)
+  isActive           Boolean               @default(true)
+  startDate          DateTime?
+  endDate            DateTime?
+  startTime          String?               // HH:mm in restaurant timezone
+  endTime            String?               // HH:mm in restaurant timezone
+  daysOfWeek         Int[]                 @default([]) // 0=Sun .. 6=Sat; empty = all days
+  fixedPricePaise    Int?
+  percentOff         Float?
+  flatOffPaise       Int?
+  minOrderAmountPaise Int?
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
+
+  targets            PromotionTarget[]
+  comboComponents    PromotionComboComponent[]
+  dayPrices          PromotionDayPrice[]
+  orderItems         OrderItem[]
+
+  @@index([restaurantId, isActive, priority])
+  @@index([restaurantId, type])
+  @@index([restaurantId, startDate, endDate])
+}
+
+model PromotionTarget {
+  id           String     @id @default(cuid())
+  promotionId  String
+  promotion    Promotion  @relation(fields: [promotionId], references: [id], onDelete: Cascade)
+  productId    String?
+  product      Product?   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  categoryId   String?
+  category     Category?  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@index([promotionId])
+  @@index([productId])
+  @@index([categoryId])
+}
+
+model PromotionComboComponent {
+  id           String    @id @default(cuid())
+  promotionId  String
+  promotion    Promotion @relation(fields: [promotionId], references: [id], onDelete: Cascade)
+  productId    String
+  product      Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity     Int       @default(1)
+  sortOrder    Int       @default(0)
+
+  @@unique([promotionId, productId])
+  @@index([promotionId])
+  @@index([productId])
+}
+
+model PromotionDayPrice {
+  id              String    @id @default(cuid())
+  promotionId     String
+  promotion       Promotion @relation(fields: [promotionId], references: [id], onDelete: Cascade)
+  daysOfWeek      Int[]     // 0=Sun .. 6=Sat
+  fixedPricePaise Int
+
+  @@index([promotionId])
+}
+
 // ─── Orders ──────────────────────────────────────────────────────────────────
 
 model Order {
@@ -1171,10 +1267,11 @@ model Order {
   specialNotes     String?
   orderNotes       String?
   pickupTime       DateTime?
-  subtotal         Int         @default(0)
-  taxAmount        Int         @default(0)
-  discountAmount   Int         @default(0)
-  total            Int         @default(0)
+  subtotal                  Int         @default(0)
+  taxAmount                 Int         @default(0)
+  discountAmount            Int         @default(0)
+  promotionDiscountAmount   Int         @default(0)
+  total                     Int         @default(0)
   splitBillGroupId String?
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @updatedAt
@@ -1241,35 +1338,44 @@ model OrderRevision {
 }
 
 model OrderItem {
-  id                     String                 @id @default(cuid())
-  orderId                String
-  order                  Order                  @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  productId              String
-  product                Product                @relation(fields: [productId], references: [id])
-  variantId              String?
-  variant                ProductVariant?        @relation(fields: [variantId], references: [id])
-  name                   String
-  variantNameSnapshot    String?
-  variantPriceSnapshot   Int?
-  basePriceSnapshot      Int                    @default(0)
-  configurationKey       String?
-  quantity               Int                    @default(1)
-  unitPrice              Int
-  totalPrice             Int
-  modifiers              Json                   @default("[]")
-  notes                  String?
-  kitchenNotes           String?
-  revisionNumber         Int                    @default(1)
-  kitchenStatus          OrderItemKitchenStatus @default(PENDING)
-  kitchenSentAt          DateTime?
-  kitchenStatusUpdatedAt DateTime?
-  createdAt              DateTime               @default(now())
+  id                      String                 @id @default(cuid())
+  orderId                 String
+  order                   Order                  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId               String
+  product                 Product                @relation(fields: [productId], references: [id])
+  variantId               String?
+  variant                 ProductVariant?        @relation(fields: [variantId], references: [id])
+  name                    String
+  variantNameSnapshot     String?
+  variantPriceSnapshot    Int?
+  basePriceSnapshot       Int                    @default(0)
+  configurationKey        String?
+  quantity                Int                    @default(1)
+  unitPrice               Int
+  totalPrice              Int
+  originalUnitPrice       Int?
+  promotionId             String?
+  promotion               Promotion?             @relation(fields: [promotionId], references: [id], onDelete: SetNull)
+  promotionNameSnapshot   String?
+  promotionDiscountPaise  Int                    @default(0)
+  comboGroupId            String?
+  billDisplayName         String?
+  modifiers               Json                   @default("[]")
+  notes                   String?
+  kitchenNotes            String?
+  revisionNumber          Int                    @default(1)
+  kitchenStatus           OrderItemKitchenStatus @default(PENDING)
+  kitchenSentAt           DateTime?
+  kitchenStatusUpdatedAt  DateTime?
+  createdAt               DateTime               @default(now())
 
   @@index([orderId])
   @@index([orderId, revisionNumber])
   @@index([orderId, configurationKey])
+  @@index([orderId, comboGroupId])
   @@index([kitchenStatus, kitchenSentAt])
   @@index([kitchenStatusUpdatedAt])
+  @@index([promotionId])
 }
 
 model KitchenOrder {
@@ -1618,6 +1724,47 @@ model DailySalesSummary {
   @@unique([restaurantId, day, orderType])
   @@index([restaurantId, day])
   @@map("daily_sales_summary")
+}
+
+// ─── Printing ────────────────────────────────────────────────────────────────
+
+enum PrintJobType {
+  BILL
+  KOT
+  TEST
+  RECEIPT
+}
+
+enum PrintJobStatus {
+  QUEUED
+  PRINTING
+  COMPLETED
+  FAILED
+}
+
+model PrintJob {
+  id               String         @id @default(cuid())
+  restaurantId     String
+  restaurant       Restaurant     @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  type             PrintJobType
+  status           PrintJobStatus @default(QUEUED)
+  printerRole      String         @default("billing") // billing | kitchen | future station id
+  connectionType   String         @default("BROWSER")
+  orderId          String?
+  diningSessionId  String?
+  revisionNumber   Int?
+  payloadJson      Json           @default("{}")
+  htmlPreview      String?        @db.Text
+  escPosBase64     String?        @db.Text
+  errorMessage     String?
+  attempts         Int            @default(0)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  completedAt      DateTime?
+
+  @@index([restaurantId, createdAt])
+  @@index([restaurantId, status])
+  @@index([orderId])
 }
 
 model DomainVerification {

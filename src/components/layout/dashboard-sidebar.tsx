@@ -53,7 +53,10 @@ const navSections: NavSection[] = [
   },
   {
     title: "Marketing",
-    items: [{ href: "/admin/qr-codes", label: "QR Codes", icon: "qr_code_2", module: "qr_codes" }],
+    items: [
+      { href: "/admin/qr-codes", label: "QR Codes", icon: "qr_code_2", module: "qr_codes" },
+      { href: "/admin/promotions", label: "Promotions", icon: "sell", module: "promotions" },
+    ],
   },
   {
     title: "Insights",
@@ -65,6 +68,7 @@ const navSections: NavSection[] = [
     title: "Account",
     items: [
       { href: "/admin/subscription", label: "Billing", icon: "credit_card" },
+      { href: "/admin/printers", label: "Printers", icon: "print" },
       { href: "/admin/settings", label: "Settings", icon: "settings" },
     ],
   },

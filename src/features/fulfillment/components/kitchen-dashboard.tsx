@@ -7,6 +7,7 @@ import { KitchenTicketItem } from "@/features/product-config";
 import { updateKitchenItemStatusClient } from "@/lib/kitchen-client";
 import type { SerializedKitchenItem } from "@/features/fulfillment/kitchen-item.service";
 import type { OrderItemKitchenStatus } from "@prisma/client";
+import { PrintReceiptButton } from "@/features/printing/components/print-receipt-button";
 
 const COLUMNS: {
   status: OrderItemKitchenStatus;
@@ -93,6 +94,13 @@ export function KitchenDashboard({
                       kitchenNotes={item.kitchenNotes}
                     />
                   </ul>
+                  <PrintReceiptButton
+                    orderId={item.orderId}
+                    kind="kot"
+                    triggerLabel="Reprint KOT"
+                    className="mt-2 w-full"
+                    size="sm"
+                  />
                   {col.next && col.nextLabel && (
                     <Button
                       size="sm"

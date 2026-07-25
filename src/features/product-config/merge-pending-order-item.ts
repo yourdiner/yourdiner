@@ -13,6 +13,8 @@ export type MergePendingOrderItemResult = {
 /**
  * Single source of truth for PENDING order-line create-or-merge.
  * Identical configurationKey → bump quantity; otherwise create a new line.
+ * Promo/combo fields are part of the persisted snapshot; configurationKey already
+ * encodes product config. Lines with comboGroupId never merge.
  */
 export async function findOrIncrementPendingOrderItem(input: {
   orderId: string;
@@ -22,24 +24,32 @@ export async function findOrIncrementPendingOrderItem(input: {
 }): Promise<MergePendingOrderItemResult> {
   const { orderId, productId, quantity, snapshots } = input;
 
-  const existingPending = await prisma.orderItem.findFirst({
-    where: {
-      orderId,
-      configurationKey: snapshots.configurationKey,
-      kitchenStatus: OrderItemKitchenStatus.PENDING,
-    },
-  });
-
-  if (existingPending) {
-    const newQty = existingPending.quantity + quantity;
-    await prisma.orderItem.update({
-      where: { id: existingPending.id },
-      data: {
-        quantity: newQty,
-        totalPrice: snapshots.unitPrice * newQty,
+  if (!snapshots.comboGroupId) {
+    const existingPending = await prisma.orderItem.findFirst({
+      where: {
+        orderId,
+        configurationKey: snapshots.configurationKey,
+        kitchenStatus: OrderItemKitchenStatus.PENDING,
+        comboGroupId: null,
+        // Same promo context so promo'd and non-promo lines don't merge
+        promotionId: snapshots.promotionId ?? null,
       },
     });
-    return { itemId: existingPending.id, merged: true, quantity: newQty };
+
+    if (existingPending) {
+      const newQty = existingPending.quantity + quantity;
+      await prisma.orderItem.update({
+        where: { id: existingPending.id },
+        data: {
+          quantity: newQty,
+          unitPrice: snapshots.unitPrice,
+          totalPrice: snapshots.unitPrice * newQty,
+          originalUnitPrice: snapshots.originalUnitPrice ?? snapshots.unitPrice,
+          promotionDiscountPaise: snapshots.promotionDiscountPaise ?? 0,
+        },
+      });
+      return { itemId: existingPending.id, merged: true, quantity: newQty };
+    }
   }
 
   const created = await prisma.orderItem.create({
@@ -55,6 +65,12 @@ export async function findOrIncrementPendingOrderItem(input: {
       quantity,
       unitPrice: snapshots.unitPrice,
       totalPrice: snapshots.totalPrice,
+      originalUnitPrice: snapshots.originalUnitPrice ?? snapshots.unitPrice,
+      promotionId: snapshots.promotionId ?? null,
+      promotionNameSnapshot: snapshots.promotionNameSnapshot ?? null,
+      promotionDiscountPaise: snapshots.promotionDiscountPaise ?? 0,
+      comboGroupId: snapshots.comboGroupId ?? null,
+      billDisplayName: snapshots.billDisplayName ?? null,
       modifiers: snapshots.modifiers as unknown as Prisma.InputJsonValue,
       notes: snapshots.notes,
       kitchenNotes: snapshots.kitchenNotes,

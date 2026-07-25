@@ -349,10 +349,12 @@ export async function getCustomerActiveOrder(diningSessionId: string): Promise<
     total: number;
     subtotal: number;
     discountAmount: number;
+    promotionDiscountAmount?: number;
     items: Array<{
       id: string;
       productId?: string;
       name: string;
+      billDisplayName?: string | null;
       quantity: number;
       unitPrice: number;
       totalPrice: number;
@@ -395,10 +397,12 @@ export async function getCustomerActiveOrder(diningSessionId: string): Promise<
         total: Number(order.total),
         subtotal: Number(order.subtotal),
         discountAmount: Number(order.discountAmount),
+        promotionDiscountAmount: Number(order.promotionDiscountAmount ?? 0),
         items: order.items.map((item) => ({
           id: item.id,
           productId: item.productId ?? undefined,
           name: item.name,
+          billDisplayName: item.billDisplayName ?? null,
           quantity: item.quantity,
           unitPrice: Number(item.unitPrice),
           totalPrice: Number(item.totalPrice),

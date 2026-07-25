@@ -4,6 +4,7 @@ type OrderItem = {
   id: string;
   productId?: string;
   name: string;
+  billDisplayName?: string | null;
   quantity: number;
   unitPrice: number;
   totalPrice: number;
@@ -23,6 +24,7 @@ type ActiveOrder = {
   total: number;
   subtotal: number;
   discountAmount: number | null;
+  promotionDiscountAmount?: number | null;
   items: OrderItem[];
   revisions: { revisionNumber: number; submittedAt: Date | string }[];
 };
@@ -35,10 +37,12 @@ export function serializeActiveOrder(order: ActiveOrder | null): OrderInterfaceO
     total: order.total,
     subtotal: order.subtotal,
     discountAmount: order.discountAmount ?? 0,
+    promotionDiscountAmount: order.promotionDiscountAmount ?? 0,
     items: order.items.map((item) => ({
       id: item.id,
       productId: item.productId,
       name: item.name,
+      billDisplayName: item.billDisplayName ?? null,
       quantity: item.quantity,
       unitPrice: item.unitPrice,
       totalPrice: item.totalPrice,

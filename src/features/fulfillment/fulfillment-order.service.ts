@@ -1,10 +1,6 @@
 import { prisma } from "@/lib/db";
 import { AppError } from "@/lib/errors";
-import {
-  computeOrderTotal,
-  computeTaxAmount,
-  getRestaurantTaxSettings,
-} from "@/lib/tax-settings";
+import { getRestaurantTaxSettings } from "@/lib/tax-settings";
 import { getRestaurantOrderSettings } from "@/lib/order-settings";
 import {
   OrderItemKitchenStatus,
@@ -19,6 +15,9 @@ import {
 import type { OrderActor } from "@/features/dining-session/auth";
 import { resolveOrderItemFromProduct } from "@/features/product-config/server-order";
 import { findOrIncrementPendingOrderItem } from "@/features/product-config/merge-pending-order-item";
+import { autoMatchCombosOnOrder } from "@/features/pricing-engine/auto-match";
+import { loadActivePromotions } from "@/features/pricing-engine/load-active";
+import { filterBillPromotions, priceOrder } from "@/features/pricing-engine";
 
 async function nextOrderNumber(restaurantId: string) {
   const last = await prisma.order.findFirst({
@@ -31,7 +30,7 @@ async function nextOrderNumber(restaurantId: string) {
 
 async function recalculateOrder(orderId: string, extraCharges = 0) {
   const items = await prisma.orderItem.findMany({ where: { orderId } });
-  const subtotal = items.reduce((sum, i) => sum + i.totalPrice, 0);
+  const lineTotal = items.reduce((sum, i) => sum + i.totalPrice, 0);
   const order = await prisma.order.findUnique({
     where: { id: orderId },
     include: { deliveryDetails: true },
@@ -40,22 +39,23 @@ async function recalculateOrder(orderId: string, extraCharges = 0) {
 
   const deliveryCharges = order.deliveryDetails?.deliveryCharges ?? 0;
   const taxSettings = await getRestaurantTaxSettings(order.restaurantId);
-  const taxableSubtotal = subtotal + deliveryCharges + extraCharges;
-  const taxAmount = computeTaxAmount(
-    taxableSubtotal,
-    taxSettings.taxPercent,
-    taxSettings.taxInclusive
-  );
-  const total = computeOrderTotal(
-    taxableSubtotal,
-    taxAmount,
-    order.discountAmount ?? 0,
-    taxSettings.taxInclusive
-  );
+  const promotions = await loadActivePromotions(order.restaurantId);
+  const priced = priceOrder({
+    lineTotalPaise: lineTotal,
+    taxSettings,
+    billPromotions: filterBillPromotions(promotions),
+    manualDiscountPaise: order.discountAmount ?? 0,
+    deliveryChargesPaise: deliveryCharges + extraCharges,
+  });
 
   return prisma.order.update({
     where: { id: orderId },
-    data: { subtotal, taxAmount, total },
+    data: {
+      subtotal: lineTotal,
+      taxAmount: priced.taxAmount,
+      promotionDiscountAmount: priced.promotionDiscountAmount,
+      total: priced.total,
+    },
     include: {
       items: { orderBy: { createdAt: "asc" } },
       revisions: { orderBy: { revisionNumber: "desc" }, take: 5 },
@@ -231,6 +231,7 @@ export async function addItemToFulfillmentOrder(
     });
   }
 
+  await autoMatchCombosOnOrder(orderId, restaurantId);
   return recalculateOrder(orderId);
 }
 
@@ -391,6 +392,9 @@ export async function submitFulfillmentToKitchen(
       await tx.kitchenOrder.create({ data: { orderId: fullOrder.id, status: "QUEUED" } });
     }
   });
+
+  const { enqueueAutoPrintKot } = await import("@/features/printing/printer.service");
+  enqueueAutoPrintKot(restaurantId, fullOrder.id, { revisionNumber: nextRevision });
 
   return prisma.order.findUnique({
     where: { id: orderId },

@@ -694,7 +694,7 @@ export async function applyOrderDiscountService(
   const total = computeOrderTotal(
     order.subtotal,
     order.taxAmount,
-    cappedDiscount,
+    cappedDiscount + (order.promotionDiscountAmount ?? 0),
     taxSettings.taxInclusive
   );
 
@@ -771,6 +771,7 @@ export async function checkoutSessionService(
   }
 
   const grossBill = billed.total + billed.discountAmount;
+  // billed.total already subtracts promotionDiscountAmount; do not double-count.
   const preLoyaltyTotal = Math.max(0, grossBill - manualDiscountPaise);
 
   let pointsRedeemed = 0;
@@ -873,6 +874,9 @@ export async function checkoutSessionService(
     );
     await completeReservationFromSession(session.reservationId, restaurantId);
   }
+
+  const { enqueueAutoPrintBill } = await import("@/features/printing/printer.service");
+  enqueueAutoPrintBill(restaurantId, order.id, sessionId);
 
   return { payment, finalTotal, pointsRedeemed, earnedPoints };
 }

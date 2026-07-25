@@ -60,10 +60,17 @@ export async function recordFulfillmentPayment(
 
   await syncOrderPaymentStatus(orderId);
 
-  return prisma.order.findUnique({
+  const refreshed = await prisma.order.findUnique({
     where: { id: orderId },
     include: { payments: true },
   });
+
+  if (refreshed?.paymentStatus === OrderPaymentStatus.PAID) {
+    const { enqueueAutoPrintBill } = await import("@/features/printing/printer.service");
+    enqueueAutoPrintBill(restaurantId, orderId);
+  }
+
+  return refreshed;
 }
 
 export async function completeFulfillmentOrder(orderId: string, restaurantId: string) {

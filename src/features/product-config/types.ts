@@ -38,6 +38,7 @@ export interface ConfigurableProduct {
   id: string;
   name: string;
   price: number;
+  categoryId?: string;
   description?: string | null;
   shortDescription?: string | null;
   isOutOfStock?: boolean;
@@ -100,6 +101,12 @@ export interface OrderItemSnapshotFields {
   basePriceSnapshot: number;
   unitPrice: number;
   totalPrice: number;
+  originalUnitPrice?: number;
+  promotionId?: string | null;
+  promotionNameSnapshot?: string | null;
+  promotionDiscountPaise?: number;
+  comboGroupId?: string | null;
+  billDisplayName?: string | null;
   modifiers: OrderModifierSnapshot[];
   configurationKey: string;
   notes: string | null;

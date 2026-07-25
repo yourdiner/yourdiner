@@ -27,10 +27,11 @@ const FEATURES = [
   { code: "customer_database", name: "Customer Database", category: "crm", sortOrder: 8 },
   { code: "membership", name: "Membership", category: "marketing", sortOrder: 9 },
   { code: "coupons", name: "Coupons", category: "marketing", sortOrder: 10 },
-  { code: "analytics", name: "Analytics", category: "insights", sortOrder: 11 },
-  { code: "feedback", name: "Feedback", category: "insights", sortOrder: 12 },
-  { code: "multi_branch", name: "Multi Branch", category: "enterprise", sortOrder: 13 },
-  { code: "api_access", name: "API Access", category: "enterprise", sortOrder: 14 },
+  { code: "promotions", name: "Promotions", category: "marketing", sortOrder: 11 },
+  { code: "analytics", name: "Analytics", category: "insights", sortOrder: 12 },
+  { code: "feedback", name: "Feedback", category: "insights", sortOrder: 13 },
+  { code: "multi_branch", name: "Multi Branch", category: "enterprise", sortOrder: 14 },
+  { code: "api_access", name: "API Access", category: "enterprise", sortOrder: 15 },
 ];
 
 const ADMIN_BASE_FEATURES = [
@@ -73,7 +74,13 @@ const PLAN_DEFINITIONS = [
     displayOrder: 3,
     priceMonthly: 299900,
     priceYearly: 2999000,
-    features: [...ADMIN_BASE_FEATURES, "waiter_ordering", "customer_qr_ordering", "fulfillment_orders"],
+    features: [
+      ...ADMIN_BASE_FEATURES,
+      "waiter_ordering",
+      "customer_qr_ordering",
+      "fulfillment_orders",
+      "promotions",
+    ],
   },
 ];
 

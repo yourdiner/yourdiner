@@ -6,13 +6,53 @@ import type {
   ProductSelection,
 } from "./types";
 import { priceSelection } from "./pricing";
+import type { EnginePromotion } from "@/features/pricing-engine/types";
+import { priceLine } from "@/features/pricing-engine/price-line";
 
 export function buildOrderItemSnapshots(
   product: ConfigurableProduct,
-  selection: ProductSelection
+  selection: ProductSelection,
+  pricing?: {
+    promotions?: EnginePromotion[];
+    dayOfWeek?: number;
+    minutesOfDay?: number;
+    now?: Date;
+  }
 ): OrderItemSnapshotFields {
-  const priced = priceSelection(product, selection);
   const qty = Math.max(1, selection.quantity);
+
+  if (pricing?.promotions?.length) {
+    const priced = priceLine({
+      product,
+      selection,
+      promotions: pricing.promotions,
+      now: pricing.now ?? new Date(),
+      dayOfWeek: pricing.dayOfWeek ?? new Date().getDay(),
+      minutesOfDay:
+        pricing.minutesOfDay ??
+        new Date().getHours() * 60 + new Date().getMinutes(),
+    });
+
+    return {
+      name: product.name,
+      variantId: priced.variantId,
+      variantNameSnapshot: priced.variantName,
+      variantPriceSnapshot: priced.variantPrice,
+      basePriceSnapshot: priced.basePrice,
+      unitPrice: priced.unitPrice,
+      totalPrice: priced.unitPrice * qty,
+      originalUnitPrice: priced.originalUnitPrice,
+      promotionId: priced.promotionId,
+      promotionNameSnapshot: priced.promotionNameSnapshot,
+      promotionDiscountPaise: priced.promotionDiscountPaise,
+      modifiers: priced.modifiers,
+      configurationKey: priced.configurationKey,
+      notes: selection.notes?.trim() || null,
+      kitchenNotes: selection.kitchenNotes?.trim() || null,
+    };
+  }
+
+  const priced = priceSelection(product, selection);
 
   return {
     name: product.name,
@@ -22,6 +62,10 @@ export function buildOrderItemSnapshots(
     basePriceSnapshot: priced.basePrice,
     unitPrice: priced.unitPrice,
     totalPrice: priced.unitPrice * qty,
+    originalUnitPrice: priced.unitPrice,
+    promotionId: null,
+    promotionNameSnapshot: null,
+    promotionDiscountPaise: 0,
     modifiers: priced.modifiers,
     configurationKey: priced.configurationKey,
     notes: selection.notes?.trim() || null,
@@ -42,6 +86,7 @@ export function parseModifierSnapshots(raw: unknown): OrderModifierSnapshot[] {
 
 export function formatOrderLineDisplay(item: {
   name: string;
+  billDisplayName?: string | null;
   variantNameSnapshot?: string | null;
   modifiers?: unknown;
   quantity: number;
@@ -52,7 +97,7 @@ export function formatOrderLineDisplay(item: {
 }): OrderLineDisplay {
   const mods = parseModifierSnapshots(item.modifiers);
   return {
-    productName: item.name,
+    productName: item.billDisplayName?.trim() || item.name,
     variantName: item.variantNameSnapshot ?? null,
     modifiers: mods.map((m) => m.name),
     quantity: item.quantity,

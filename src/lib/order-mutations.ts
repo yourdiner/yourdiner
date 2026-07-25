@@ -9,6 +9,7 @@ import {
 } from "@/features/dining-session/session.service";
 import {
   addItemToOrderService,
+  addComboToOrderService,
   updateOrderItemQuantityService,
   removeOrderItemService,
   submitOrderToKitchenService,
@@ -43,6 +44,7 @@ export type StaffOrderAction =
       variantId?: string;
       modifierIds?: string[];
     }
+  | { action: "addCombo"; promotionId: string; quantity: number }
   | { action: "updateItemConfig"; itemId: string; variantId?: string | null; modifierIds?: string[]; quantity?: number; notes?: string; kitchenNotes?: string }
   | { action: "updateQty"; itemId: string; quantity: number }
   | { action: "removeItem"; itemId: string }
@@ -73,6 +75,16 @@ export async function runStaffOrderMutation(
             variantId: body.variantId,
             modifierIds: body.modifierIds,
           }
+        );
+        break;
+      case "addCombo":
+        await addComboToOrderService(
+          sessionId,
+          tenant.restaurantId,
+          body.promotionId,
+          body.quantity,
+          actor,
+          { staffId: staffSession.staffId }
         );
         break;
       case "updateItemConfig":
@@ -151,6 +163,15 @@ export async function runAdminOrderMutation(
             variantId: body.variantId,
             modifierIds: body.modifierIds,
           }
+        );
+        break;
+      case "addCombo":
+        await addComboToOrderService(
+          sessionId,
+          tenant.restaurantId,
+          body.promotionId,
+          body.quantity,
+          actor
         );
         break;
       case "updateItemConfig":

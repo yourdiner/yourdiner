@@ -80,10 +80,12 @@ export type MenuActiveOrder = {
   total: number;
   subtotal: number;
   discountAmount: number;
+  promotionDiscountAmount?: number;
   items: Array<{
     id: string;
     productId?: string;
     name: string;
+    billDisplayName?: string | null;
     quantity: number;
     unitPrice: number;
     totalPrice: number;

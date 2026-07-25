@@ -12,6 +12,7 @@ export const getRestaurantSettingsCached = cache(async (restaurantId: string) =>
     select: {
       orderSettings: true,
       loyaltySettings: true,
+      printerSettings: true,
       reservationSettings: true,
       averageDiningMinutes: true,
       taxPercent: true,

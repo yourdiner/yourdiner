@@ -22,6 +22,7 @@ import { MaterialIcon } from "@/components/layout/material-icon";
 import { Minus } from "lucide-react";
 import { OrderLineItem } from "@/features/product-config";
 import { CheckoutDialog } from "./checkout-dialog";
+import { PrintReceiptButton } from "@/features/printing/components/print-receipt-button";
 
 type SessionDetail = {
   id: string;
@@ -55,10 +56,12 @@ type SessionDetail = {
     subtotal: number;
     taxAmount: number;
     discountAmount: number;
+    promotionDiscountAmount?: number;
     status: string;
     items: Array<{
       id: string;
       name: string;
+      billDisplayName?: string | null;
       quantity: number;
       unitPrice: number;
       totalPrice: number;
@@ -225,6 +228,19 @@ export function SessionDetailView({
           )}
         </div>
 
+        {isClosed && order && (
+          <div className="col-span-12 space-y-3 lg:col-span-4">
+            <PrintReceiptButton
+              orderId={order.id}
+              kind="bill"
+              diningSessionId={session.id}
+              triggerLabel="Reprint bill"
+              className="w-full"
+              size="default"
+            />
+          </div>
+        )}
+
         {!isClosed && (
           <div className="col-span-12 space-y-3 lg:col-span-4">
             <Link
@@ -254,6 +270,21 @@ export function SessionDetailView({
             </Select>
             {order && (
               <>
+                <PrintReceiptButton
+                  orderId={order.id}
+                  kind="bill"
+                  diningSessionId={session.id}
+                  triggerLabel="Print / Preview bill"
+                  className="w-full"
+                  size="default"
+                />
+                <PrintReceiptButton
+                  orderId={order.id}
+                  kind="kot"
+                  triggerLabel="Print kitchen ticket"
+                  className="w-full"
+                  size="default"
+                />
                 <Button
                   className="w-full"
                   disabled={pending || !canCheckout}
@@ -264,12 +295,14 @@ export function SessionDetailView({
                 </Button>
                 <CheckoutDialog
                   sessionId={session.id}
+                  orderId={order.id}
                   open={checkoutOpen}
                   onOpenChange={setCheckoutOpen}
                   order={{
                     items: billedItems.map((item) => ({
                       id: item.id,
                       name: item.name,
+                      billDisplayName: item.billDisplayName ?? null,
                       quantity: item.quantity,
                       unitPrice: item.unitPrice,
                       totalPrice: item.totalPrice,
@@ -279,6 +312,7 @@ export function SessionDetailView({
                     subtotal: order.subtotal,
                     taxAmount: order.taxAmount,
                     discountAmount: order.discountAmount,
+                    promotionDiscountAmount: order.promotionDiscountAmount ?? 0,
                     total: order.total,
                   }}
                   loyaltySettings={loyaltySettings}
@@ -311,6 +345,7 @@ export function SessionDetailView({
                       <div className="flex-1">
                         <OrderLineItem
                           name={item.name}
+                          billDisplayName={item.billDisplayName}
                           variantNameSnapshot={item.variantNameSnapshot}
                           modifiers={item.modifiers}
                           quantity={item.quantity}
