@@ -137,35 +137,26 @@ async function seedFeatures() {
 
 async function seedPlans() {
   for (const def of PLAN_DEFINITIONS) {
-    const existingOld = await prisma.plan.findUnique({ where: { slug: def.oldSlug } });
-    const existingNew = await prisma.plan.findUnique({ where: { slug: def.slug } });
+    const slugAliases =
+      def.slug === "premium"
+        ? [def.slug, def.oldSlug, "premium-plan"]
+        : [def.slug, def.oldSlug];
+
+    const existing =
+      (await prisma.plan.findFirst({
+        where: { slug: { in: slugAliases } },
+        orderBy: { updatedAt: "desc" },
+      })) ?? null;
 
     let planId: string;
 
-    if (existingNew) {
-      planId = existingNew.id;
+    if (existing) {
+      planId = existing.id;
+      // Keep existing slug (e.g. premium-plan) so live subscriptions stay linked.
       await prisma.plan.update({
         where: { id: planId },
         data: {
           name: def.name,
-          description: def.description,
-          displayOrder: def.displayOrder,
-          sortOrder: def.displayOrder,
-          priceMonthly: def.priceMonthly,
-          priceYearly: def.priceYearly,
-          features: def.features,
-          isActive: true,
-          status: "ACTIVE",
-          isVisible: true,
-        },
-      });
-    } else if (existingOld) {
-      planId = existingOld.id;
-      await prisma.plan.update({
-        where: { id: planId },
-        data: {
-          name: def.name,
-          slug: def.slug,
           description: def.description,
           displayOrder: def.displayOrder,
           sortOrder: def.displayOrder,
@@ -279,7 +270,10 @@ async function main() {
   await seedPlans();
   await backfillSubscriptionVersions();
 
-  const premiumPlan = await prisma.plan.findUnique({ where: { slug: "premium" } });
+  const premiumPlan =
+    (await prisma.plan.findFirst({
+      where: { slug: { in: ["premium", "premium-plan", "customer_ordering"] } },
+    })) ?? null;
   if (!premiumPlan) throw new Error("Premium plan not found");
 
   const existingSettings = await prisma.platformSettings.findFirst();

@@ -2,7 +2,11 @@ import { prisma } from "@/lib/db";
 import { AppError } from "@/lib/errors";
 import { getActiveDiningSessionForTable } from "@/lib/dining-session";
 import type { ReservationStatus } from "@prisma/client";
-import type { ReservationSettings } from "@/lib/reservation-settings";
+import {
+  getRestaurantReservationSettings,
+  type ReservationSettings,
+} from "@/lib/reservation-settings";
+import { computeExpectedFinishTime } from "@/features/reservations/reservation-conflict.logic";
 import {
   blockingReservationStatusFilter,
   upcomingReservationStatusFilter,
@@ -15,6 +19,25 @@ function overlaps(aStart: Date, aEnd: Date, bStart: Date, bEnd: Date): boolean {
   return aStart < bEnd && bStart < aEnd;
 }
 
+/**
+ * Active dining session occupies [startedAt, startedAt + avg dining + cleaning].
+ * Future reservation windows that start after that projected free time are allowed.
+ */
+export function activeSessionBlocksWindow(
+  sessionStartedAt: Date,
+  windowStart: Date,
+  windowEnd: Date,
+  averageDiningMinutes: number,
+  cleaningBufferMinutes: number
+): boolean {
+  const blockEnd = computeExpectedFinishTime(
+    sessionStartedAt,
+    averageDiningMinutes,
+    cleaningBufferMinutes
+  );
+  return overlaps(windowStart, windowEnd, sessionStartedAt, blockEnd);
+}
+
 function getReservationBlockEnd(
   reservation: {
     status: ReservationStatus;
@@ -22,7 +45,12 @@ function getReservationBlockEnd(
     expectedEndAt: Date;
     diningSessionId: string | null;
   },
-  sessionActive: boolean
+  sessionActive: boolean,
+  options?: {
+    sessionStartedAt?: Date | null;
+    averageDiningMinutes?: number;
+    cleaningBufferMinutes?: number;
+  }
 ): Date | null {
   if (
     reservation.status === "PENDING" ||
@@ -35,10 +63,20 @@ function getReservationBlockEnd(
     reservation.status === "CHECKED_IN" ||
     reservation.status === "DINING"
   ) {
-    if (sessionActive) {
-      return new Date(Date.now() + 24 * 60 * 60 * 1000);
+    if (!sessionActive) return null;
+    // Project free time from when dining actually started (avg dining + buffer),
+    // not a hard-coded 24h block that blocks evening bookings all day.
+    if (
+      options?.sessionStartedAt &&
+      typeof options.averageDiningMinutes === "number"
+    ) {
+      return computeExpectedFinishTime(
+        options.sessionStartedAt,
+        options.averageDiningMinutes,
+        options.cleaningBufferMinutes ?? 0
+      );
     }
-    return null;
+    return reservation.expectedEndAt;
   }
 
   return null;
@@ -53,20 +91,29 @@ type ConflictReservation = {
   expectedEndAt: Date;
   diningSessionId: string | null;
   guestName: string;
-  diningSession: { id: string; status: string } | null;
+  diningSession: { id: string; status: string; startedAt?: Date } | null;
 };
 
 /** Pure conflict filter — same rules as findReservationConflicts loop. */
 export function filterReservationConflicts(
   reservations: ConflictReservation[],
   windowStart: Date,
-  windowEnd: Date
+  windowEnd: Date,
+  diningSettings?: Pick<
+    ReservationSettings,
+    "averageDiningMinutes" | "cleaningBufferMinutes"
+  >
 ): ConflictReservation[] {
   const conflicts: ConflictReservation[] = [];
   for (const r of reservations) {
     const sessionActive =
-      r.diningSession?.status === "ACTIVE" || r.diningSession?.status === "BILL_REQUESTED";
-    const blockEnd = getReservationBlockEnd(r, sessionActive);
+      r.diningSession?.status === "ACTIVE" ||
+      r.diningSession?.status === "BILL_REQUESTED";
+    const blockEnd = getReservationBlockEnd(r, sessionActive, {
+      sessionStartedAt: r.diningSession?.startedAt ?? null,
+      averageDiningMinutes: diningSettings?.averageDiningMinutes,
+      cleaningBufferMinutes: diningSettings?.cleaningBufferMinutes,
+    });
     if (!blockEnd) continue;
     if (overlaps(windowStart, windowEnd, r.reservedAt, blockEnd)) {
       conflicts.push(r);
@@ -106,14 +153,37 @@ export async function isTableAvailable(
   });
   if (!table?.isActive || table.status === "DISABLED") return false;
 
-  if (await hasActiveSessionOnTable(tableId)) return false;
+  const settings = await getRestaurantReservationSettings(restaurantId);
+
+  const activeSession = await prisma.diningSession.findFirst({
+    where: {
+      tableId,
+      restaurantId,
+      ...activeDiningSessionStatusFilter(),
+    },
+    select: { startedAt: true },
+  });
+
+  if (
+    activeSession &&
+    activeSessionBlocksWindow(
+      activeSession.startedAt,
+      windowStart,
+      windowEnd,
+      settings.averageDiningMinutes,
+      settings.cleaningBufferMinutes
+    )
+  ) {
+    return false;
+  }
 
   const conflicts = await findReservationConflicts(
     restaurantId,
     tableId,
     windowStart,
     windowEnd,
-    excludeReservationId
+    excludeReservationId,
+    settings
   );
   return conflicts.length === 0;
 }
@@ -123,8 +193,15 @@ export async function findReservationConflicts(
   tableId: string,
   windowStart: Date,
   windowEnd: Date,
-  excludeReservationId?: string
+  excludeReservationId?: string,
+  diningSettings?: Pick<
+    ReservationSettings,
+    "averageDiningMinutes" | "cleaningBufferMinutes"
+  >
 ) {
+  const settings =
+    diningSettings ?? (await getRestaurantReservationSettings(restaurantId));
+
   const reservations = await prisma.reservation.findMany({
     where: {
       restaurantId,
@@ -133,11 +210,11 @@ export async function findReservationConflicts(
       ...(excludeReservationId ? { id: { not: excludeReservationId } } : {}),
     },
     include: {
-      diningSession: { select: { id: true, status: true } },
+      diningSession: { select: { id: true, status: true, startedAt: true } },
     },
   });
 
-  return filterReservationConflicts(reservations, windowStart, windowEnd);
+  return filterReservationConflicts(reservations, windowStart, windowEnd, settings);
 }
 
 /**
@@ -150,6 +227,8 @@ export async function getAvailableTables(
   windowEnd: Date,
   guestCount: number
 ) {
+  const settings = await getRestaurantReservationSettings(restaurantId);
+
   const tables = await prisma.table.findMany({
     where: {
       restaurantId,
@@ -171,7 +250,7 @@ export async function getAvailableTables(
         tableId: { in: tableIds },
         ...activeDiningSessionStatusFilter(),
       },
-      select: { tableId: true },
+      select: { tableId: true, startedAt: true },
     }),
     prisma.reservation.findMany({
       where: {
@@ -180,12 +259,14 @@ export async function getAvailableTables(
         ...blockingReservationStatusFilter(),
       },
       include: {
-        diningSession: { select: { id: true, status: true } },
+        diningSession: { select: { id: true, status: true, startedAt: true } },
       },
     }),
   ]);
 
-  const occupiedTableIds = new Set(sessions.map((s) => s.tableId));
+  const sessionByTable = new Map(
+    sessions.map((s) => [s.tableId, s.startedAt] as const)
+  );
   const reservationsByTable = new Map<string, typeof reservations>();
   for (const r of reservations) {
     if (!r.tableId) continue;
@@ -196,11 +277,25 @@ export async function getAvailableTables(
 
   const available = [];
   for (const table of tables) {
-    if (occupiedTableIds.has(table.id)) continue;
+    const sessionStartedAt = sessionByTable.get(table.id);
+    if (
+      sessionStartedAt &&
+      activeSessionBlocksWindow(
+        sessionStartedAt,
+        windowStart,
+        windowEnd,
+        settings.averageDiningMinutes,
+        settings.cleaningBufferMinutes
+      )
+    ) {
+      continue;
+    }
+
     const conflicts = filterReservationConflicts(
       reservationsByTable.get(table.id) ?? [],
       windowStart,
-      windowEnd
+      windowEnd,
+      settings
     );
     if (conflicts.length === 0) {
       available.push(table);
@@ -264,7 +359,9 @@ export async function getWalkInConflictWarning(
     restaurantId,
     tableId,
     at,
-    new Date(at.getTime() + 2 * 60 * 60 * 1000)
+    new Date(at.getTime() + 2 * 60 * 60 * 1000),
+    undefined,
+    settings
   );
 
   if (conflicts.length === 0) return null;
