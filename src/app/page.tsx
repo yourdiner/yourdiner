@@ -1,17 +1,7 @@
 import { getPlatformBrand } from "@/lib/platform-brand";
 import { getVisiblePlans } from "@/modules/subscription-engine/services/subscription.service";
 import { mapPlansForLanding } from "@/features/marketing/landing-plan-mapper";
-import { LandingNav } from "@/features/marketing/components/landing-nav";
-import { HeroDashboard } from "@/features/marketing/components/hero-dashboard";
-import { DayInRestaurantSection } from "@/features/marketing/components/day-in-restaurant";
-import { InteractiveFloorSection } from "@/features/marketing/components/interactive-floor";
-import { ProductShowcaseSection } from "@/features/marketing/components/product-showcase";
-import { MoneyPipelineSection } from "@/features/marketing/components/money-pipeline";
-import { OrderTimelineSection } from "@/features/marketing/components/order-timeline";
-import { PricingPremiumSection } from "@/features/marketing/components/pricing-premium";
-import { TrialFinaleSection } from "@/features/marketing/components/trial-finale";
-import { LandingFooter } from "@/features/marketing/components/landing-footer";
-import { LandingGrain } from "@/features/marketing/components/landing-ui";
+import { DinerLanding } from "@/features/marketing/components/diner-landing";
 
 function buildJsonLd(brandName: string) {
   return {
@@ -45,28 +35,12 @@ export default async function HomePage() {
   const jsonLd = buildJsonLd(brandName);
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-[#f7f8f6] font-[family-name:var(--font-jakarta)] text-[#14201c] antialiased">
-      <LandingGrain />
-
+    <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-
-      <LandingNav brandName={brandName} />
-
-      <main className="relative z-[2]">
-        <HeroDashboard brandName={brandName} />
-        <DayInRestaurantSection />
-        <InteractiveFloorSection />
-        <ProductShowcaseSection />
-        <MoneyPipelineSection brandName={brandName} />
-        <OrderTimelineSection />
-        <PricingPremiumSection plans={plans} />
-        <TrialFinaleSection />
-      </main>
-
-      <LandingFooter brandName={brandName} />
-    </div>
+      <DinerLanding brandName={brandName} plans={plans} />
+    </>
   );
 }

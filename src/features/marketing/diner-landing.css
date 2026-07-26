@@ -1,0 +1,118 @@
+/* Scoped styles for the diner marketing landing */
+.diner-landing {
+  --diner-primary: #f97316;
+  --diner-on-primary: #ffffff;
+  --diner-tertiary: #10b981;
+  --diner-surface: #f8f9ff;
+  --diner-surface-container: #e5eeff;
+  --diner-surface-container-low: #eff4ff;
+  --diner-on-surface: #0b1c30;
+  --diner-on-surface-variant: #475569;
+  --diner-outline: #e2e8f0;
+  --diner-inverse: #0f172a;
+  --diner-surface-dim: #cbdbf5;
+  --diner-ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.diner-landing .diner-glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+}
+
+.diner-landing .diner-float {
+  animation: diner-float 6s ease-in-out infinite;
+}
+
+.diner-landing .diner-float-delay-1 {
+  animation-delay: 1.5s;
+}
+
+.diner-landing .diner-float-delay-2 {
+  animation-delay: 3s;
+}
+
+@keyframes diner-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.diner-landing .diner-reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s var(--diner-ease), transform 0.8s var(--diner-ease);
+}
+
+.diner-landing .diner-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.diner-landing .diner-bento {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 768px) {
+  .diner-landing .diner-bento {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .diner-landing .diner-bento {
+    grid-template-columns: repeat(12, 1fr);
+    gap: 24px;
+  }
+}
+
+/* Infinite logo marquee */
+.diner-landing .diner-marquee {
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+}
+
+.diner-landing .diner-marquee-track {
+  display: flex;
+  width: max-content;
+  gap: 2.5rem;
+  animation: diner-marquee 40s linear infinite;
+}
+
+.diner-landing .diner-marquee:hover .diner-marquee-track {
+  animation-play-state: paused;
+}
+
+@keyframes diner-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .diner-landing .diner-float,
+  .diner-landing .diner-float-delay-1,
+  .diner-landing .diner-float-delay-2,
+  .diner-landing .diner-marquee-track {
+    animation: none;
+  }
+
+  .diner-landing .diner-marquee-track {
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    transform: none;
+  }
+}
