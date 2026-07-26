@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { PlatformPoweredBy } from "@/components/platform-powered-by";
-import { AGENCY_URL } from "@/lib/platform-brand";
+import { AGENCY_URL } from "@/lib/platform-brand-constants";
 
 interface LandingFooterProps {
   brandName: string;

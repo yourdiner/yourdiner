@@ -21,7 +21,7 @@ import { slugify } from "@/lib/utils";
 import { toTenantHostKey } from "@/lib/tenancy-keys";
 import { adminStaffRoleFilter } from "@/lib/prisma-filters";
 import { startTrial } from "@/lib/subscription";
-import { DEV_SEED_PASSWORD } from "@/lib/dev-auth";
+import { DEV_SEED_PASSWORD } from "@/lib/dev-auth-constants";
 
 export async function registerOwner(input: unknown) {
   const data = registerSchema.parse(input);

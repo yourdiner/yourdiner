@@ -5,7 +5,7 @@ import { prisma } from "@/lib/db";
 import { renderSnapshotHtml } from "./render/html-receipt";
 import { renderSnapshotEscPos } from "./render/escpos-receipt";
 import { getProviderForConnection } from "./providers";
-import { getRestaurantPrinterSettings } from "./settings";
+import { getRestaurantPrinterSettings } from "./settings-server";
 import {
   buildBillSnapshot,
   buildKotSnapshot,

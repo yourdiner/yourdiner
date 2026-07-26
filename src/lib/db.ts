@@ -1,4 +1,5 @@
 import { PrismaClient, ReservationStatus } from "@prisma/client";
+import "server-only";
 
 function reservationEnumReady(): boolean {
   return (

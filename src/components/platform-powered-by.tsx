@@ -1,4 +1,5 @@
-import { AGENCY_NAME, AGENCY_URL, getPlatformBrand } from "@/lib/platform-brand";
+import { AGENCY_NAME, AGENCY_URL } from "@/lib/platform-brand-constants";
+import { getPlatformBrand } from "@/lib/platform-brand";
 import { cn } from "@/lib/utils";
 
 /**

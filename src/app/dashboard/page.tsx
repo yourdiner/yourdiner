@@ -11,7 +11,7 @@ import { cancelledOrderStatusFilter } from "@/lib/prisma-filters";
 import {
   countActiveOrders,
   getDiningSessionOccupancy,
-} from "@/lib/dining-lifecycle";
+} from "@/lib/dining-lifecycle-queries";
 import { getWeeklyRevenueStats } from "@/features/dashboard/queries";
 import {
   getDashboardMenuCounts,

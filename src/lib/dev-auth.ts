@@ -1,10 +1,12 @@
+import "server-only";
+
 import { hashPassword } from "better-auth/crypto";
 import { prisma } from "@/lib/db";
 import { buildPlatformUrl, buildLocalPlatformUrl, buildTenantUrl } from "@/lib/hostname";
 import { toTenantHostKey } from "@/lib/tenancy-keys";
+import { DEV_SEED_PASSWORD } from "@/lib/dev-auth-constants";
 
-/** Shared password for all seeded dev users (server-side only). */
-export const DEV_SEED_PASSWORD = "Dev@123456";
+export { DEV_SEED_PASSWORD };
 
 export function isDevAuthEnabled(): boolean {
   if (process.env.NODE_ENV === "production") return false;

@@ -77,11 +77,3 @@ export function parsePrinterSettings(raw: unknown): PrinterSettings {
       : undefined,
   };
 }
-
-export async function getRestaurantPrinterSettings(
-  restaurantId: string
-): Promise<PrinterSettings> {
-  const { getRestaurantSettingsCached } = await import("@/lib/request-cache");
-  const settings = await getRestaurantSettingsCached(restaurantId);
-  return parsePrinterSettings(settings?.printerSettings);
-}

@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db";
 import { AppError } from "@/lib/errors";
 import { getRestaurantBrandingCached } from "@/lib/request-cache";
 import { parseModifierSnapshots } from "@/features/product-config";
-import { getRestaurantPrinterSettings } from "./settings";
+import { getRestaurantPrinterSettings } from "./settings-server";
 import type { BillSnapshot, KotSnapshot, TestSnapshot } from "./types";
 
 function formatAddress(branding: {

@@ -3,7 +3,7 @@ import { Playfair_Display, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { DevTools } from "@/components/dev-tools/dev-tools";
-import { DEFAULT_BRAND_NAME } from "@/lib/platform-brand";
+import { DEFAULT_BRAND_NAME } from "@/lib/platform-brand-constants";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],

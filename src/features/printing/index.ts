@@ -10,7 +10,6 @@ export type {
 export {
   parsePrinterSettings,
   DEFAULT_PRINTER_SETTINGS,
-  getRestaurantPrinterSettings,
 } from "./settings";
 
 export { renderSnapshotHtml } from "./render/html-receipt";
@@ -19,3 +18,5 @@ export {
   buildThermalReceiptCss,
   parsePaperWidthFromHtml,
 } from "./render/thermal-receipt-css";
+
+/** Server-only: use `@/features/printing/settings` or dynamic import for getRestaurantPrinterSettings. */

@@ -1,9 +1,4 @@
-import { getPlatformBrand } from "@/modules/subscription-engine/services/platform-settings.service";
+import "server-only";
 
-/** The agency that builds & operates the platform. Shown as "{brand} by BluePeak Studio". */
-export const AGENCY_NAME = "BluePeak Studio";
-export const AGENCY_URL = "https://bluepeakstudio.in";
-
-export const DEFAULT_BRAND_NAME = "Restaurant OS";
-
-export { getPlatformBrand };
+export { AGENCY_NAME, AGENCY_URL, DEFAULT_BRAND_NAME } from "./platform-brand-constants";
+export { getPlatformBrand } from "@/modules/subscription-engine/services/platform-settings.service";

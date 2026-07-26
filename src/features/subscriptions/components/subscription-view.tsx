@@ -16,7 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { toast } from "sonner";
 import { Check } from "lucide-react";
-import type { PlanWithLatest } from "@/lib/subscription";
+import type { PlanWithLatest } from "@/modules/subscription-engine/types";
 import { UpgradeCheckoutButton } from "@/features/subscriptions/components/upgrade-checkout-button";
 
 interface SubscriptionViewProps {

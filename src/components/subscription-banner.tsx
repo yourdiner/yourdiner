@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import type { SubscriptionBanner as BannerType } from "@/lib/subscription";
+import type { SubscriptionBanner as BannerType } from "@/modules/subscription-engine/types";
 
 export function SubscriptionBanner({ banner }: { banner: BannerType }) {
   return (

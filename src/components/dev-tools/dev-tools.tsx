@@ -41,6 +41,9 @@ export function DevTools() {
   const [loading, setLoading] = useState<string | null>(null);
 
   useEffect(() => {
+    // Avoid 404 noise in production builds where /api/dev/users is disabled.
+    if (process.env.NODE_ENV === "production") return;
+
     fetch("/api/dev/users")
       .then((res) => {
         if (res.ok) {

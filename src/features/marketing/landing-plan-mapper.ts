@@ -1,8 +1,20 @@
 import type { LandingPlan } from "./landing-types";
 
-type VisiblePlan = Awaited<
-  ReturnType<typeof import("@/modules/subscription-engine/services/subscription.service").getVisiblePlans>
->[number];
+/** Minimal plan shape needed for landing cards — avoids importing the Prisma-backed service. */
+type VisiblePlan = {
+  id: string;
+  name: string;
+  description: string | null;
+  latestVersion: {
+    trialDays: number;
+    pricing: {
+      priceMonthly: number;
+      priceYearly: number;
+      currency: string;
+    } | null;
+    features: Array<{ name: string }>;
+  } | null;
+};
 
 const STATIC_FALLBACK_PLANS: LandingPlan[] = [
   {
