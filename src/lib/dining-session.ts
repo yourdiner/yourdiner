@@ -2,9 +2,14 @@ import { prisma } from "@/lib/db";
 import { DiningSessionStatus } from "@prisma/client";
 import {
   activeDiningSessionStatusFilter,
-  blockingTableSessionStatusFilter,
   terminalOrderStatusFilter,
 } from "@/lib/prisma-filters";
+
+export {
+  isDiningSessionActive,
+  isOrderActive,
+  isTableOccupiedByDiningSession,
+} from "@/lib/dining-lifecycle";
 
 /** Legacy no-op — table availability is computed dynamically. */
 export async function repairStaleTableOccupancy(_restaurantId: string) {}

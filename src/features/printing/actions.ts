@@ -136,7 +136,11 @@ export async function previewBillAction(orderId: string) {
   try {
     const { restaurantId } = await resolveRestaurantActor(BILL_PRINT_ROLES);
     const preview = await previewBillHtml(restaurantId, orderId);
-    return { ok: true as const, html: preview.html };
+    return {
+      ok: true as const,
+      html: preview.html,
+      paperWidth: preview.snapshot.paperWidth,
+    };
   } catch (error) {
     return { ok: false as const, error: getErrorMessage(error) };
   }
@@ -146,7 +150,11 @@ export async function previewKotAction(orderId: string, revisionNumber?: number)
   try {
     const { restaurantId } = await resolveRestaurantActor(KOT_PRINT_ROLES);
     const preview = await previewKotHtml(restaurantId, orderId, revisionNumber);
-    return { ok: true as const, html: preview.html };
+    return {
+      ok: true as const,
+      html: preview.html,
+      paperWidth: preview.snapshot.paperWidth,
+    };
   } catch (error) {
     return { ok: false as const, error: getErrorMessage(error) };
   }

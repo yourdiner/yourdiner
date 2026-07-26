@@ -34,6 +34,10 @@ import {
   logReservationOverride,
 } from "@/features/reservations/reservation-conflict.service";
 import { consolidateOpenOrdersForSession, refreshBillableOrderTotal } from "@/features/dining-session/order.service";
+import {
+  activeDiningSessionStatusFilter,
+  terminalOrderStatusFilter,
+} from "@/lib/prisma-filters";
 
 export type StartSessionInput = {
   restaurantId: string;
@@ -190,7 +194,7 @@ export async function callWaiterService(
     where: {
       id: sessionId,
       restaurantId,
-      status: { in: [DiningSessionStatus.ACTIVE, DiningSessionStatus.BILL_REQUESTED] },
+      ...activeDiningSessionStatusFilter(),
     },
   });
   if (!session) throw new AppError("Session not found", "NOT_FOUND", 404);
@@ -225,7 +229,7 @@ export async function closeDiningSessionService(
     where: {
       id: sessionId,
       restaurantId,
-      status: { in: [DiningSessionStatus.ACTIVE, DiningSessionStatus.BILL_REQUESTED] },
+      ...activeDiningSessionStatusFilter(),
     },
   });
   if (!session) throw new AppError("Session not found", "NOT_FOUND", 404);
@@ -238,7 +242,7 @@ export async function closeDiningSessionService(
     await tx.order.updateMany({
       where: {
         diningSessionId: sessionId,
-        status: { notIn: [OrderStatus.COMPLETED, OrderStatus.CANCELLED] },
+        ...terminalOrderStatusFilter(),
       },
       data: { status: OrderStatus.COMPLETED },
     });
@@ -278,7 +282,7 @@ export async function reassignWaiterService(
     where: {
       id: sessionId,
       restaurantId,
-      status: { in: [DiningSessionStatus.ACTIVE, DiningSessionStatus.BILL_REQUESTED] },
+      ...activeDiningSessionStatusFilter(),
     },
   });
   if (!session) throw new AppError("Session not found", "NOT_FOUND", 404);
@@ -369,7 +373,7 @@ export async function transferTableService(
     where: {
       id: sessionId,
       restaurantId,
-      status: { in: [DiningSessionStatus.ACTIVE, DiningSessionStatus.BILL_REQUESTED] },
+      ...activeDiningSessionStatusFilter(),
     },
   });
   if (!session) throw new AppError("Session not found", "NOT_FOUND", 404);
@@ -410,11 +414,14 @@ export async function transferTableService(
 }
 
 export async function getActiveDiningSessions(restaurantId: string) {
+  const sessionWhere = {
+    restaurantId,
+    ...activeDiningSessionStatusFilter(),
+  };
+  const openOrdersWhere = terminalOrderStatusFilter();
+
   const sessions = await prisma.diningSession.findMany({
-    where: {
-      restaurantId,
-      status: { in: [DiningSessionStatus.ACTIVE, DiningSessionStatus.BILL_REQUESTED] },
-    },
+    where: sessionWhere,
     select: {
       id: true,
       status: true,
@@ -427,7 +434,7 @@ export async function getActiveDiningSessions(restaurantId: string) {
       customer: { select: { id: true, name: true, phone: true, visitCount: true, isVip: true } },
       reservation: { select: { id: true, guestName: true, reservedAt: true, status: true } },
       orders: {
-        where: { status: { notIn: [OrderStatus.CANCELLED, OrderStatus.COMPLETED] } },
+        where: openOrdersWhere,
         select: {
           id: true,
           total: true,
@@ -460,10 +467,7 @@ export async function getActiveDiningSessions(restaurantId: string) {
   await Promise.all(multi.map((s) => consolidateOpenOrdersForSession(s.id, restaurantId)));
 
   return prisma.diningSession.findMany({
-    where: {
-      restaurantId,
-      status: { in: [DiningSessionStatus.ACTIVE, DiningSessionStatus.BILL_REQUESTED] },
-    },
+    where: sessionWhere,
     select: {
       id: true,
       status: true,
@@ -476,7 +480,7 @@ export async function getActiveDiningSessions(restaurantId: string) {
       customer: { select: { id: true, name: true, phone: true, visitCount: true, isVip: true } },
       reservation: { select: { id: true, guestName: true, reservedAt: true, status: true } },
       orders: {
-        where: { status: { notIn: [OrderStatus.CANCELLED, OrderStatus.COMPLETED] } },
+        where: openOrdersWhere,
         select: {
           id: true,
           total: true,
@@ -679,7 +683,7 @@ export async function applyOrderDiscountService(
     where: {
       diningSessionId: sessionId,
       restaurantId,
-      status: { notIn: [OrderStatus.COMPLETED, OrderStatus.CANCELLED] },
+      ...terminalOrderStatusFilter(),
     },
   });
   if (!order) throw new AppError("No active order", "NOT_FOUND", 404);
@@ -730,7 +734,7 @@ export async function checkoutSessionService(
     where: {
       id: sessionId,
       restaurantId,
-      status: { in: [DiningSessionStatus.ACTIVE, DiningSessionStatus.BILL_REQUESTED] },
+      ...activeDiningSessionStatusFilter(),
     },
     include: { customer: true },
   });
@@ -740,7 +744,7 @@ export async function checkoutSessionService(
     where: {
       diningSessionId: sessionId,
       restaurantId,
-      status: { notIn: [OrderStatus.COMPLETED, OrderStatus.CANCELLED] },
+      ...terminalOrderStatusFilter(),
     },
   });
   if (!order) throw new AppError("No active order", "NOT_FOUND", 404);
@@ -830,7 +834,7 @@ export async function checkoutSessionService(
     await tx.order.updateMany({
       where: {
         diningSessionId: sessionId,
-        status: { notIn: [OrderStatus.COMPLETED, OrderStatus.CANCELLED] },
+        ...terminalOrderStatusFilter(),
       },
       data: { status: OrderStatus.COMPLETED, paymentStatus: OrderPaymentStatus.PAID },
     });

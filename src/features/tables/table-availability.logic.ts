@@ -1,4 +1,5 @@
 import { ReservationStatus, TableStatus } from "@prisma/client";
+import { isDiningSessionActive } from "@/lib/dining-lifecycle";
 
 export type TableAvailabilityStatus =
   | "AVAILABLE"
@@ -136,7 +137,18 @@ export function computeTableStatus(input: {
     return "DISABLED";
   }
 
-  if (activeSession || occupiedReservation) {
+  // Dining occupancy: open DiningSession only (ACTIVE | BILL_REQUESTED).
+  // Kitchen/payment never influence this. occupiedReservation / QR-as-session
+  // remain seating blocks so a walk-in cannot double-book — they are not
+  // counted as Active DiningSession metrics (see dining-lifecycle helpers).
+  if (isDiningSessionActive(activeSession?.status) || occupiedReservation) {
+    return "OCCUPIED";
+  }
+
+  // QR TableSession may be passed as activeSession with non-dining status strings
+  // (e.g. PENDING_APPROVAL). Treat any non-null activeSession without a closed
+  // dining status as a seating block → OCCUPIED for availability, not metrics.
+  if (activeSession) {
     return "OCCUPIED";
   }
 

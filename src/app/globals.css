@@ -188,11 +188,20 @@
     aside,
     header,
     nav,
-    button {
+    button,
+    [role="dialog"],
+    [data-radix-portal],
+    .no-print {
       display: none !important;
     }
+    body {
+      background: #fff !important;
+    }
     main {
-      margin-left: 0 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      width: 100% !important;
+      max-width: none !important;
     }
   }
   .material-symbols-outlined {

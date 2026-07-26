@@ -6,6 +6,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -14,13 +21,18 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import type { PrinterEndpointConfig, PrinterSettings } from "@/features/printing/types";
+import type { PaperWidth, PrinterEndpointConfig, PrinterSettings } from "@/features/printing/types";
 import {
   getPrintJobsAction,
   savePrinterSettingsAction,
   testPrintAction,
 } from "@/features/printing/actions";
 import { browserPrintHtml } from "@/features/printing/browser-print";
+import {
+  BrowserPrintGuidance,
+  markThermalPrintGuidanceSeen,
+  THERMAL_PRINT_GUIDANCE_KEY,
+} from "@/features/printing/components/browser-print-guidance";
 
 type JobRow = {
   id: string;
@@ -203,6 +215,8 @@ export function PrintersSettingsForm({
   const [settings, setSettings] = useState(initialSettings);
   const [jobs, setJobs] = useState(initialJobs);
   const [pending, startTransition] = useTransition();
+  const [guidanceOpen, setGuidanceOpen] = useState(false);
+  const [pendingTestRole, setPendingTestRole] = useState<"billing" | "kitchen" | null>(null);
 
   const lastBilling = useMemo(
     () => jobs.find((j) => j.printerRole === "billing"),
@@ -212,6 +226,12 @@ export function PrintersSettingsForm({
     () => jobs.find((j) => j.printerRole === "kitchen"),
     [jobs]
   );
+
+  function guidancePaperWidth(role: "billing" | "kitchen"): PaperWidth {
+    return role === "billing"
+      ? settings.billingPrinter.paperWidth
+      : settings.kitchenPrinter.paperWidth;
+  }
 
   function save() {
     startTransition(async () => {
@@ -224,6 +244,31 @@ export function PrintersSettingsForm({
     });
   }
 
+  function needsPrintGuidance(): boolean {
+    try {
+      return localStorage.getItem(THERMAL_PRINT_GUIDANCE_KEY) !== "1";
+    } catch {
+      return true;
+    }
+  }
+
+  function requestTest(role: "billing" | "kitchen") {
+    if (needsPrintGuidance()) {
+      setPendingTestRole(role);
+      setGuidanceOpen(true);
+      return;
+    }
+    runTest(role);
+  }
+
+  function continueTestAfterGuidance() {
+    markThermalPrintGuidanceSeen();
+    setGuidanceOpen(false);
+    const role = pendingTestRole;
+    setPendingTestRole(null);
+    if (role) runTest(role);
+  }
+
   function runTest(role: "billing" | "kitchen") {
     startTransition(async () => {
       const result = await testPrintAction(role);
@@ -232,7 +277,8 @@ export function PrintersSettingsForm({
         return;
       }
       if (result.result.needsBrowserPrint && result.result.html) {
-        browserPrintHtml(result.result.html);
+        markThermalPrintGuidanceSeen();
+        browserPrintHtml(result.result.html, guidancePaperWidth(role));
         toast.success("Sample sent to browser print");
       } else if (result.result.status === "FAILED") {
         toast.error(result.result.errorMessage || "Printing failed. Retry?");
@@ -246,6 +292,24 @@ export function PrintersSettingsForm({
 
   return (
     <div className="space-y-6">
+      <Dialog open={guidanceOpen} onOpenChange={setGuidanceOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Browser print settings</DialogTitle>
+          </DialogHeader>
+          <BrowserPrintGuidance
+            paperWidth={guidancePaperWidth(pendingTestRole || "billing")}
+          />
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setGuidanceOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="button" onClick={continueTestAfterGuidance}>
+              Continue to print
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <div className="flex flex-wrap gap-3">
         <div className="rounded-lg border px-3 py-2 text-sm">
           Billing: {lastBilling ? statusBadge(lastBilling.status) : <Badge variant="outline">Ready</Badge>}
@@ -291,10 +355,10 @@ export function PrintersSettingsForm({
         <Button onClick={save} disabled={pending}>
           Save settings
         </Button>
-        <Button variant="outline" disabled={pending} onClick={() => runTest("billing")}>
+        <Button variant="outline" disabled={pending} onClick={() => requestTest("billing")}>
           Test billing print
         </Button>
-        <Button variant="outline" disabled={pending} onClick={() => runTest("kitchen")}>
+        <Button variant="outline" disabled={pending} onClick={() => requestTest("kitchen")}>
           Test kitchen print
         </Button>
       </div>

@@ -19,7 +19,7 @@ import { startDiningSessionService } from "@/features/dining-session/session.ser
 import { createCustomerActor } from "@/features/dining-session/auth";
 import { findOrCreateCustomer } from "@/features/dining-session/customer.service";
 import { appendSessionEvent } from "@/features/dining-session/timeline.service";
-import { terminalOrderStatusFilter } from "@/lib/prisma-filters";
+import { terminalOrderStatusFilter, activeDiningSessionStatusFilter } from "@/lib/prisma-filters";
 import type { OrderActor } from "@/features/dining-session/auth";
 
 const DEFAULT_INACTIVITY_MINUTES = 120;
@@ -541,9 +541,7 @@ export async function resetTableCustomerSession(
       where: {
         tableId,
         restaurantId,
-        status: {
-          in: [DiningSessionStatus.ACTIVE, DiningSessionStatus.BILL_REQUESTED],
-        },
+        ...activeDiningSessionStatusFilter(),
       },
       select: { id: true, reservationId: true },
     }),

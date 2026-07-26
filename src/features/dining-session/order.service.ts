@@ -22,7 +22,7 @@ import { buildConfigurationKey } from "@/features/product-config";
 import { loadConfigurableProduct } from "@/features/product-config/server-order";
 import type { EnginePromotion } from "@/features/pricing-engine/types";
 import { priceSelection } from "@/features/product-config";
-
+import { terminalOrderStatusFilter } from "@/lib/prisma-filters";
 
 export type OrderItemConfigInput = {
   variantId?: string | null;
@@ -32,9 +32,8 @@ export type OrderItemConfigInput = {
   kitchenNotes?: string;
 };
 
-const OPEN_ORDER_STATUSES = {
-  notIn: [OrderStatus.COMPLETED, OrderStatus.CANCELLED] as OrderStatus[],
-};
+/** Open (active) orders — not COMPLETED/CANCELLED. Shared with dining-lifecycle. */
+const openOrderWhere = () => terminalOrderStatusFilter();
 
 type OrderWithItems = Prisma.OrderGetPayload<{
   include: { items: true; revisions: true };
@@ -78,7 +77,7 @@ export async function consolidateOpenOrdersForSession(
     where: {
       diningSessionId: sessionId,
       restaurantId,
-      status: OPEN_ORDER_STATUSES,
+      ...openOrderWhere(),
     },
     include: { items: true, revisions: true },
     orderBy: { createdAt: "asc" },
@@ -173,7 +172,7 @@ export async function getOrCreateActiveOrder(
       where: {
         diningSessionId: sessionId,
         restaurantId,
-        status: OPEN_ORDER_STATUSES,
+        ...openOrderWhere(),
       },
       include: { items: true, revisions: true },
       orderBy: { createdAt: "asc" },
@@ -548,7 +547,7 @@ export async function submitOrderToKitchenService(
     where: {
       diningSessionId: sessionId,
       restaurantId,
-      status: { notIn: [OrderStatus.COMPLETED, OrderStatus.CANCELLED] },
+      ...openOrderWhere(),
     },
     include: {
       items: true,

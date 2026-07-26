@@ -15,3 +15,7 @@ export {
 
 export { renderSnapshotHtml } from "./render/html-receipt";
 export { renderSnapshotEscPos } from "./render/escpos-receipt";
+export {
+  buildThermalReceiptCss,
+  parsePaperWidthFromHtml,
+} from "./render/thermal-receipt-css";

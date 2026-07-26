@@ -23,6 +23,7 @@ import { Minus } from "lucide-react";
 import { OrderLineItem } from "@/features/product-config";
 import { CheckoutDialog } from "./checkout-dialog";
 import { PrintReceiptButton } from "@/features/printing/components/print-receipt-button";
+import { isOrderActive } from "@/lib/dining-lifecycle";
 
 type SessionDetail = {
   id: string;
@@ -141,9 +142,7 @@ export function SessionDetailView({
   const [pending, startTransition] = useTransition();
   const [checkoutOpen, setCheckoutOpen] = useState(false);
 
-  const openOrders = session.orders.filter(
-    (o) => o.status !== "COMPLETED" && o.status !== "CANCELLED"
-  );
+  const openOrders = session.orders.filter((o) => isOrderActive(o.status));
   const order = openOrders[0] ?? session.orders[0];
   // Prefer the open order; after consolidation there is at most one.
   // Admin + bill only show kitchen-ticketed lines (not waiter/customer drafts).

@@ -103,6 +103,10 @@ export const TERMINAL_ORDER_STATUS_LIST = ["COMPLETED", "CANCELLED"] as const;
 
 export const CANCELLED_ORDER_STATUS_LIST = ["CANCELLED"] as const;
 
+/**
+ * Narrow kitchen-pipeline statuses. Do NOT use for Dashboard "Active Orders"
+ * or floor open-order totals — use `terminalOrderStatusFilter` / `isOrderActive`.
+ */
 export const IN_PROGRESS_ORDER_STATUS_LIST = [
   "PENDING",
   "CONFIRMED",
@@ -147,8 +151,12 @@ export const blockingTableSessionStatusFilter = () =>
 
 export const terminalOrderStatusFilter = () => orderStatusNotIn(TERMINAL_ORDER_STATUS_LIST);
 
+/** Alias: active (open) orders = not COMPLETED/CANCELLED. Prefer this name at call sites. */
+export const activeOrderStatusFilter = terminalOrderStatusFilter;
+
 export const cancelledOrderStatusFilter = () => orderStatusNotIn(CANCELLED_ORDER_STATUS_LIST);
 
+/** Kitchen-pipeline only — excludes SERVED and fulfillment statuses. */
 export const inProgressOrderStatusFilter = () =>
   orderStatusOr(IN_PROGRESS_ORDER_STATUS_LIST);
 

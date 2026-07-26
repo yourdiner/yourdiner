@@ -5,6 +5,7 @@ import {
 } from "./constants";
 import { getRestaurantTablesAvailability, processExpiredReservationHolds } from "@/features/tables/table-availability.service";
 import { isWithinHoldWindow } from "@/features/tables/table-availability.logic";
+import { activeDiningSessionStatusFilter } from "@/lib/prisma-filters";
 
 export type ReservationListFilters = {
   dateFrom?: Date;
@@ -186,7 +187,7 @@ export async function getCalendarData(restaurantId: string, day: Date) {
     prisma.diningSession.findMany({
       where: {
         restaurantId,
-        status: { in: ["ACTIVE", "BILL_REQUESTED"] },
+        ...activeDiningSessionStatusFilter(),
         startedAt: { lte: end },
       },
       include: { table: true },

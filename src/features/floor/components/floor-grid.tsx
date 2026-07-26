@@ -6,6 +6,7 @@ import { cn, formatCurrency, formatTime } from "@/lib/utils";
 import { MaterialIcon } from "@/components/layout/material-icon";
 import { canAccessAssignedSession } from "@/features/dining-session/session-access";
 import type { TableAvailabilityStatus } from "@/features/tables/table-availability.logic";
+import { isDiningSessionActive } from "@/lib/dining-lifecycle";
 
 type FloorViewer = {
   staffId: string;
@@ -59,7 +60,8 @@ const STATUS_COLOR: Record<TableAvailabilityStatus, string> = {
 };
 
 function resolveVisualStatus(table: FloorTable): TableAvailabilityStatus {
-  if (table.diningSession?.status === "BILL_REQUESTED") {
+  // Open DiningSession (ACTIVE | BILL_REQUESTED) always renders occupied.
+  if (isDiningSessionActive(table.diningSession?.status)) {
     return "OCCUPIED";
   }
   return table.status;
@@ -74,7 +76,10 @@ export function FloorGrid({
 }) {
   const sessionViewer = { kind: "staff" as const, staffId: viewer.staffId, role: viewer.role };
   const availableCount = tables.filter((t) => resolveVisualStatus(t) === "AVAILABLE").length;
-  const activeCount = tables.filter((t) => resolveVisualStatus(t) === "OCCUPIED").length;
+  // Active sessions = open DiningSession count (SoT), not visual OCCUPIED (may include QR/reservation).
+  const activeCount = tables.filter((t) =>
+    isDiningSessionActive(t.diningSession?.status)
+  ).length;
   const reservedCount = tables.filter((t) => resolveVisualStatus(t) === "RESERVED").length;
 
   return (

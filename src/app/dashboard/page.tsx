@@ -7,10 +7,11 @@ import { MaterialIcon } from "@/components/layout/material-icon";
 import { WeeklyRevenueChart } from "@/features/dashboard/components/weekly-revenue-chart";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
 import { buildRestaurantUrl } from "@/lib/tenancy";
+import { cancelledOrderStatusFilter } from "@/lib/prisma-filters";
 import {
-  cancelledOrderStatusFilter,
-  inProgressOrderStatusFilter,
-} from "@/lib/prisma-filters";
+  countActiveOrders,
+  getDiningSessionOccupancy,
+} from "@/lib/dining-lifecycle";
 import { getWeeklyRevenueStats } from "@/features/dashboard/queries";
 import {
   getDashboardMenuCounts,
@@ -30,24 +31,15 @@ export default async function DashboardPage() {
     restaurant,
     weeklyRevenue,
     activeOrders,
-    tableStats,
+    occupancy,
     recentOrders,
     topProducts,
   ] = await Promise.all([
     getDashboardMenuCounts(restaurantId),
     getRestaurantWithSubscriptionCached(restaurantId),
     getWeeklyRevenueStats(restaurantId, sevenDaysAgo),
-    prisma.order.count({
-      where: {
-        restaurantId,
-        ...inProgressOrderStatusFilter(),
-      },
-    }),
-    prisma.table.groupBy({
-      by: ["status"],
-      where: { restaurantId, isActive: true },
-      _count: true,
-    }),
+    countActiveOrders(restaurantId),
+    getDiningSessionOccupancy(restaurantId),
     prisma.order.findMany({
       where: { restaurantId },
       orderBy: { createdAt: "desc" },
@@ -88,11 +80,7 @@ export default async function DashboardPage() {
   const topProductMap = new Map(topProductDetails.map((p) => [p.id, p]));
 
   const { totalRevenue, dailyRevenue } = weeklyRevenue;
-
-  const totalTables = tableStats.reduce((sum, t) => sum + t._count, 0);
-  const occupiedTables =
-    tableStats.find((t) => t.status === "OCCUPIED")?._count ?? 0;
-  const occupancyPct = totalTables > 0 ? Math.round((occupiedTables / totalTables) * 100) : 0;
+  const { occupancyPct, occupiedTables, totalTables, activeSessions } = occupancy;
 
   const menuUrl = buildRestaurantUrl(tenant, "/menu");
 
@@ -147,6 +135,12 @@ export default async function DashboardPage() {
             </div>
             <div className="mb-admin-base">
               <span className="font-display text-headline-md font-semibold">{occupancyPct}%</span>
+            </div>
+            <div className="flex items-center gap-admin-sm">
+              <span className="font-bold text-primary">{occupiedTables}/{totalTables}</span>
+              <span className="text-label-sm text-on-surface-variant">
+                tables · {activeSessions} active session{activeSessions === 1 ? "" : "s"}
+              </span>
             </div>
             <div className="mt-admin-md h-1 w-full overflow-hidden bg-tertiary-fixed">
               <div

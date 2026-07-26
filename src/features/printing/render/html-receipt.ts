@@ -1,5 +1,6 @@
 import { formatCurrency } from "@/lib/utils";
 import type { BillSnapshot, KotSnapshot, PrintSnapshot, TestSnapshot } from "../types";
+import { buildThermalReceiptCss } from "./thermal-receipt-css";
 
 function esc(s: string): string {
   return s
@@ -9,25 +10,8 @@ function esc(s: string): string {
     .replace(/"/g, "&quot;");
 }
 
-function paperCss(width: "58" | "80"): string {
-  const mm = width === "58" ? 48 : 72;
-  return `
-    .receipt { width: ${mm}mm; max-width: 100%; margin: 0 auto; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; color: #111; }
-    .receipt * { box-sizing: border-box; }
-    .center { text-align: center; }
-    .bold { font-weight: 700; }
-    .muted { color: #555; font-size: 11px; }
-    .row { display: flex; justify-content: space-between; gap: 8px; }
-    .hr { border: 0; border-top: 1px dashed #999; margin: 8px 0; }
-    .item { margin: 6px 0; }
-    .indent { padding-left: 12px; color: #444; font-size: 11px; }
-    .logo { max-width: 64px; max-height: 64px; margin: 0 auto 6px; display: block; }
-    @media print {
-      @page { margin: 4mm; size: ${width}mm auto; }
-      body { margin: 0; }
-      .no-print { display: none !important; }
-    }
-  `;
+function receiptOpen(paperWidth: "58" | "80"): string {
+  return `<div class="receipt" data-paper-width="${paperWidth}">`;
 }
 
 function renderBill(s: BillSnapshot): string {
@@ -61,8 +45,8 @@ function renderBill(s: BillSnapshot): string {
     )
     .join("");
 
-  return `<!DOCTYPE html><html><head><meta charset="utf-8"/><style>${paperCss(s.paperWidth)}</style></head><body>
-  <div class="receipt">
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"/><style>${buildThermalReceiptCss(s.paperWidth)}</style></head><body>
+  ${receiptOpen(s.paperWidth)}
     ${s.logoUrl ? `<img class="logo" src="${esc(s.logoUrl)}" alt=""/>` : ""}
     <div class="center bold">${esc(s.restaurantName)}</div>
     ${s.header ? `<div class="center muted">${esc(s.header)}</div>` : ""}
@@ -79,11 +63,13 @@ function renderBill(s: BillSnapshot): string {
     <hr class="hr"/>
     ${linesHtml || `<div class="muted">No items</div>`}
     <hr class="hr"/>
+    <div class="totals">
     ${moneyRows.map(([l, v]) => `<div class="row"><span>${l}</span><span>${esc(formatCurrency(v))}</span></div>`).join("")}
     <div class="row bold"><span>Grand Total</span><span>${esc(formatCurrency(s.total))}</span></div>
     ${payments ? `<hr class="hr"/>${payments}` : ""}
     ${s.paidAmount > 0 ? `<div class="row"><span>Paid</span><span>${esc(formatCurrency(s.paidAmount))}</span></div>` : ""}
     ${s.changeAmount > 0 ? `<div class="row"><span>Change</span><span>${esc(formatCurrency(s.changeAmount))}</span></div>` : ""}
+    </div>
     <hr class="hr"/>
     <div class="center muted">Thank You</div>
     <div class="center muted">Visit Again</div>
@@ -107,8 +93,8 @@ function renderKot(s: KotSnapshot): string {
     })
     .join("");
 
-  return `<!DOCTYPE html><html><head><meta charset="utf-8"/><style>${paperCss(s.paperWidth)}</style></head><body>
-  <div class="receipt">
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"/><style>${buildThermalReceiptCss(s.paperWidth)}</style></head><body>
+  ${receiptOpen(s.paperWidth)}
     <div class="center bold">${esc(s.restaurantName)}</div>
     <div class="center bold">${esc(s.header || "KITCHEN")}</div>
     <hr class="hr"/>
@@ -125,8 +111,8 @@ function renderKot(s: KotSnapshot): string {
 }
 
 function renderTest(s: TestSnapshot): string {
-  return `<!DOCTYPE html><html><head><meta charset="utf-8"/><style>${paperCss(s.paperWidth)}</style></head><body>
-  <div class="receipt">
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"/><style>${buildThermalReceiptCss(s.paperWidth)}</style></head><body>
+  ${receiptOpen(s.paperWidth)}
     <div class="center bold">${esc(s.restaurantName)}</div>
     <div class="center bold">${esc(s.header || "Printer Test")}</div>
     <hr class="hr"/>

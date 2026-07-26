@@ -68,6 +68,26 @@ describe("receipt renderers", () => {
     expect(html).not.toContain("₹NaN");
   });
 
+  it("renders thermal @page and receipt width for 80mm bill", () => {
+    const html = renderSnapshotHtml(bill);
+    expect(html).toContain("@page");
+    expect(html).toContain("size: 80mm auto");
+    expect(html).toContain("margin: 0");
+    expect(html).toContain("width: 80mm");
+    expect(html).toContain('data-paper-width="80"');
+    expect(html).toContain("page-break-inside: avoid");
+    expect(html).toContain("break-inside: avoid");
+  });
+
+  it("renders thermal @page and receipt width for 58mm KOT", () => {
+    const html = renderSnapshotHtml(kot);
+    expect(html).toContain("size: 58mm auto");
+    expect(html).toContain("width: 58mm");
+    expect(html).toContain('data-paper-width="58"');
+    expect(html).toContain("page-break-inside: avoid");
+    expect(html).toContain("break-inside: avoid");
+  });
+
   it("renders KOT HTML without currency prices", () => {
     const html = renderSnapshotHtml(kot);
     expect(html).toContain("KITCHEN");

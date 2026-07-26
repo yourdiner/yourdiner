@@ -12,7 +12,7 @@ import { cancelRazorpaySubscription } from "@/lib/payments/razorpay";
 import { cancelSubscriptionRecord } from "@/modules/subscription-engine/services/subscription.service";
 import { logBillingAction } from "@/modules/subscription-engine/services/billing-audit.service";
 import { BLOCKING_TABLE_SESSION_STATUSES } from "@/lib/table-sessions";
-import { terminalOrderStatusFilter } from "@/lib/prisma-filters";
+import { terminalOrderStatusFilter, activeDiningSessionStatusFilter } from "@/lib/prisma-filters";
 
 function toArchivePayload(value: unknown): object {
   return JSON.parse(JSON.stringify(value)) as object;
@@ -96,7 +96,7 @@ async function shutdownOperationalSessions(restaurantId: string) {
     const activeDiningSessions = await tx.diningSession.findMany({
       where: {
         restaurantId,
-        status: { in: [DiningSessionStatus.ACTIVE, DiningSessionStatus.BILL_REQUESTED] },
+        ...activeDiningSessionStatusFilter(),
       },
       select: { id: true },
     });

@@ -17,6 +17,11 @@ import {
   printKotAction,
 } from "@/features/printing/actions";
 import { browserPrintHtml } from "@/features/printing/browser-print";
+import {
+  BrowserPrintGuidance,
+  markThermalPrintGuidanceSeen,
+} from "@/features/printing/components/browser-print-guidance";
+import type { PaperWidth } from "@/features/printing/types";
 
 type Props = {
   orderId: string;
@@ -41,6 +46,7 @@ export function PrintReceiptButton({
 }: Props) {
   const [open, setOpen] = useState(false);
   const [html, setHtml] = useState<string | null>(null);
+  const [paperWidth, setPaperWidth] = useState<PaperWidth>("80");
   const [pending, startTransition] = useTransition();
 
   function loadPreview() {
@@ -54,6 +60,7 @@ export function PrintReceiptButton({
         return;
       }
       setHtml(result.html);
+      setPaperWidth(result.paperWidth);
       setOpen(true);
     });
   }
@@ -71,7 +78,8 @@ export function PrintReceiptButton({
       }
 
       if (result.result.needsBrowserPrint && result.result.html) {
-        browserPrintHtml(result.result.html);
+        markThermalPrintGuidanceSeen();
+        browserPrintHtml(result.result.html, paperWidth);
         toast.success(kind === "bill" ? "Bill sent to printer" : "KOT sent to printer");
         setOpen(false);
         return;
@@ -87,6 +95,8 @@ export function PrintReceiptButton({
     });
   }
 
+  const previewWidthPx = paperWidth === "58" ? 220 : 302;
+
   return (
     <>
       <Button
@@ -101,21 +111,40 @@ export function PrintReceiptButton({
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-lg gap-4">
           <DialogHeader>
-            <DialogTitle>{kind === "bill" ? "Bill preview" : "Kitchen ticket preview"}</DialogTitle>
+            <DialogTitle>
+              {kind === "bill" ? "Bill preview" : "Kitchen ticket preview"}
+              <span className="ml-2 text-sm font-normal text-muted-foreground">
+                ({paperWidth}mm)
+              </span>
+            </DialogTitle>
           </DialogHeader>
-          <div className="max-h-[60vh] overflow-auto rounded-md border bg-white p-2">
+
+          <BrowserPrintGuidance paperWidth={paperWidth} />
+
+          <div className="flex max-h-[55vh] justify-center overflow-auto rounded-md bg-neutral-200/80 p-4">
             {html ? (
-              <iframe
-                title="Receipt preview"
-                srcDoc={html}
-                className="h-[480px] w-full border-0"
-              />
+              <div
+                className="overflow-hidden rounded-sm bg-white shadow-none"
+                style={{ width: previewWidthPx, maxWidth: `${paperWidth}mm` }}
+              >
+                <iframe
+                  title="Receipt preview"
+                  srcDoc={html}
+                  className="block border-0"
+                  style={{
+                    width: previewWidthPx,
+                    height: 480,
+                    maxWidth: `${paperWidth}mm`,
+                  }}
+                />
+              </div>
             ) : (
               <p className="p-4 text-sm text-muted-foreground">Loading…</p>
             )}
           </div>
+
           <DialogFooter className="gap-2">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Close
